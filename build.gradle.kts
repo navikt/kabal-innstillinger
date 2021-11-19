@@ -10,11 +10,6 @@ val springRetryVersion = "1.3.1"
 val springMockkVersion = "3.0.1"
 val springFoxVersion = "3.0.0"
 val testContainersVersion = "1.16.2"
-val shedlockVersion = "4.29.0"
-val archunitVersion = "0.22.0"
-val kotlinXmlBuilderVersion = "1.7.3"
-val logbackSyslog4jVersion = "1.0.0"
-val jacksonJsonschemaVersion = "1.0.39"
 
 //val githubUser: String by project
 //val githubPassword: String by project
@@ -55,21 +50,12 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("io.micrometer:micrometer-registry-influx")
     implementation("ch.qos.logback:logback-classic")
-
-    implementation("net.javacrumbs.shedlock:shedlock-spring:$shedlockVersion")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:$shedlockVersion")
 
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$springSleuthVersion")
     implementation("io.springfox:springfox-boot-starter:$springFoxVersion")
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
-    implementation("com.papertrailapp:logback-syslog4j:$logbackSyslog4jVersion")
-
-    implementation("com.kjetland:mbknor-jackson-jsonschema_2.13:$jacksonJsonschemaVersion")
-
-    implementation("org.redundent:kotlin-xml-builder:$kotlinXmlBuilderVersion")
 
     implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationVersion")
@@ -87,7 +73,6 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
     testImplementation("org.testcontainers:postgresql:$testContainersVersion")
-    testImplementation("com.tngtech.archunit:archunit-junit5:$archunitVersion")
 
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")

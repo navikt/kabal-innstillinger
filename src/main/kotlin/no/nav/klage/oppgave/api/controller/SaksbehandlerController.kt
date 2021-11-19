@@ -92,7 +92,7 @@ class SaksbehandlerController(
         @PathVariable navIdent: String
     ): List<EnhetView> {
         logger.debug("getEnheter is requested by $navIdent")
-        val enheter = saksbehandlerService.getEnheterMedTemaerForSaksbehandler().mapToView()
+        val enheter = saksbehandlerService.getEnheterMedYtelserForSaksbehandler().mapToView()
         logEnheter(enheter, navIdent)
         return enheter
     }

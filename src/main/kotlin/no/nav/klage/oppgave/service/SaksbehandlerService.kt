@@ -29,7 +29,7 @@ class SaksbehandlerService(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun getEnheterMedTemaerForSaksbehandler(): EnheterMedLovligeYtelser =
+    fun getEnheterMedYtelserForSaksbehandler(): EnheterMedLovligeYtelser =
         innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
 
     fun getMedunderskrivere(ident: String, ytelse: Ytelse): Medunderskrivere =

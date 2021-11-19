@@ -3,7 +3,6 @@ ingresses:
 externalHosts:
   - host: login.microsoftonline.com
   - host: unleash.nais.io
-  - host: pdl-api.dev-fss-pub.nais.io
 springProfile: dev-gcp
 tenant: trygdeetaten.no
 db_tier: db-custom-1-3840

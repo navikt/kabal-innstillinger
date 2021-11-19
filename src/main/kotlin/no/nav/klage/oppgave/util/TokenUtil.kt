@@ -27,27 +27,14 @@ class TokenUtil(
         return response.accessToken
     }
 
-    fun getSaksbehandlerAccessTokenWithPdlScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["pdl-onbehalfof"]
-        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
-    }
-
-    fun getAppAccessTokenWithPdlScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["pdl-maskintilmaskin"]
+    fun getAppAccessTokenWithGraphScope(): String {
+        val clientProperties = clientConfigurationProperties.registration["azure-maskintilmaskin"]
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
         return response.accessToken
     }
 
     fun getSaksbehandlerAccessTokenWithAxsysScope(): String {
         val clientProperties = clientConfigurationProperties.registration["axsys-onbehalfof"]
-        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
-    }
-
-
-    fun getAppAccessTokenWithGraphScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["app"]
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
         return response.accessToken
     }

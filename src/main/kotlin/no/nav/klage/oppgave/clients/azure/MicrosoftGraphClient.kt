@@ -21,10 +21,6 @@ class MicrosoftGraphClient(
 
         private const val userSelect =
             "onPremisesSamAccountName,displayName,givenName,surname,mail,officeLocation,userPrincipalName,id,jobTitle"
-
-        private const val slimUserSelect = "userPrincipalName,onPremisesSamAccountName,displayName"
-
-        private const val groupMemberSelect = "id,mail,onPremisesSamAccountName,displayName"
     }
 
     @Retryable
@@ -75,7 +71,7 @@ class MicrosoftGraphClient(
                 .queryParam("\$select", userSelect)
                 .build()
         }
-        .header("Authorization", "Bearer ${tokenUtil.getAppAccessTokenWithGraphScope()}")
+        .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
         .retrieve()
         .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()?.let { secureLogger.debug("Saksbehandler: $it"); it }
         ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")

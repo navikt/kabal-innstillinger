@@ -6,8 +6,6 @@ AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-a
 NORG2_API_V1_URL: local
 NORG2_APIKEY: 123
 STS_APIKEY: 789
-PDL_BASE_URL: local
-PDL_APIKEY: 159
 AXSYS_APIKEY: 357
 nais:
   cluster:

@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "100M"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
 spec:
-  image: {{ image }}
+  image: { { image } }
   gcp:
     sqlInstances:
       - name: kabal-innstillinger
@@ -17,10 +17,10 @@ spec:
         maintenanceWindow:
           day: 1
           hour: 4
-        tier: {{ db_tier }}
+        tier: { { db_tier } }
         diskType: SSD
-        highAvailability: {{ db_ha }}
-        diskSize: {{ db_size }}
+        highAvailability: { { db_ha } }
+        diskSize: { { db_size } }
         diskAutoresize: true
         autoBackupTime: "02:00"
         cascadingDelete: false
@@ -40,8 +40,8 @@ spec:
           - id: {{ROLE_KLAGE_STRENGT_FORTROLIG}}
           - id: {{ROLE_KLAGE_EGEN_ANSATT}}
           - id: {{ROLE_GOSYS_OPPGAVE_BEHANDLER}}
-          {{#if ROLE_ADMIN}}
-          - id: {{ROLE_ADMIN}}
+          { { #if ROLE_ADMIN}}
+              - id: {{ROLE_ADMIN } }
           {{/if}}
         extra:
           - NAVident
@@ -70,8 +70,8 @@ spec:
       cpu: 2000m
       memory: 5000Mi
   ingresses:
-  {{#each ingresses as |ingress|}}
-    - {{ingress}}
+  { { #each ingresses as |ingress|}}
+      - {{ingress } }
   {{/each}}
   replicas:
     min: 2
@@ -88,33 +88,26 @@ spec:
         - application: kabal-frontend
     outbound:
       external:
-      {{#each externalHosts}}
-        - host: {{host}}
-          {{#if ports}}
-          ports:
-            {{#each ports}}
-            - name: {{name}}
-              port: {{port}}
-              protocol: {{protocol}}
-            {{/each}}
-          {{/if}}
+      { { #each externalHosts}}
+          - host: {{host } }
+      { { #if ports}}
+        ports:
+          { { #each ports}}
+              - name: {{name } }
+          port: {{port } }
+      protocol: {{protocol}}
+      {{/each}}
+      {{/if}}
       {{/each}}
   envFrom:
     - secret: srvklage-saksbeh
     - secret: sts-apikey
-    - secret: pdl-apikey
-    - secret: oppgave-apikey
-    - secret: slack-url
-    - secret: slack-channel-id
     - secret: norg2
     - secret: axsys
-    - secret: elastic
-    - secret: ereg
-    - secret: influx
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: {{springProfile}}
-  {{#each envs}}
-    - name: {{name}}
-      value: {{value}}
+  { { #each envs}}
+      - name: {{name } }
+  value: {{value}}
   {{/each}}

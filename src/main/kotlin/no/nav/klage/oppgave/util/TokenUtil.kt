@@ -27,12 +27,6 @@ class TokenUtil(
         return response.accessToken
     }
 
-    fun getAppAccessTokenWithGraphScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["azure-maskintilmaskin"]
-        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
-    }
-
     fun getSaksbehandlerAccessTokenWithAxsysScope(): String {
         val clientProperties = clientConfigurationProperties.registration["axsys-onbehalfof"]
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)

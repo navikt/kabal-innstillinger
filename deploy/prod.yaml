@@ -1,0 +1,24 @@
+ingresses:
+  - https://kabal-innstillinger.intern.nav.no
+externalHosts:
+  - host: login.microsoftonline.com
+  - host: unleash.nais.io
+  - host: pdl-api.prod-fss-pub.nais.io
+springProfile: prod-gcp
+tenant: nav.no
+db_tier: db-custom-4-15360
+db_size: 10
+db_ha: true
+ROLE_KLAGE_SAKSBEHANDLER: 2b671b60-9650-4839-9139-40999bbb0f71
+ROLE_KLAGE_FAGANSVARLIG: 1edfbdf1-c1bc-4dc6-9cab-4fff1cb7e2a8
+ROLE_KLAGE_LEDER: e9de217a-7244-45ac-8a06-1994905d7964
+ROLE_KLAGE_MERKANTIL: e994791a-aa14-404d-aee2-e6291817a154
+ROLE_KLAGE_FORTROLIG: 94f37fa2-94c9-49f7-b4df-e6be7c0d1082
+ROLE_KLAGE_STRENGT_FORTROLIG: ac0f28e8-115e-4972-b063-162366bb9399
+ROLE_KLAGE_EGEN_ANSATT: b14cf640-30bc-4420-b34c-26488c15e71e
+ROLE_GOSYS_OPPGAVE_BEHANDLER: 185a4e29-5f9c-4319-bdb3-0f5f2b30ac90
+ROLE_ADMIN: cd78b8e8-73a3-4fb6-8234-7bebb5e5b9e9
+
+envs:
+  - name: JAVA_OPTS
+    value: "-Xms512m -Xmx4096m"

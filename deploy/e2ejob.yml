@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{jobname}}
+  namespace: klage
+spec:
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        job-name: {{jobname}}
+        app: kabal-e2e-tests
+    spec:
+      imagePullSecrets:
+        - name: gpr-credentials
+      serviceAccount: default
+      serviceAccountName: default
+      containers:
+        - image: docker.pkg.github.com/navikt/kabal-e2e-tests/kabal-e2e-tests:latest
+          name: kabal-e2e-tests
+          envFrom:
+            - secretRef:
+                name: slack-e2e-secrets
+            - configMapRef:
+                 name: slack-e2e-configmap
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never

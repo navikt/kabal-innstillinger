@@ -5,10 +5,11 @@ enum class Ytelse(override val id: String, override val navn: String, override v
     OMS_OLP("2", "Opplæringspenger", "Opplæringspenger"),
     OMS_PSB("3", "Pleiepenger sykt barn", "Pleiepenger sykt barn"),
     OMS_PLS("4", "Pleiepenger i livets sluttfase", "Pleiepenger i livets sluttfase"),
-    FOR_FOR("5", "Foreldrepenger", "Foreldrepenger"),
-    FOR_ENG("5", "Engangsstønad", "Engangsstønad"),
-    FOR_SVA("5", "Svangerskapspenger", "Svangerskapspenger"),
-    SYK_SYK("6", "Sykepenger", "Sykepenger")
+    SYK_SYK("5", "Sykepenger", "Sykepenger"),
+    //TODO: Koordiner disse med andre apper som bruker dette kodeverket.
+    FOR_FOR("6", "Foreldrepenger", "Foreldrepenger"),
+    FOR_ENG("7", "Engangsstønad", "Engangsstønad"),
+    FOR_SVA("8", "Svangerskapspenger", "Svangerskapspenger"),
     ;
 
     companion object {

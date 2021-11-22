@@ -1,0 +1,25 @@
+name: End-to-end tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  acceptance-tests:
+    name: Run acceptance tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: navikt/kabal-innstillinger
+      - name: Set UUID
+        id: generate-uuid
+        uses: filipstefansson/uuid-action@v1.1
+      - name: Run acceptance tests
+        uses: nais/deploy/actions/deploy@master
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_API_KEY }}
+          CLUSTER: dev-gcp
+          VAR: app=kabal,jobname=klage-job-${{ steps.generate-uuid.outputs.uuid }}
+          TEAM: klage
+          RESOURCE: deploy/e2ejob.yml
+        timeout-minutes: 5

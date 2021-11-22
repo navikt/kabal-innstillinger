@@ -3,7 +3,6 @@ package no.nav.klage.oppgave.api.mapper
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.domain.kodeverk.Hjemmel
-import no.nav.klage.oppgave.domain.kodeverk.Tema
 import no.nav.klage.oppgave.domain.kodeverk.Type
 import no.nav.klage.oppgave.domain.kodeverk.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.*
@@ -28,13 +27,13 @@ fun SaksbehandlerPersonligInfo.mapToView() = SaksbehandlerView.PersonligInfoView
 
 fun SaksbehandlerInnstillinger.mapToView() = SaksbehandlerView.InnstillingerView(
     hjemler = hjemler.map { it.id },
-    temaer = ytelser.map { it.id },
+    ytelser = ytelser.map { it.id },
     typer = typer.map { it.id }
 )
 
 fun SaksbehandlerView.InnstillingerView.mapToDomain() = SaksbehandlerInnstillinger(
     hjemler = hjemler.map { Hjemmel.of(it) },
-    ytelser = temaer.map { Ytelse.of(it) },
+    ytelser = ytelser.map { Ytelse.of(it) },
     typer = typer.map { Type.of(it) }
 )
 

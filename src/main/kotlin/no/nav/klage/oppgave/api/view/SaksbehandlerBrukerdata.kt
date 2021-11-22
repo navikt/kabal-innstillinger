@@ -18,7 +18,7 @@ data class SaksbehandlerView(
 
     data class InnstillingerView(
         val hjemler: List<String>,
-        val temaer: List<String>,
+        val ytelser: List<String>,
         val typer: List<String>
     )
 }

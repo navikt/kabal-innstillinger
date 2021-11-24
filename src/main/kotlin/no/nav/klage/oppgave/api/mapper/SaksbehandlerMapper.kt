@@ -7,7 +7,9 @@ import no.nav.klage.oppgave.domain.kodeverk.Type
 import no.nav.klage.oppgave.domain.kodeverk.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 
+@Component
 class SaksbehandlerMapper(
     @Value("\${ROLE_GOSYS_OPPGAVE_BEHANDLER}") private val gosysSaksbehandlerRole: String,
     @Value("\${ROLE_KLAGE_SAKSBEHANDLER}") private val saksbehandlerRole: String,
@@ -33,42 +35,47 @@ class SaksbehandlerMapper(
     )
 
 
-    fun SaksbehandlerInfo.mapToView() =
+    fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
-            info = info.mapToView(),
-            roller = roller.mapNotNull { rolleMapper[it.id] },
-            enheter = enheter.mapToView(),
-            valgtEnhetView = valgtEnhet.mapToView(),
-            innstillinger = innstillinger.mapToView()
+            info = mapToView(saksbehandlerInfo.info),
+            roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
+            enheter = mapToView(saksbehandlerInfo.enheter),
+            valgtEnhetView = mapToView(saksbehandlerInfo.valgtEnhet),
+            innstillinger = mapToView(saksbehandlerInfo.innstillinger)
         )
 
-    fun SaksbehandlerPersonligInfo.mapToView() = SaksbehandlerView.PersonligInfoView(
-        navIdent = navIdent,
-        azureId = azureId,
-        fornavn = fornavn,
-        etternavn = etternavn,
-        sammensattNavn = sammensattNavn,
-        epost = epost
+    fun mapToView(saksbehandlerPersonligInfo: SaksbehandlerPersonligInfo) = SaksbehandlerView.PersonligInfoView(
+        navIdent = saksbehandlerPersonligInfo.navIdent,
+        azureId = saksbehandlerPersonligInfo.azureId,
+        fornavn = saksbehandlerPersonligInfo.fornavn,
+        etternavn = saksbehandlerPersonligInfo.etternavn,
+        sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
+        epost = saksbehandlerPersonligInfo.epost
     )
 
-    fun SaksbehandlerInnstillinger.mapToView() = SaksbehandlerView.InnstillingerView(
-        hjemler = hjemler.map { it.id },
-        ytelser = ytelser.map { it.id },
-        typer = typer.map { it.id }
-    )
+    fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
+        SaksbehandlerView.InnstillingerView(
+            hjemler = saksbehandlerInnstillinger.hjemler.map { it.id },
+            ytelser = saksbehandlerInnstillinger.ytelser.map { it.id },
+            typer = saksbehandlerInnstillinger.typer.map { it.id }
+        )
 
-    fun SaksbehandlerView.InnstillingerView.mapToDomain() = SaksbehandlerInnstillinger(
-        hjemler = hjemler.map { Hjemmel.of(it) },
-        ytelser = ytelser.map { Ytelse.of(it) },
-        typer = typer.map { Type.of(it) }
-    )
+    fun mapToDomain(innstillingerView: SaksbehandlerView.InnstillingerView) =
+        SaksbehandlerInnstillinger(
+            hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
+            ytelser = innstillingerView.ytelser.map
+            { Ytelse.of(it) },
+            typer = innstillingerView.typer.map
+            { Type.of(it) }
+        )
 
-    fun EnheterMedLovligeYtelser.mapToView() = this.enheter.map { enhet -> enhet.mapToView() }
+    fun mapToView(enheterMedLovligeYtelser: EnheterMedLovligeYtelser) =
+        enheterMedLovligeYtelser.enheter.map { enhet -> mapToView(enhet) }
 
-    fun EnhetMedLovligeYtelser.mapToView() =
+    fun mapToView(enhetMedLovligeYtelser: EnhetMedLovligeYtelser) =
         EnhetView(
-            id = enhet.enhetId,
-            navn = enhet.navn,
-            lovligeYtelser = ytelser.map { ytelse -> ytelse.id }
+            id = enhetMedLovligeYtelser.enhet.enhetId,
+            navn = enhetMedLovligeYtelser.enhet.navn,
+            lovligeYtelser = enhetMedLovligeYtelser.ytelser.map { ytelse -> ytelse.id }
         )
 }

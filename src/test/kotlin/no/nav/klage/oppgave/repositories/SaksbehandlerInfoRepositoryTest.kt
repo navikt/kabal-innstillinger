@@ -22,27 +22,27 @@ internal class SaksbehandlerInfoRepositoryTest {
     
     @Test
     fun harTilgangTilEnhetOgTema() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4219", "KA Nord"))
+        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
 
         val softly = SoftAssertions()
-        softly.assertThat(repo.harTilgangTilEnhetOgYtelse("01010112345", "4219", Ytelse.OMS_OLP)).isEqualTo(true)
-        softly.assertThat(repo.harTilgangTilEnhetOgYtelse("01010112345", "4219", Ytelse.SYK_SYK)).isEqualTo(false)
+        softly.assertThat(repo.harTilgangTilEnhetOgYtelse("01010112345", "4295", Ytelse.OMS_OLP)).isEqualTo(true)
+        softly.assertThat(repo.harTilgangTilEnhetOgYtelse("01010112345", "4295", Ytelse.SYK_SYK)).isEqualTo(false)
         softly.assertAll()
     }
 
     @Test
     fun harTilgangTilEnhet() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4219", "KA Nord"))
+        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
 
         val softly = SoftAssertions()
-        softly.assertThat(repo.harTilgangTilEnhet("01010112345", "4219")).isEqualTo(true)
+        softly.assertThat(repo.harTilgangTilEnhet("01010112345", "4295")).isEqualTo(true)
         softly.assertThat(repo.harTilgangTilEnhet("01010112345", "4291")).isEqualTo(false)
         softly.assertAll()
     }
 
     @Test
     fun harTilgangTilYtelse() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4219", "KA Nord"))
+        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
 
         val softly = SoftAssertions()
         softly.assertThat(repo.harTilgangTilYtelse("01010112345", Ytelse.OMS_OLP)).isEqualTo(true)

@@ -63,10 +63,8 @@ class SaksbehandlerMapper(
     fun mapToDomain(innstillingerView: SaksbehandlerView.InnstillingerView) =
         SaksbehandlerInnstillinger(
             hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
-            ytelser = innstillingerView.ytelser.map
-            { Ytelse.of(it) },
-            typer = innstillingerView.typer.map
-            { Type.of(it) }
+            ytelser = innstillingerView.ytelser.map { Ytelse.of(it) },
+            typer = innstillingerView.typer.map { Type.of(it) }
         )
 
     fun mapToView(enheterMedLovligeYtelser: EnheterMedLovligeYtelser) =

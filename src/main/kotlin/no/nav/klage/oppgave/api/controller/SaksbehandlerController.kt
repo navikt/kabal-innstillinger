@@ -3,8 +3,7 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import no.nav.klage.oppgave.api.mapper.mapToDomain
-import no.nav.klage.oppgave.api.mapper.mapToView
+import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.api.view.ValgtEnhetInput
@@ -23,7 +22,8 @@ import org.springframework.web.bind.annotation.*
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
     private val environment: Environment,
-    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository
+    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
+    private val saksbehandlerMapper: SaksbehandlerMapper,
 ) {
 
     companion object {
@@ -39,7 +39,7 @@ class SaksbehandlerController(
     fun getBrukerdata(): SaksbehandlerView {
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getBrukerdata is requested by $navIdent")
-        return saksbehandlerService.getDataOmSaksbehandler(navIdent).mapToView()
+        return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }
 
     @ApiOperation(
@@ -52,8 +52,9 @@ class SaksbehandlerController(
         @PathVariable navIdent: String
     ): SaksbehandlerView {
         logger.debug("getBrukerdata is requested by $navIdent")
-        return saksbehandlerService.getDataOmSaksbehandler(navIdent).mapToView()
+        return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }
+
 
     @ApiOperation(
         value = "Setter innstillinger for en ansatt",
@@ -66,7 +67,12 @@ class SaksbehandlerController(
         @RequestBody input: SaksbehandlerView.InnstillingerView
     ): SaksbehandlerView.InnstillingerView {
         validateNavIdent(navIdent)
-        return saksbehandlerService.storeInnstillinger(navIdent, input.mapToDomain()).mapToView()
+        return saksbehandlerMapper.mapToView(
+            saksbehandlerService.storeInnstillinger(
+                navIdent,
+                saksbehandlerMapper.mapToDomain(input)
+            )
+        )
     }
 
     @ApiOperation(
@@ -80,19 +86,7 @@ class SaksbehandlerController(
         @RequestBody input: ValgtEnhetInput
     ): EnhetView {
         validateNavIdent(navIdent)
-        return saksbehandlerService.storeValgtEnhetId(navIdent, input.enhetId).mapToView()
-    }
-
-    private fun logEnheter(enheter: List<EnhetView>, navIdent: String) {
-        enheter.forEach { enhet ->
-            logger.debug(
-                "{} has access to {} ({}) with ytelser {}",
-                navIdent,
-                enhet.id,
-                enhet.navn,
-                enhet.lovligeYtelser.joinToString(separator = ",")
-            )
-        }
+        return saksbehandlerMapper.mapToView(saksbehandlerService.storeValgtEnhetId(navIdent, input.enhetId))
     }
 
     private fun validateNavIdent(navIdent: String) {

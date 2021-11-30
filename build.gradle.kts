@@ -11,9 +11,6 @@ val springMockkVersion = "3.0.1"
 val springFoxVersion = "3.0.0"
 val testContainersVersion = "1.16.2"
 
-//val githubUser: String by project
-//val githubPassword: String by project
-
 plugins {
     id("org.springframework.boot") version "2.5.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
@@ -29,6 +26,7 @@ repositories {
     mavenCentral()
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     maven("https://packages.confluent.io/maven/")
+    maven ("https://jitpack.io")
 }
 
 dependencies {
@@ -51,6 +49,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("ch.qos.logback:logback-classic")
+
+    implementation("com.github.navikt:kabal-kodeverk:2021.11.30-13.39.e1352e11bbb3")
 
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$springSleuthVersion")
     implementation("io.springfox:springfox-boot-starter:$springFoxVersion")

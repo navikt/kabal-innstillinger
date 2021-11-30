@@ -1,10 +1,9 @@
 package no.nav.klage.oppgave.repositories
 
+import no.nav.klage.kodeverk.Hjemmel
+import no.nav.klage.kodeverk.Type
+import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
-import no.nav.klage.oppgave.domain.kodeverk.Hjemmel
-import no.nav.klage.oppgave.domain.kodeverk.Tema
-import no.nav.klage.oppgave.domain.kodeverk.Type
-import no.nav.klage.oppgave.domain.kodeverk.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.Innstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import org.assertj.core.api.Assertions.assertThat

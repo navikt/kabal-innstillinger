@@ -10,6 +10,7 @@ val springRetryVersion = "1.3.1"
 val springMockkVersion = "3.0.1"
 val springFoxVersion = "3.0.0"
 val testContainersVersion = "1.16.2"
+val kabalKodeverkVersion = "2021.11.30-13.39.e1352e11bbb3"
 
 plugins {
     id("org.springframework.boot") version "2.5.7"
@@ -50,7 +51,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:kabal-kodeverk:2021.11.30-13.39.e1352e11bbb3")
+    implementation("com.github.navikt:kabal-kodeverk:$kabalKodeverkVersion")
 
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$springSleuthVersion")
     implementation("io.springfox:springfox-boot-starter:$springFoxVersion")

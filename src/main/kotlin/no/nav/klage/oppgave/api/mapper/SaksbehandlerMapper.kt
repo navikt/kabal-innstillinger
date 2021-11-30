@@ -1,10 +1,10 @@
 package no.nav.klage.oppgave.api.mapper
 
+import no.nav.klage.kodeverk.Hjemmel
+import no.nav.klage.kodeverk.Type
+import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
-import no.nav.klage.oppgave.domain.kodeverk.Hjemmel
-import no.nav.klage.oppgave.domain.kodeverk.Type
-import no.nav.klage.oppgave.domain.kodeverk.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

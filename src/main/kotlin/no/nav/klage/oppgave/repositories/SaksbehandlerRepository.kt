@@ -1,7 +1,7 @@
 package no.nav.klage.oppgave.repositories
 
 import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.kodeverk.ytelserPerEnhet
+import no.nav.klage.kodeverk.klageenhetTilYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.Enhet
 import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
@@ -61,12 +61,7 @@ class SaksbehandlerRepository(
     }
 
     private fun getYtelserForEnhet(enhet: Enhet): List<Ytelse> =
-        if (ytelserPerEnhet.containsKey(enhet.enhetId)) {
-            ytelserPerEnhet[enhet.enhetId]!!
-        } else {
-            logger.error("Fant ikke noen ytelse for enhet $enhet. Dette må legges til i kodebasen sporenstraks!")
-            emptyList()
-        }
+        klageenhetTilYtelser.filter { it.key.navn == enhet.enhetId }.flatMap { it.value }
 
     fun getNameForSaksbehandler(navIdent: String): String {
         return azureGateway.getPersonligDataOmSaksbehandlerMedIdent(navIdent).sammensattNavn

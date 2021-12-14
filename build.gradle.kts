@@ -10,7 +10,7 @@ val springRetryVersion = "1.3.1"
 val springMockkVersion = "3.0.1"
 val springFoxVersion = "3.0.0"
 val testContainersVersion = "1.16.2"
-val kabalKodeverkVersion = "2021.11.30-13.39.e1352e11bbb3"
+val kabalKodeverkVersion = "2021.12.14-15.39.5f6715f05a9d"
 
 plugins {
     id("org.springframework.boot") version "2.5.7"
@@ -27,7 +27,7 @@ repositories {
     mavenCentral()
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     maven("https://packages.confluent.io/maven/")
-    maven ("https://jitpack.io")
+    maven("https://jitpack.io")
 }
 
 dependencies {

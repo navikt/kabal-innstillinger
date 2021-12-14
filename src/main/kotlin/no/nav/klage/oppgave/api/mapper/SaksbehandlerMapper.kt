@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.api.mapper
 
-import no.nav.klage.kodeverk.Hjemmel
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.domain.saksbehandler.*

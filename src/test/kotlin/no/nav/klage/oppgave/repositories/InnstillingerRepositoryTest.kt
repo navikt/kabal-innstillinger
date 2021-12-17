@@ -38,7 +38,7 @@ class InnstillingerRepositoryTest {
     fun `roundtrip in domain works`() {
         val navIdent = "AB12345"
         val saksbehandlersInnstillinger = SaksbehandlerInnstillinger(
-            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTL_22_3),
+            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTRL_22_3),
             ytelser = emptyList(),
             typer = listOf(Type.KLAGE)
         )
@@ -53,7 +53,7 @@ class InnstillingerRepositoryTest {
     fun `persist innstillinger works`() {
         val navIdent = "AB12345"
         val saksbehandlersInnstillinger = SaksbehandlerInnstillinger(
-            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTL_22_3),
+            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTRL_22_3),
             ytelser = emptyList(),
             typer = listOf(Type.KLAGE)
         )
@@ -73,7 +73,7 @@ class InnstillingerRepositoryTest {
     fun `updating valgtEnhet works`() {
         val navIdent = "AB12345"
         val saksbehandlersInnstillinger1 = SaksbehandlerInnstillinger(
-            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTL_22_3),
+            hjemler = listOf(Hjemmel.FTL, Hjemmel.FTRL_22_3),
             ytelser = emptyList(),
             typer = listOf(Type.KLAGE)
         )

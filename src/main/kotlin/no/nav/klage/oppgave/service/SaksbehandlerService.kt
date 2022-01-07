@@ -1,5 +1,9 @@
 package no.nav.klage.oppgave.service
 
+import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelseTilKlageenheter
+import no.nav.klage.oppgave.api.view.Medunderskriver
+import no.nav.klage.oppgave.api.view.Medunderskrivere
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.gateway.AzureGateway
@@ -89,4 +93,55 @@ class SaksbehandlerService(
             innstillinger
         )
     }
+
+    fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String? = null): Medunderskrivere =
+        if (fnr != null) {
+            val personInfo = pdlFacade.getPersonInfo(fnr)
+            val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
+            val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
+            val erEgenAnsatt = egenAnsattService.erEgenAnsatt(fnr)
+
+            if (harBeskyttelsesbehovStrengtFortrolig) {
+                //Kode 6 har skal ikke ha medunderskrivere
+                Medunderskrivere(ytelse.id, emptyList())
+            }
+            if (harBeskyttelsesbehovFortrolig) {
+                //Kode 7 skal ha medunderskrivere fra alle ytelser, men kun de med kode 7-rettigheter
+                //TODO: Dette er klønete, vi burde gjort dette i ETT kall til AD, ikke n.
+                val medunderskrivere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
+                    .filter { it != ident }
+                    .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
+                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                Medunderskrivere(tema = null, ytelse = ytelse.id, medunderskrivere = medunderskrivere)
+            }
+            if (ytelseTilKlageenheter.contains(ytelse)) {
+                val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
+                    .filter { it.navn != VIKAFOSSEN }
+                    .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
+                    .filter { it != ident }
+                    .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                    .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
+                    .distinct()
+                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
+            } else {
+                logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
+                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = emptyList())
+            }
+
+        } else {
+            if (ytelseTilKlageenheter.contains(ytelse)) {
+                val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
+                    .filter { it.navn != VIKAFOSSEN }
+                    .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
+                    .filter { it != ident }
+                    .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                    .distinct()
+                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
+            } else {
+                logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
+                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = emptyList())
+            }
+        }
 }

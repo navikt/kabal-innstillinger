@@ -156,6 +156,13 @@ interface OurOwnExceptionAdviceTrait : AdviceTrait {
     ): ResponseEntity<Problem> =
         create(ex, createSectionedValidationProblem(ex), request)
 
+    @ExceptionHandler
+    fun handleEnhetNotFoundForSaksbehandlerException(
+        ex: EnhetNotFoundForSaksbehandlerException,
+        request: NativeWebRequest
+    ): ResponseEntity<Problem> =
+        create(Status.INTERNAL_SERVER_ERROR, ex, request)
+    
     private fun createProblem(ex: WebClientResponseException): ThrowableProblem {
         return Problem.builder()
             .withStatus(mapStatus(ex.statusCode))

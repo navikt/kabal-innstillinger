@@ -12,7 +12,8 @@ data class AzureUser(
     val officeLocation: String?,
     val userPrincipalName: String,
     val id: String,
-    val jobTitle: String?
+    val jobTitle: String?,
+    val streetAddress: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

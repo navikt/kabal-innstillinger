@@ -55,3 +55,5 @@ class KlagebehandlingSamtidigEndretException(msg: String) : RuntimeException(msg
 class KlagebehandlingAvsluttetException(msg: String) : RuntimeException(msg)
 
 class KlagebehandlingManglerMedunderskriverException(msg: String) : RuntimeException(msg)
+
+class EnhetNotFoundForSaksbehandlerException(msg: String) : RuntimeException(msg)

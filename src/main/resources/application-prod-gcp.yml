@@ -21,3 +21,6 @@ ROLE_KLAGE_EGEN_ANSATT: b14cf640-30bc-4420-b34c-26488c15e71e
 
 ROLE_GOSYS_OPPGAVE_BEHANDLER: 185a4e29-5f9c-4319-bdb3-0f5f2b30ac90
 ROLE_ADMIN: cd78b8e8-73a3-4fb6-8234-7bebb5e5b9e9
+
+PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io/graphql
+PDL_SCOPE: prod-fss.pdl.pdl-api

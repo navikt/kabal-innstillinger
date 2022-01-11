@@ -4,12 +4,12 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.Medunderskriver
 import no.nav.klage.oppgave.api.view.Medunderskrivere
+import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
+import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
-import no.nav.klage.oppgave.repositories.InnstillingerRepository
-import no.nav.klage.oppgave.repositories.ValgtEnhetRepository
+import no.nav.klage.oppgave.repositories.*
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -22,11 +22,17 @@ class SaksbehandlerService(
     private val valgtEnhetRepository: ValgtEnhetRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
+    private val pdlFacade: PdlFacade,
+    private val saksbehandlerRepository: SaksbehandlerRepository,
+    private val enhetRepository: EnhetRepository,
+    private val egenAnsattService: EgenAnsattService,
+    private val tilgangService: TilgangService,
 ) {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
+        private const val VIKAFOSSEN = "2103"
     }
 
     @Transactional
@@ -112,11 +118,12 @@ class SaksbehandlerService(
                     .filter { it != ident }
                     .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
                     .map { Medunderskriver(it, getNameForIdent(it)) }
-                Medunderskrivere(tema = null, ytelse = ytelse.id, medunderskrivere = medunderskrivere)
+                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
             }
             if (ytelseTilKlageenheter.contains(ytelse)) {
                 val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
                     .filter { it.navn != VIKAFOSSEN }
+                    .sortedBy { it.navn != enhetId }
                     .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
                     .filter { it != ident }
                     .filter { saksbehandlerRepository.erSaksbehandler(it) }
@@ -133,6 +140,7 @@ class SaksbehandlerService(
             if (ytelseTilKlageenheter.contains(ytelse)) {
                 val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
                     .filter { it.navn != VIKAFOSSEN }
+                    .sortedBy { it.navn != enhetId }
                     .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
                     .filter { it != ident }
                     .filter { saksbehandlerRepository.erSaksbehandler(it) }
@@ -144,4 +152,15 @@ class SaksbehandlerService(
                 Medunderskrivere(ytelse = ytelse.id, medunderskrivere = emptyList())
             }
         }
+
+    private fun egenAnsattFilter(fnr: String, erEgenAnsatt: Boolean, ident: String) =
+        if (!erEgenAnsatt) {
+            true
+        } else {
+            tilgangService.harSaksbehandlerTilgangTil(ident = ident, fnr = fnr)
+        }
+
+    fun getNameForIdent(navIdent: String) =
+        saksbehandlerRepository.getNameForSaksbehandler(navIdent)
+
 }

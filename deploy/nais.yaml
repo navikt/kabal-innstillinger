@@ -45,6 +45,8 @@ spec:
           {{/if}}
         extra:
           - NAVident
+  kafka:
+    pool: {{kafka_pool}}
   port: 7081
   startup:
     failureThreshold: 20
@@ -102,6 +104,7 @@ spec:
   envFrom:
     - secret: srvklage-saksbeh
     - secret: sts-apikey
+    - secret: pdl-apikey
     - secret: norg2
     - secret: axsys
   env:

@@ -38,7 +38,7 @@ class SaksbehandlerService(
     @Transactional
     fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
         if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
-            logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den han er ansatt i")
+            logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den hen er ansatt i")
         }
 
         val enhet =

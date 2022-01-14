@@ -2,12 +2,12 @@ package no.nav.klage.oppgave.service.unleash
 
 import no.finn.unleash.UnleashContext
 import no.finn.unleash.strategy.Strategy
-import no.nav.klage.oppgave.gateway.AxsysGateway
+import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Component
 
 @Component
-class ByEnhetStrategy(private val axsysGateway: AxsysGateway) : Strategy {
+class ByEnhetStrategy(private val azureGateway: AzureGateway) : Strategy {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -37,8 +37,9 @@ class ByEnhetStrategy(private val axsysGateway: AxsysGateway) : Strategy {
         }
 
     private fun getSaksbehandlersEnheter(unleashContext: UnleashContext): List<String> {
-        logger.debug("Getting saksbehandlers enheter")
-        return axsysGateway.getEnheterForSaksbehandler(unleashContext.userId.get()).map { it.enhetId }
+        logger.debug("Getting enheter for saksbehandler ${unleashContext.userId.get()}")
+        //unleashContext.userId.get() skal være satt til innlogget saksbehandlers ident, så vi kaller like gjerne azureGateway.getDataOmInnloggetSaksbehandler()
+        return listOf(azureGateway.getDataOmInnloggetSaksbehandler().enhet).map { it.enhetId }
     }
 
     private fun getEnabledEnheter(parameters: Map<String, String>?): List<String>? =

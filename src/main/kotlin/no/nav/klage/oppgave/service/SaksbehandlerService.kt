@@ -37,6 +37,10 @@ class SaksbehandlerService(
 
     @Transactional
     fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
+        if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
+            logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den hen er ansatt i")
+        }
+
         val enhet =
             innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == enhetId }
                 ?: throw MissingTilgangException("Saksbehandler $ident har ikke tilgang til enhet $enhetId")
@@ -58,12 +62,7 @@ class SaksbehandlerService(
 
     @Transactional
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
-        return valgtEnhetRepository.findByIdOrNull(ident)
-            ?.let { valgtEnhet -> innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == valgtEnhet.enhetId } }
-            ?: storeValgtEnhetId(
-                ident,
-                innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.first().enhet.enhetId
-            )
+        return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
     @Transactional
@@ -89,17 +88,21 @@ class SaksbehandlerService(
         val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
+        val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
         val innstillinger = findInnstillinger(innloggetSaksbehandlerRepository.getInnloggetIdent())
         return SaksbehandlerInfo(
-            dataOmInnloggetSaksbehandler,
-            rollerForInnloggetSaksbehandler,
-            enheterForInnloggetSaksbehandler,
-            valgtEnhet,
-            innstillinger
+            info = dataOmInnloggetSaksbehandler,
+            roller = rollerForInnloggetSaksbehandler,
+            enheter = enheterForInnloggetSaksbehandler,
+            ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
+            valgtEnhet = valgtEnhet,
+            innstillinger = innstillinger
         )
     }
 
+    //TODO: Skal skrives om til å hente valgte ytelser fra innstillinger og bruke det for å finne medunderskrivere.
+    //Trenger da ikke lenger å kalle enhetRepository.getAnsatteIEnhet(), så jeg bruker ikke tid på å skrive om den nå
     fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String? = null): Medunderskrivere =
         if (fnr != null) {
             val personInfo = pdlFacade.getPersonInfo(fnr)

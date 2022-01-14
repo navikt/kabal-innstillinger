@@ -4,6 +4,7 @@ data class SaksbehandlerView(
     val info: PersonligInfoView,
     val roller: List<String>,
     val enheter: List<EnhetView>,
+    val ansattEnhet: EnhetView,
     val valgtEnhetView: EnhetView,
     val innstillinger: InnstillingerView
 ) {

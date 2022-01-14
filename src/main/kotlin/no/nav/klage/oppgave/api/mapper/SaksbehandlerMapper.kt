@@ -40,6 +40,7 @@ class SaksbehandlerMapper(
             info = mapToView(saksbehandlerInfo.info),
             roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
             enheter = mapToView(saksbehandlerInfo.enheter),
+            ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
             valgtEnhetView = mapToView(saksbehandlerInfo.valgtEnhet),
             innstillinger = mapToView(saksbehandlerInfo.innstillinger)
         )

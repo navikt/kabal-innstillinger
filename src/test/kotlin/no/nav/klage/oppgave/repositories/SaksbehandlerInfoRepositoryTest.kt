@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.Enhet
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.gateway.AxsysGateway
 import no.nav.klage.oppgave.gateway.AzureGateway
 import org.assertj.core.api.SoftAssertions
@@ -16,10 +17,22 @@ internal class SaksbehandlerInfoRepositoryTest {
 
     private val repo: SaksbehandlerRepository =
         SaksbehandlerRepository(msClient, axsysGateway, "", "", "", "", "", "", "", "")
-    
+
+
+    private fun personligInfo() = SaksbehandlerPersonligInfo(
+        navIdent = "Z12345",
+        azureId = "Whatever",
+        fornavn = "Test",
+        etternavn = "Saksbehandler",
+        sammensattNavn = "Test Saksbehandler",
+        epost = "test.saksbehandler@trygdeetaten.no",
+        enhet = Enhet("4295", "KA Nord")
+    )
+
+
     @Test
     fun harTilgangTilEnhetOgTema() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
+        every { msClient.getDataOmInnloggetSaksbehandler() } returns personligInfo()
 
         val softly = SoftAssertions()
         softly.assertThat(repo.harTilgangTilEnhetOgYtelse("01010112345", "4295", Ytelse.OMS_OLP)).isEqualTo(true)
@@ -29,7 +42,7 @@ internal class SaksbehandlerInfoRepositoryTest {
 
     @Test
     fun harTilgangTilEnhet() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
+        every { msClient.getDataOmInnloggetSaksbehandler() } returns personligInfo()
 
         val softly = SoftAssertions()
         softly.assertThat(repo.harTilgangTilEnhet("01010112345", "4295")).isEqualTo(true)
@@ -39,7 +52,7 @@ internal class SaksbehandlerInfoRepositoryTest {
 
     @Test
     fun harTilgangTilYtelse() {
-        every { axsysGateway.getEnheterForSaksbehandler("01010112345") } returns listOf(Enhet("4295", "KA Nord"))
+        every { msClient.getDataOmInnloggetSaksbehandler() } returns personligInfo()
 
         val softly = SoftAssertions()
         softly.assertThat(repo.harTilgangTilYtelse("01010112345", Ytelse.OMS_OLP)).isEqualTo(true)

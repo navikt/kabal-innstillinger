@@ -37,6 +37,10 @@ class SaksbehandlerService(
 
     @Transactional
     fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
+        if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
+            logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den han er ansatt i")
+        }
+        
         val enhet =
             innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == enhetId }
                 ?: throw MissingTilgangException("Saksbehandler $ident har ikke tilgang til enhet $enhetId")
@@ -58,12 +62,7 @@ class SaksbehandlerService(
 
     @Transactional
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
-        return valgtEnhetRepository.findByIdOrNull(ident)
-            ?.let { valgtEnhet -> innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == valgtEnhet.enhetId } }
-            ?: storeValgtEnhetId(
-                ident,
-                innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.first().enhet.enhetId
-            )
+        return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
     @Transactional

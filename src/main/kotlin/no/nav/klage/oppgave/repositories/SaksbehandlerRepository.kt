@@ -48,6 +48,14 @@ class SaksbehandlerRepository(
         return getEnheterMedYtelserForSaksbehandler(ident).enheter.flatMap { it.ytelser }.contains(ytelse)
     }
 
+    fun getEnhetMedYtelserForSaksbehandler(navIdent: String): EnhetMedLovligeYtelser =
+        azureGateway.getDataOmInnloggetSaksbehandler().enhet.let {
+            EnhetMedLovligeYtelser(
+                enhet = it,
+                ytelser = getYtelserForEnhet(it)
+            )
+        }
+
     fun getEnheterMedYtelserForSaksbehandler(ident: String): EnheterMedLovligeYtelser =
         listOf(azureGateway.getDataOmInnloggetSaksbehandler().enhet).berikMedYtelser()
 
@@ -94,6 +102,7 @@ class SaksbehandlerRepository(
         azureGateway.getGroupMembersNavIdents(kanBehandleEgenAnsattRole)
 
     private fun List<String>.hasRole(role: String) = any { it.contains(role) }
+
 }
 
 

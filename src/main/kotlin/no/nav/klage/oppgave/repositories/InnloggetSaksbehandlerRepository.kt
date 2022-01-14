@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.repositories
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
 import no.nav.klage.oppgave.util.TokenUtil
 import org.springframework.beans.factory.annotation.Value
@@ -21,6 +22,9 @@ class InnloggetSaksbehandlerRepository(
     @Value("\${ROLE_ADMIN}") private val adminRole: String
 ) {
 
+    fun getEnhetMedYtelserForSaksbehandler(): EnhetMedLovligeYtelser =
+        saksbehandlerRepository.getEnhetMedYtelserForSaksbehandler(getInnloggetIdent())
+
     fun getEnheterMedYtelserForSaksbehandler(): EnheterMedLovligeYtelser =
         saksbehandlerRepository.getEnheterMedYtelserForSaksbehandler(getInnloggetIdent())
 
@@ -39,4 +43,5 @@ class InnloggetSaksbehandlerRepository(
     }
 
     private fun List<String>.hasRole(role: String) = any { it.contains(role) }
+
 }

@@ -8,6 +8,7 @@ tenant: trygdeetaten.no
 db_tier: db-custom-1-3840
 db_size: 10
 db_ha: true
+kafka_pool: nav-dev
 ROLE_KLAGE_SAKSBEHANDLER: 07add1e7-7195-4c37-828d-fdf23ec6bef1
 ROLE_KLAGE_FAGANSVARLIG: 94d34f17-e325-4ed6-9667-d23041a3f40c
 ROLE_KLAGE_LEDER: 016fb83f-4e7c-47ec-ae8a-e3efa72a43e7

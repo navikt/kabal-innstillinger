@@ -64,6 +64,28 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
             throw e
         }
 
+    override fun getRolleIder(navIdent: String): List<String> {
+        return getRollerForSaksbehandlerMedIdent(navIdent).map { it.id }
+    }
+
+    override fun getGroupMembersNavIdents(groupId: String): List<String> =
+        try {
+            microsoftGraphClient.getGroupMembersNavIdents(groupId)
+        } catch (e: Exception) {
+            logger.error("Failed to call getGroupMembersNavIdents", e)
+            throw e
+        }
+
+    override fun getRollerForSaksbehandlerMedIdent(navIdent: String): List<SaksbehandlerRolle> =
+        try {
+            logger.info("Finding roles for ident $navIdent")
+            microsoftGraphClient.getSaksbehandlersGroups(navIdent)
+                .map { SaksbehandlerRolle(it.id, it.displayName ?: it.mailNickname ?: it.id) }
+        } catch (e: Exception) {
+            logger.error("Failed to call getSaksbehandlersGroups for navident $navIdent", e)
+            throw e
+        }
+
     private fun mapToEnhet(enhetNr: String): Enhet =
         KodeverkEnhet.values().find { it.navn == enhetNr }
             ?.let { Enhet(it.navn, it.beskrivelse) }

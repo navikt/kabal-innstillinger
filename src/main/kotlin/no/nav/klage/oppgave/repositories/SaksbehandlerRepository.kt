@@ -66,6 +66,34 @@ class SaksbehandlerRepository(
     fun getNameForSaksbehandler(navIdent: String): String {
         return azureGateway.getPersonligDataOmSaksbehandlerMedIdent(navIdent).sammensattNavn
     }
+
+    fun erFagansvarlig(ident: String): Boolean = getRoller(ident).hasRole(fagansvarligRole)
+
+    fun erLeder(ident: String): Boolean = getRoller(ident).hasRole(lederRole)
+
+    fun erSaksbehandler(ident: String): Boolean = getRoller(ident).hasRole(saksbehandlerRole)
+
+    fun kanBehandleFortrolig(ident: String): Boolean = getRoller(ident).hasRole(kanBehandleFortroligRole)
+
+    fun kanBehandleStrengtFortrolig(ident: String): Boolean =
+        getRoller(ident).hasRole(kanBehandleStrengtFortroligRole)
+
+    fun kanBehandleEgenAnsatt(ident: String): Boolean = getRoller(ident).hasRole(kanBehandleEgenAnsattRole)
+
+    private fun getRoller(ident: String): List<String> = try {
+        azureGateway.getRolleIder(ident)
+    } catch (e: Exception) {
+        logger.warn("Failed to retrieve roller for navident $ident, using emptylist instead")
+        emptyList()
+    }
+
+    fun getSaksbehandlereSomKanBehandleFortrolig(): List<String> =
+        azureGateway.getGroupMembersNavIdents(kanBehandleFortroligRole)
+
+    fun getSaksbehandlereSomKanBehandleEgenAnsatt(): List<String> =
+        azureGateway.getGroupMembersNavIdents(kanBehandleEgenAnsattRole)
+
+    private fun List<String>.hasRole(role: String) = any { it.contains(role) }
 }
 
 

@@ -40,7 +40,7 @@ class SaksbehandlerService(
         if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
             logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den han er ansatt i")
         }
-        
+
         val enhet =
             innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == enhetId }
                 ?: throw MissingTilgangException("Saksbehandler $ident har ikke tilgang til enhet $enhetId")
@@ -88,14 +88,16 @@ class SaksbehandlerService(
         val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
+        val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
         val innstillinger = findInnstillinger(innloggetSaksbehandlerRepository.getInnloggetIdent())
         return SaksbehandlerInfo(
-            dataOmInnloggetSaksbehandler,
-            rollerForInnloggetSaksbehandler,
-            enheterForInnloggetSaksbehandler,
-            valgtEnhet,
-            innstillinger
+            info = dataOmInnloggetSaksbehandler,
+            roller = rollerForInnloggetSaksbehandler,
+            enheter = enheterForInnloggetSaksbehandler,
+            ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
+            valgtEnhet = valgtEnhet,
+            innstillinger = innstillinger
         )
     }
 

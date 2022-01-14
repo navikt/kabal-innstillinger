@@ -11,9 +11,11 @@ class DefaultAxsysGateway(
     private val tilgangerMapper: TilgangerMapper
 ) : AxsysGateway {
 
+    @Deprecated("Erstattet av enhet i SaksbehandlerPersonligInfo som vi henter fra Azure")
     override fun getEnheterForSaksbehandler(ident: String): List<Enhet> =
         tilgangerMapper.mapTilgangerToEnheter(axsysClient.getTilgangerForSaksbehandler(ident))
 
+    @Deprecated("Må erstattes med å hente data fra Azure")
     override fun getSaksbehandlereIEnhet(enhetId: String): List<SaksbehandlerIdent> {
         return axsysClient.getSaksbehandlereIEnhet(enhetId).map { SaksbehandlerIdent(it.appIdent) }
     }

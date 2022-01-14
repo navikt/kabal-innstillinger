@@ -100,6 +100,8 @@ class SaksbehandlerService(
         )
     }
 
+    //TODO: Skal skrives om til å hente valgte ytelser fra innstillinger og bruke det for å finne medunderskrivere.
+    //Trenger da ikke lenger å kalle enhetRepository.getAnsatteIEnhet(), så jeg bruker ikke tid på å skrive om den nå
     fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String? = null): Medunderskrivere =
         if (fnr != null) {
             val personInfo = pdlFacade.getPersonInfo(fnr)

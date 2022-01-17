@@ -65,9 +65,13 @@ class SaksbehandlerService(
         return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
-    @Transactional
-    fun findInnstillinger(ident: String): SaksbehandlerInnstillinger {
-        return innstillingerRepository.findByIdOrNull(ident)?.toSaksbehandlerInnstillinger()
+
+    private fun findInnstillinger(
+        ident: String,
+        ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser
+    ): SaksbehandlerInnstillinger {
+        return innstillingerRepository.findByIdOrNull(ident)
+            ?.toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
             ?: SaksbehandlerInnstillinger()
     }
 
@@ -76,21 +80,28 @@ class SaksbehandlerService(
         navIdent: String,
         saksbehandlerInnstillinger: SaksbehandlerInnstillinger
     ): SaksbehandlerInnstillinger {
+        val ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser =
+            innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
         return innstillingerRepository.save(
             Innstillinger.fromSaksbehandlersInnstillinger(
                 navIdent,
+                ansattEnhetForInnloggetSaksbehandler,
                 saksbehandlerInnstillinger
             )
-        ).toSaksbehandlerInnstillinger()
+        ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
     }
 
+    @Transactional
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
         val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
-        val innstillinger = findInnstillinger(innloggetSaksbehandlerRepository.getInnloggetIdent())
+        val innstillinger = findInnstillinger(
+            innloggetSaksbehandlerRepository.getInnloggetIdent(),
+            ansattEnhetForInnloggetSaksbehandler
+        )
         return SaksbehandlerInfo(
             info = dataOmInnloggetSaksbehandler,
             roller = rollerForInnloggetSaksbehandler,

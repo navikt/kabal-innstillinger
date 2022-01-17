@@ -36,22 +36,25 @@ class Innstillinger(
 
         fun fromSaksbehandlersInnstillinger(
             navIdent: String,
+            ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser,
             saksbehandlerInnstillinger: SaksbehandlerInnstillinger
         ): Innstillinger {
             return Innstillinger(
                 navIdent,
                 saksbehandlerInnstillinger.hjemler.map { it.id }.joinToString(separator),
-                saksbehandlerInnstillinger.ytelser.map { it.id }.joinToString(separator),
+                saksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
+                    .map { it.id }.joinToString(separator),
                 saksbehandlerInnstillinger.typer.map { it.id }.joinToString(separator),
                 LocalDateTime.now()
             )
         }
     }
 
-    fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
+    fun toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
             hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) },
+            ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+                .filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser },
             typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) })
     }
 

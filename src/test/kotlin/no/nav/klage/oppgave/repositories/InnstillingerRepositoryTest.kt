@@ -1,9 +1,12 @@
 package no.nav.klage.oppgave.repositories
 
+
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
+import no.nav.klage.oppgave.domain.saksbehandler.Enhet
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.Innstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import org.assertj.core.api.Assertions.assertThat
@@ -26,6 +29,11 @@ class InnstillingerRepositoryTest {
         @Container
         @JvmField
         val postgreSQLContainer: TestPostgresqlContainer = TestPostgresqlContainer.instance
+
+        val ansattEnhetForInnloggetSaksbehandler = EnhetMedLovligeYtelser(
+            enhet = Enhet("4291", "Nav Oslo"),
+            ytelser = listOf(Ytelse.OMS_OLP, Ytelse.SYK_SYK)
+        )
     }
 
     @Autowired
@@ -43,8 +51,12 @@ class InnstillingerRepositoryTest {
             typer = listOf(Type.KLAGE)
         )
 
-        val roundtripValue = Innstillinger.fromSaksbehandlersInnstillinger(navIdent, saksbehandlersInnstillinger)
-            .toSaksbehandlerInnstillinger()
+        val roundtripValue = Innstillinger.fromSaksbehandlersInnstillinger(
+            navIdent,
+            ansattEnhetForInnloggetSaksbehandler,
+            saksbehandlersInnstillinger
+        )
+            .toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
 
         assertThat(roundtripValue).isEqualTo(saksbehandlersInnstillinger)
     }
@@ -59,6 +71,7 @@ class InnstillingerRepositoryTest {
         )
         val innstillinger = Innstillinger.fromSaksbehandlersInnstillinger(
             navIdent,
+            ansattEnhetForInnloggetSaksbehandler,
             saksbehandlersInnstillinger
         )
 
@@ -79,6 +92,7 @@ class InnstillingerRepositoryTest {
         )
         val innstillinger1 = Innstillinger.fromSaksbehandlersInnstillinger(
             navIdent,
+            ansattEnhetForInnloggetSaksbehandler,
             saksbehandlersInnstillinger1
         )
 
@@ -89,6 +103,7 @@ class InnstillingerRepositoryTest {
         )
         val innstillinger2 = Innstillinger.fromSaksbehandlersInnstillinger(
             navIdent,
+            ansattEnhetForInnloggetSaksbehandler,
             saksbehandlersInnstillinger2
         )
 

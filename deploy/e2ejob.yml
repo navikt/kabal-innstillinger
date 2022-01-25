@@ -18,12 +18,14 @@ spec:
       serviceAccount: default
       serviceAccountName: default
       containers:
-        - image: docker.pkg.github.com/navikt/kabal-e2e-tests/kabal-e2e-tests:latest
+        - image: ghcr.io/navikt/kabal-e2e-tests:latest
           name: kabal-e2e-tests
           envFrom:
             - secretRef:
+                name: kabal-e2e-test-users
+            - secretRef:
                 name: slack-e2e-secrets
             - configMapRef:
-                 name: slack-e2e-configmap
+                name: slack-e2e-configmap
       dnsPolicy: ClusterFirst
       restartPolicy: Never

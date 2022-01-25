@@ -36,7 +36,7 @@ class MedunderskriverOppslagController(
         notes = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
     )
     @PostMapping(
-        "/search//medunderskrivere",
+        "/search/medunderskrivere",
         produces = ["application/json"]
     )
     fun getMedunderskrivereForYtelseOgFnr(

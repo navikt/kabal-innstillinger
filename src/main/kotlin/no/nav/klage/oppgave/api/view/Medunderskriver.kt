@@ -5,7 +5,7 @@ data class Medunderskrivere(val ytelse: String, val medunderskrivere: List<Medun
 data class Medunderskriver(val navIdent: String, val navn: String)
 
 data class MedunderskrivereInput(
-    val ytelse: String,
+    val ytelseId: String,
     val fnr: String?,
     val enhet: String,
     val navIdent: String,

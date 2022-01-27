@@ -45,9 +45,9 @@ class MedunderskriverOppslagController(
         val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getMedunderskrivereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return if (environment.activeProfiles.contains("prod-gcp")) {
-            saksbehandlerService.getMedunderskrivere(input.navIdent, input.enhet, Ytelse.of(input.ytelse), input.fnr)
+            saksbehandlerService.getMedunderskrivere(input.navIdent, input.enhet, Ytelse.of(input.ytelseId), input.fnr)
         } else Medunderskrivere(
-            ytelse = input.ytelse,
+            ytelse = input.ytelseId,
             medunderskrivere = listOf(
                 Medunderskriver("Z994488", "F_Z994488 E_Z994488"),
                 Medunderskriver("Z994330", "F_Z994330 E_Z994330"),

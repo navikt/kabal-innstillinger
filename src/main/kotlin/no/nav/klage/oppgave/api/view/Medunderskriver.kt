@@ -6,7 +6,7 @@ data class Medunderskriver(val navIdent: String, val navn: String)
 
 data class MedunderskrivereInput(
     val ytelse: String,
-    val fnr: String,
+    val fnr: String?,
     val enhet: String,
     val navIdent: String,
 )

@@ -6,5 +6,5 @@ data class SaksbehandlerInfo(
     val enheter: EnheterMedLovligeYtelser,
     val ansattEnhet: EnhetMedLovligeYtelser,
     val valgtEnhet: EnhetMedLovligeYtelser,
-    val innstillinger: SaksbehandlerInnstillinger
+    val innstillinger: SaksbehandlerInnstillinger,
 )

@@ -48,10 +48,11 @@ class SaksbehandlerMapper(
     fun mapToView(saksbehandlerPersonligInfo: SaksbehandlerPersonligInfo) = SaksbehandlerView.PersonligInfoView(
         navIdent = saksbehandlerPersonligInfo.navIdent,
         azureId = saksbehandlerPersonligInfo.azureId,
-        fornavn = saksbehandlerPersonligInfo.fornavn,
-        etternavn = saksbehandlerPersonligInfo.etternavn,
         sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
-        epost = saksbehandlerPersonligInfo.epost
+        epost = saksbehandlerPersonligInfo.epost,
+        shortName = "TODO: shortName",
+        longName = "TODO: longName",
+        jobTitle = "TODO: jobTitle",
     )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =

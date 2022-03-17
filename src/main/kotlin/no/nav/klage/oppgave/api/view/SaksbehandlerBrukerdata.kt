@@ -11,10 +11,12 @@ data class SaksbehandlerView(
     data class PersonligInfoView(
         val navIdent: String,
         val azureId: String,
-        val fornavn: String,
-        val etternavn: String,
         val sammensattNavn: String,
-        val epost: String
+        val epost: String,
+        //For signature and maybe more?
+        val shortName: String,
+        val longName: String,
+        val jobTitle: String,
     )
 
     data class InnstillingerView(
@@ -28,3 +30,5 @@ data class SaksbehandlerRefView(
     val navIdent: String,
     val navn: String
 )
+
+data class StringInputView(val value: String)

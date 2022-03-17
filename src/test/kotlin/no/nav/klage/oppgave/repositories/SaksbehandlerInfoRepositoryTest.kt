@@ -26,7 +26,7 @@ internal class SaksbehandlerInfoRepositoryTest {
         etternavn = "Saksbehandler",
         sammensattNavn = "Test Saksbehandler",
         epost = "test.saksbehandler@trygdeetaten.no",
-        enhet = Enhet("4295", "KA Nord")
+        enhet = Enhet("4295", "KA Nord"),
     )
 
 

@@ -100,7 +100,7 @@ class SaksbehandlerService(
         val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
         val innstillinger = findInnstillinger(
             innloggetSaksbehandlerRepository.getInnloggetIdent(),
-            ansattEnhetForInnloggetSaksbehandler
+            ansattEnhetForInnloggetSaksbehandler,
         )
         return SaksbehandlerInfo(
             info = dataOmInnloggetSaksbehandler,
@@ -176,5 +176,17 @@ class SaksbehandlerService(
 
     fun getNameForIdent(navIdent: String) =
         saksbehandlerRepository.getNameForSaksbehandler(navIdent)
+
+    fun storeShortName(navIdent: String, shortName: String) {
+        TODO("Not yet implemented")
+    }
+
+    fun storeLongName(navIdent: String, longName: String) {
+        TODO("Not yet implemented")
+    }
+
+    fun storeJobTitle(navIdent: String, jobTitle: String) {
+        TODO("Not yet implemented")
+    }
 
 }

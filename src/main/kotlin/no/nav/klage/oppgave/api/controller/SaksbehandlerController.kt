@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
+import no.nav.klage.oppgave.api.view.StringInputView
 import no.nav.klage.oppgave.api.view.ValgtEnhetInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.NotMatchingUserException
@@ -87,6 +88,63 @@ class SaksbehandlerController(
     ): EnhetView {
         validateNavIdent(navIdent)
         return saksbehandlerMapper.mapToView(saksbehandlerService.storeValgtEnhetId(navIdent, input.enhetId))
+    }
+
+    @ApiOperation(
+        value = "Set short name for saksbehandler",
+        notes = "Set short name for saksbehandler"
+    )
+    @PutMapping("/ansatte/{navIdent}/brukerdata/shortname", produces = ["application/json"])
+    fun setShortName(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+        @RequestBody input: StringInputView
+    ): StringInputView {
+        validateNavIdent(navIdent)
+        saksbehandlerService.storeShortName(
+            navIdent,
+            input.value,
+        )
+
+        return input
+    }
+
+    @ApiOperation(
+        value = "Set long name for saksbehandler",
+        notes = "Set long name for saksbehandler"
+    )
+    @PutMapping("/ansatte/{navIdent}/brukerdata/longname", produces = ["application/json"])
+    fun setLongName(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+        @RequestBody input: StringInputView
+    ): StringInputView {
+        validateNavIdent(navIdent)
+        saksbehandlerService.storeLongName(
+            navIdent,
+            input.value,
+        )
+
+        return input
+    }
+
+    @ApiOperation(
+        value = "Set job title for saksbehandler",
+        notes = "Set job title for saksbehandler"
+    )
+    @PutMapping("/ansatte/{navIdent}/brukerdata/jobtitle", produces = ["application/json"])
+    fun setJobTitle(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+        @RequestBody input: StringInputView
+    ): StringInputView {
+        validateNavIdent(navIdent)
+        saksbehandlerService.storeJobTitle(
+            navIdent,
+            input.value,
+        )
+
+        return input
     }
 
     private fun validateNavIdent(navIdent: String) {

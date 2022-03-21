@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
+@Transactional
 class SaksbehandlerService(
     private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
     private val valgtEnhetRepository: ValgtEnhetRepository,
@@ -35,7 +36,6 @@ class SaksbehandlerService(
         private const val VIKAFOSSEN = "2103"
     }
 
-    @Transactional
     fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
         if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
             logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den hen er ansatt i")
@@ -60,7 +60,6 @@ class SaksbehandlerService(
         )
     }
 
-    @Transactional
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
         return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
@@ -74,7 +73,6 @@ class SaksbehandlerService(
             ?: SaksbehandlerInnstillinger()
     }
 
-    @Transactional
     fun storeInnstillinger(
         navIdent: String,
         saksbehandlerInnstillinger: SaksbehandlerInnstillinger
@@ -90,7 +88,6 @@ class SaksbehandlerService(
         ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
     }
 
-    @Transactional
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
 

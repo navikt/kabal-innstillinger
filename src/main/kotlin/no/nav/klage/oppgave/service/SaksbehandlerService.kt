@@ -65,7 +65,6 @@ class SaksbehandlerService(
         return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
-
     private fun findInnstillinger(
         ident: String,
         ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser
@@ -93,15 +92,18 @@ class SaksbehandlerService(
 
     @Transactional
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
-        val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
-        val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
-        val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
         val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
-        val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
+
         val innstillinger = findInnstillinger(
             innloggetSaksbehandlerRepository.getInnloggetIdent(),
             ansattEnhetForInnloggetSaksbehandler,
         )
+
+        val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
+        val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
+        val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
+        val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
+
         return SaksbehandlerInfo(
             info = dataOmInnloggetSaksbehandler,
             roller = rollerForInnloggetSaksbehandler,
@@ -178,15 +180,15 @@ class SaksbehandlerService(
         saksbehandlerRepository.getNameForSaksbehandler(navIdent)
 
     fun storeShortName(navIdent: String, shortName: String) {
-        TODO("Not yet implemented")
+        innstillingerRepository.findBySaksbehandlerident(navIdent).shortName = shortName
     }
 
     fun storeLongName(navIdent: String, longName: String) {
-        TODO("Not yet implemented")
+        innstillingerRepository.findBySaksbehandlerident(navIdent).longName = longName
     }
 
     fun storeJobTitle(navIdent: String, jobTitle: String) {
-        TODO("Not yet implemented")
+        innstillingerRepository.findBySaksbehandlerident(navIdent).jobTitle = jobTitle
     }
 
 }

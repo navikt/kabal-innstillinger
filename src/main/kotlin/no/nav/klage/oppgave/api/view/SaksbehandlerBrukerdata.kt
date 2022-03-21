@@ -14,9 +14,9 @@ data class SaksbehandlerView(
         val sammensattNavn: String,
         val epost: String,
         //For signature and maybe more?
-        val shortName: String,
-        val longName: String,
-        val jobTitle: String,
+        val shortName: String?,
+        val longName: String?,
+        val jobTitle: String?,
     )
 
     data class InnstillingerView(

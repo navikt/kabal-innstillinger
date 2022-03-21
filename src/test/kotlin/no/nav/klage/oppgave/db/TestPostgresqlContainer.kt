@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.db
 
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 
 class TestPostgresqlContainer private constructor() :
     PostgreSQLContainer<TestPostgresqlContainer?>(IMAGE_VERSION) {
@@ -8,7 +9,7 @@ class TestPostgresqlContainer private constructor() :
     companion object {
         private const val IMAGE_VERSION = "postgres:12.6"
 
-        private val CONTAINER: TestPostgresqlContainer = TestPostgresqlContainer()
+        private val CONTAINER: TestPostgresqlContainer = TestPostgresqlContainer().waitingFor(HostPortWaitStrategy())!!
 
         val instance: TestPostgresqlContainer
             get() {

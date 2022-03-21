@@ -24,6 +24,12 @@ class Innstillinger(
     val ytelser: String = "",
     @Column(name = "typer")
     val typer: String = "",
+    @Column(name = "short_name")
+    var shortName: String? = null,
+    @Column(name = "long_name")
+    var longName: String? = null,
+    @Column(name = "job_title")
+    var jobTitle: String? = null,
     @Column(name = "tidspunkt")
     val tidspunkt: LocalDateTime = LocalDateTime.now()
 ) {
@@ -40,22 +46,26 @@ class Innstillinger(
             saksbehandlerInnstillinger: SaksbehandlerInnstillinger
         ): Innstillinger {
             return Innstillinger(
-                navIdent,
-                saksbehandlerInnstillinger.hjemler.map { it.id }.joinToString(separator),
-                saksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
-                    .map { it.id }.joinToString(separator),
-                saksbehandlerInnstillinger.typer.map { it.id }.joinToString(separator),
-                LocalDateTime.now()
+                saksbehandlerident = navIdent,
+                hjemler = saksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
+                ytelser = saksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
+                    .joinToString(separator) { it.id },
+                typer = saksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
+                tidspunkt = LocalDateTime.now()
             )
         }
     }
 
     fun toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
-            hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+            hjemler = hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
+            ytelser = ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
                 .filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser },
-            typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) })
+            typer = typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) },
+            shortName = shortName,
+            longName = longName,
+            jobTitle = jobTitle,
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -74,7 +84,7 @@ class Innstillinger(
     }
 
     override fun toString(): String {
-        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', typer='$typer', tidspunkt=$tidspunkt)"
+        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', typer='$typer', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', tidspunkt=$tidspunkt)"
     }
 
 }
@@ -82,5 +92,8 @@ class Innstillinger(
 data class SaksbehandlerInnstillinger(
     val hjemler: List<Hjemmel> = emptyList(),
     val ytelser: List<Ytelse> = emptyList(),
-    val typer: List<Type> = emptyList()
+    val typer: List<Type> = emptyList(),
+    val shortName: String? = null,
+    val longName: String? = null,
+    val jobTitle: String? = null,
 )

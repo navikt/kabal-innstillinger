@@ -5,7 +5,10 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
-import no.nav.klage.oppgave.domain.saksbehandler.*
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -34,10 +37,9 @@ class SaksbehandlerMapper(
         adminRole to "ROLE_ADMIN",
     )
 
-
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
-            info = mapToView(saksbehandlerInfo.info),
+            info = mapToPersonligInfoView(saksbehandlerInfo),
             roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
@@ -45,14 +47,14 @@ class SaksbehandlerMapper(
             innstillinger = mapToView(saksbehandlerInfo.innstillinger)
         )
 
-    fun mapToView(saksbehandlerPersonligInfo: SaksbehandlerPersonligInfo) = SaksbehandlerView.PersonligInfoView(
-        navIdent = saksbehandlerPersonligInfo.navIdent,
-        azureId = saksbehandlerPersonligInfo.azureId,
-        sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
-        epost = saksbehandlerPersonligInfo.epost,
-        shortName = "TODO: shortName",
-        longName = "TODO: longName",
-        jobTitle = "TODO: jobTitle",
+    fun mapToPersonligInfoView(saksbehandlerInfo: SaksbehandlerInfo) = SaksbehandlerView.PersonligInfoView(
+        navIdent = saksbehandlerInfo.info.navIdent,
+        azureId = saksbehandlerInfo.info.azureId,
+        sammensattNavn = saksbehandlerInfo.info.sammensattNavn,
+        epost = saksbehandlerInfo.info.epost,
+        shortName = saksbehandlerInfo.innstillinger.shortName,
+        longName = saksbehandlerInfo.innstillinger.longName,
+        jobTitle = saksbehandlerInfo.innstillinger.jobTitle,
     )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =

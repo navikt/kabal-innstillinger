@@ -188,4 +188,6 @@ class SaksbehandlerService(
         innstillingerRepository.findBySaksbehandlerident(navIdent).jobTitle = jobTitle
     }
 
+    fun getInnstillinger(navIdent: String): Innstillinger =
+        innstillingerRepository.findBySaksbehandlerident(ident = navIdent)
 }

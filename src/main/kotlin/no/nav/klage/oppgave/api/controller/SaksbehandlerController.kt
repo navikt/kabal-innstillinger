@@ -44,20 +44,6 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
-        value = "Hent brukerdata for en ansatt",
-        notes = "Henter alle brukerdata om en saksbehandler, inklusive innstillingene hen har gjort."
-    )
-    @GetMapping("/ansatte/{navIdent}/brukerdata", produces = ["application/json"])
-    fun getBrukerdata(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String
-    ): SaksbehandlerView {
-        logger.debug("getBrukerdata is requested by $navIdent")
-        return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
-    }
-
-
-    @ApiOperation(
         value = "Setter innstillinger for en ansatt",
         notes = "Setter valgt tema, hjemmel og type som den ansatte jobber med"
     )
@@ -110,6 +96,19 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
+        value = "Get short name for saksbehandler",
+        notes = "Get short name for saksbehandler"
+    )
+    @GetMapping("/ansatte/{navIdent}/brukerdata/shortname", produces = ["application/json"])
+    fun getShortName(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+    ): String? {
+        validateNavIdent(navIdent)
+        return saksbehandlerService.getInnstillinger(navIdent).shortName
+    }
+
+    @ApiOperation(
         value = "Set long name for saksbehandler",
         notes = "Set long name for saksbehandler"
     )
@@ -129,6 +128,19 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
+        value = "Get long name for saksbehandler",
+        notes = "Get long name for saksbehandler"
+    )
+    @GetMapping("/ansatte/{navIdent}/brukerdata/longname", produces = ["application/json"])
+    fun getLongName(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+    ): String? {
+        validateNavIdent(navIdent)
+        return saksbehandlerService.getInnstillinger(navIdent).longName
+    }
+
+    @ApiOperation(
         value = "Set job title for saksbehandler",
         notes = "Set job title for saksbehandler"
     )
@@ -145,6 +157,19 @@ class SaksbehandlerController(
         )
 
         return input
+    }
+
+    @ApiOperation(
+        value = "Get job title for saksbehandler",
+        notes = "Get job title for saksbehandler"
+    )
+    @GetMapping("/ansatte/{navIdent}/brukerdata/jobtitle", produces = ["application/json"])
+    fun getJobTitle(
+        @ApiParam(value = "NavIdent til en ansatt")
+        @PathVariable navIdent: String,
+    ): String? {
+        validateNavIdent(navIdent)
+        return saksbehandlerService.getInnstillinger(navIdent).jobTitle
     }
 
     private fun validateNavIdent(navIdent: String) {

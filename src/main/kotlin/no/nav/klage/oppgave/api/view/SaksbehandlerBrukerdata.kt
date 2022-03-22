@@ -14,7 +14,7 @@ data class SaksbehandlerView(
     )
 }
 
-data class StringInputView(val value: String)
+data class StringInputView(val value: String?)
 
 data class Signature(
     val longName: String,

@@ -177,15 +177,15 @@ class SaksbehandlerService(
     fun getNameForIdent(navIdent: String) =
         saksbehandlerRepository.getNameForSaksbehandler(navIdent)
 
-    fun storeShortName(navIdent: String, shortName: String) {
+    fun storeShortName(navIdent: String, shortName: String?) {
         innstillingerRepository.findBySaksbehandlerident(navIdent).shortName = shortName
     }
 
-    fun storeLongName(navIdent: String, longName: String) {
+    fun storeLongName(navIdent: String, longName: String?) {
         innstillingerRepository.findBySaksbehandlerident(navIdent).longName = longName
     }
 
-    fun storeJobTitle(navIdent: String, jobTitle: String) {
+    fun storeJobTitle(navIdent: String, jobTitle: String?) {
         innstillingerRepository.findBySaksbehandlerident(navIdent).jobTitle = jobTitle
     }
 

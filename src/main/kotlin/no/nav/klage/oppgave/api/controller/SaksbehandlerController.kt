@@ -12,6 +12,7 @@ import no.nav.klage.oppgave.exceptions.NotMatchingUserException
 import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
+import no.nav.klage.oppgave.util.trimToNull
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -102,7 +103,7 @@ class SaksbehandlerController(
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeShortName(
             navIdent,
-            input.value,
+            input.value.trimToNull(),
         )
 
         return input
@@ -119,7 +120,7 @@ class SaksbehandlerController(
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeLongName(
             navIdent,
-            input.value,
+            input.value.trimToNull(),
         )
 
         return input
@@ -136,7 +137,7 @@ class SaksbehandlerController(
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeJobTitle(
             navIdent,
-            input.value,
+            input.value.trimToNull(),
         )
 
         return input
@@ -151,6 +152,5 @@ class SaksbehandlerController(
             )
         }
     }
-
 }
 

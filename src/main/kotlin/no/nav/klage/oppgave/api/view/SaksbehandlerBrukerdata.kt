@@ -1,23 +1,12 @@
 package no.nav.klage.oppgave.api.view
 
 data class SaksbehandlerView(
-    val info: PersonligInfoView,
+    val navIdent: String,
     val roller: List<String>,
     val enheter: List<EnhetView>,
     val ansattEnhet: EnhetView,
-    val valgtEnhetView: EnhetView,
     val innstillinger: InnstillingerView
 ) {
-    data class PersonligInfoView(
-        val navIdent: String,
-        val azureId: String,
-        val sammensattNavn: String,
-        val epost: String,
-        //For signature and maybe more?
-        val shortName: String?,
-        val longName: String?,
-        val jobTitle: String?,
-    )
 
     data class InnstillingerView(
         val hjemler: List<String>,
@@ -26,9 +15,12 @@ data class SaksbehandlerView(
     )
 }
 
-data class SaksbehandlerRefView(
-    val navIdent: String,
-    val navn: String
-)
-
 data class StringInputView(val value: String)
+
+data class Signature(
+    val longName: String,
+    val generatedShortName: String?,
+    val customLongName: String?,
+    val customShortName: String?,
+    val customJobTitle: String?,
+)

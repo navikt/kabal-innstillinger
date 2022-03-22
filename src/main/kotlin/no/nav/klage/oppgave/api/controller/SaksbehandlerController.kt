@@ -4,17 +4,15 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
-import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
+import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.api.view.StringInputView
-import no.nav.klage.oppgave.api.view.ValgtEnhetInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.NotMatchingUserException
 import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.core.env.Environment
 import org.springframework.web.bind.annotation.*
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*
 @Api(tags = ["kabal-innstillinger"])
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
-    private val environment: Environment,
     private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
     private val saksbehandlerMapper: SaksbehandlerMapper,
 ) {
@@ -33,7 +30,7 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
-        value = "Hent brukerdata for innlogget ansaatt",
+        value = "Hent brukerdata for innlogget ansatt",
         notes = "Henter alle brukerdata om en saksbehandler, inklusive innstillingene hen har gjort."
     )
     @GetMapping("/me/brukerdata", produces = ["application/json"])
@@ -63,17 +60,16 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
-        value = "Setter valgt klageenhet for en ansatt",
-        notes = "Setter valgt klageenhet som den ansatte jobber med. Må være en i lista over mulige enheter"
+        value = "Get signature for saksbehandler",
+        notes = "Get signature for saksbehandler"
     )
-    @PutMapping("/ansatte/{navIdent}/valgtenhet", produces = ["application/json"])
-    fun setValgtEnhet(
+    @GetMapping("/ansatte/{navIdent}/signature", produces = ["application/json"])
+    fun getSignature(
         @ApiParam(value = "NavIdent til en ansatt")
         @PathVariable navIdent: String,
-        @RequestBody input: ValgtEnhetInput
-    ): EnhetView {
+    ): Signature {
         validateNavIdent(navIdent)
-        return saksbehandlerMapper.mapToView(saksbehandlerService.storeValgtEnhetId(navIdent, input.enhetId))
+        return saksbehandlerService.getSignature(navIdent)
     }
 
     @ApiOperation(
@@ -96,19 +92,6 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
-        value = "Get short name for saksbehandler",
-        notes = "Get short name for saksbehandler"
-    )
-    @GetMapping("/ansatte/{navIdent}/brukerdata/shortname", produces = ["application/json"])
-    fun getShortName(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
-    ): String? {
-        validateNavIdent(navIdent)
-        return saksbehandlerService.getInnstillinger(navIdent).shortName
-    }
-
-    @ApiOperation(
         value = "Set long name for saksbehandler",
         notes = "Set long name for saksbehandler"
     )
@@ -128,19 +111,6 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
-        value = "Get long name for saksbehandler",
-        notes = "Get long name for saksbehandler"
-    )
-    @GetMapping("/ansatte/{navIdent}/brukerdata/longname", produces = ["application/json"])
-    fun getLongName(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
-    ): String? {
-        validateNavIdent(navIdent)
-        return saksbehandlerService.getInnstillinger(navIdent).longName
-    }
-
-    @ApiOperation(
         value = "Set job title for saksbehandler",
         notes = "Set job title for saksbehandler"
     )
@@ -157,19 +127,6 @@ class SaksbehandlerController(
         )
 
         return input
-    }
-
-    @ApiOperation(
-        value = "Get job title for saksbehandler",
-        notes = "Get job title for saksbehandler"
-    )
-    @GetMapping("/ansatte/{navIdent}/brukerdata/jobtitle", produces = ["application/json"])
-    fun getJobTitle(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
-    ): String? {
-        validateNavIdent(navIdent)
-        return saksbehandlerService.getInnstillinger(navIdent).jobTitle
     }
 
     private fun validateNavIdent(navIdent: String) {

@@ -39,23 +39,12 @@ class SaksbehandlerMapper(
 
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
-            info = mapToPersonligInfoView(saksbehandlerInfo),
+            navIdent = saksbehandlerInfo.navIdent,
             roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
-            valgtEnhetView = mapToView(saksbehandlerInfo.valgtEnhet),
-            innstillinger = mapToView(saksbehandlerInfo.innstillinger)
+            innstillinger = mapToView(saksbehandlerInfo.saksbehandlerInnstillinger)
         )
-
-    fun mapToPersonligInfoView(saksbehandlerInfo: SaksbehandlerInfo) = SaksbehandlerView.PersonligInfoView(
-        navIdent = saksbehandlerInfo.info.navIdent,
-        azureId = saksbehandlerInfo.info.azureId,
-        sammensattNavn = saksbehandlerInfo.info.sammensattNavn,
-        epost = saksbehandlerInfo.info.epost,
-        shortName = saksbehandlerInfo.innstillinger.shortName,
-        longName = saksbehandlerInfo.innstillinger.longName,
-        jobTitle = saksbehandlerInfo.innstillinger.jobTitle,
-    )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
         SaksbehandlerView.InnstillingerView(

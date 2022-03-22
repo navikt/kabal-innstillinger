@@ -31,7 +31,7 @@ class SaksbehandlerController(
 
     @ApiOperation(
         value = "Hent brukerdata for innlogget ansatt",
-        notes = "Henter alle brukerdata om en saksbehandler, inklusive innstillingene hen har gjort."
+        notes = "Henter alle brukerdata om en saksbehandler"
     )
     @GetMapping("/me/brukerdata", produces = ["application/json"])
     fun getBrukerdata(): SaksbehandlerView {
@@ -41,16 +41,25 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
+        value = "Hent innstillinger for innlogget ansatt",
+        notes = "Henter alle innstillinger for en saksbehandler"
+    )
+    @GetMapping("/me/innstillinger", produces = ["application/json"])
+    fun getInnstillinger(): SaksbehandlerView.InnstillingerView {
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        logger.debug("getBrukerdata is requested by $navIdent")
+        return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent).saksbehandlerInnstillinger)
+    }
+
+    @ApiOperation(
         value = "Setter innstillinger for en ansatt",
         notes = "Setter valgt tema, hjemmel og type som den ansatte jobber med"
     )
-    @PutMapping("/ansatte/{navIdent}/brukerdata/innstillinger", produces = ["application/json"])
+    @PutMapping("/me/innstillinger", produces = ["application/json"])
     fun setInnstillinger(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
         @RequestBody input: SaksbehandlerView.InnstillingerView
     ): SaksbehandlerView.InnstillingerView {
-        validateNavIdent(navIdent)
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         return saksbehandlerMapper.mapToView(
             saksbehandlerService.storeInnstillinger(
                 navIdent,
@@ -73,16 +82,24 @@ class SaksbehandlerController(
     }
 
     @ApiOperation(
+        value = "Get signature for saksbehandler",
+        notes = "Get signature for saksbehandler"
+    )
+    @GetMapping("/me/signature", produces = ["application/json"])
+    fun getSignature(): Signature {
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        return saksbehandlerService.getSignature(navIdent)
+    }
+
+    @ApiOperation(
         value = "Set short name for saksbehandler",
         notes = "Set short name for saksbehandler"
     )
-    @PutMapping("/ansatte/{navIdent}/brukerdata/shortname", produces = ["application/json"])
+    @PutMapping("/me/customShortName", produces = ["application/json"])
     fun setShortName(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
         @RequestBody input: StringInputView
     ): StringInputView {
-        validateNavIdent(navIdent)
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeShortName(
             navIdent,
             input.value,
@@ -95,13 +112,11 @@ class SaksbehandlerController(
         value = "Set long name for saksbehandler",
         notes = "Set long name for saksbehandler"
     )
-    @PutMapping("/ansatte/{navIdent}/brukerdata/longname", produces = ["application/json"])
+    @PutMapping("/me/customLongName", produces = ["application/json"])
     fun setLongName(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
         @RequestBody input: StringInputView
     ): StringInputView {
-        validateNavIdent(navIdent)
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeLongName(
             navIdent,
             input.value,
@@ -114,13 +129,11 @@ class SaksbehandlerController(
         value = "Set job title for saksbehandler",
         notes = "Set job title for saksbehandler"
     )
-    @PutMapping("/ansatte/{navIdent}/brukerdata/jobtitle", produces = ["application/json"])
+    @PutMapping("/me/customJobTitle", produces = ["application/json"])
     fun setJobTitle(
-        @ApiParam(value = "NavIdent til en ansatt")
-        @PathVariable navIdent: String,
         @RequestBody input: StringInputView
     ): StringInputView {
-        validateNavIdent(navIdent)
+        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         saksbehandlerService.storeJobTitle(
             navIdent,
             input.value,

@@ -43,7 +43,6 @@ class SaksbehandlerMapper(
             roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
-            innstillinger = mapToView(saksbehandlerInfo.saksbehandlerInnstillinger)
         )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =

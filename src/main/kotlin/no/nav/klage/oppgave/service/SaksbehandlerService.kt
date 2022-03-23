@@ -178,15 +178,30 @@ class SaksbehandlerService(
         saksbehandlerRepository.getNameForSaksbehandler(navIdent)
 
     fun storeShortName(navIdent: String, shortName: String?) {
-        innstillingerRepository.findBySaksbehandlerident(navIdent).shortName = shortName
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.shortName = shortName
     }
 
     fun storeLongName(navIdent: String, longName: String?) {
-        innstillingerRepository.findBySaksbehandlerident(navIdent).longName = longName
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.longName = longName
     }
 
     fun storeJobTitle(navIdent: String, jobTitle: String?) {
-        innstillingerRepository.findBySaksbehandlerident(navIdent).jobTitle = jobTitle
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.jobTitle = jobTitle
+    }
+
+    private fun getOrCreateInnstillinger(navIdent: String): Innstillinger {
+        var innstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
+        if (innstillinger == null) {
+            innstillinger = innstillingerRepository.save(
+                Innstillinger(
+                    saksbehandlerident = navIdent,
+                )
+            )
+        }
+        return innstillinger
     }
 
     fun getSignature(navIdent: String): Signature {
@@ -197,9 +212,9 @@ class SaksbehandlerService(
         return Signature(
             longName = name.sammensattNavn,
             generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
-            customLongName = innstillinger.longName,
-            customShortName = innstillinger.shortName,
-            customJobTitle = innstillinger.jobTitle,
+            customLongName = innstillinger?.longName,
+            customShortName = innstillinger?.shortName,
+            customJobTitle = innstillinger?.jobTitle,
         )
     }
 

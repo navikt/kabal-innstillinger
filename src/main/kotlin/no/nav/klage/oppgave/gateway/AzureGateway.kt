@@ -10,4 +10,5 @@ interface AzureGateway {
     fun getGroupMembersNavIdents(groupId: String): List<String>
     fun getRolleIder(navIdent: String): List<String>
     fun getRollerForSaksbehandlerMedIdent(navIdent: String): List<SaksbehandlerRolle>
+    fun getEnhetensAnsattesNavIdents(enhetNr: String): List<String>
 }

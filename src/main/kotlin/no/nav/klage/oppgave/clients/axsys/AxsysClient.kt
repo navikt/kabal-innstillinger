@@ -1,7 +1,6 @@
 package no.nav.klage.oppgave.clients.axsys
 
 import brave.Tracer
-import no.nav.klage.oppgave.config.CacheWithJCacheConfiguration.Companion.SAKSBEHANDLERE_I_ENHET_CACHE
 import no.nav.klage.oppgave.config.CacheWithJCacheConfiguration.Companion.TILGANGER_CACHE
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
@@ -62,26 +61,6 @@ class AxsysClient(
             logger.warn("Got a 404 fetching tilganger for saksbehandler {}, throwing exception", navIdent, notFound)
             throw RuntimeException("Tilganger could not be fetched")
         }
-    }
-
-    @Retryable
-    @Cacheable(SAKSBEHANDLERE_I_ENHET_CACHE)
-    fun getSaksbehandlereIEnhet(enhetId: String): List<Bruker> {
-        logger.debug("Fetching brukere in enhet {}", enhetId)
-
-        return axsysWebClient.get()
-            .uri { uriBuilder ->
-                uriBuilder
-                    .path("/enhet/{enhetId}/brukere")
-                    .build(enhetId)
-            }
-            .header("Authorization", "Bearer ${tokenUtil.getAppAccessTokenWithAxsysScope()}")
-            .header("Nav-Call-Id", tracer.currentSpan().context().traceIdString())
-            .header("Nav-Consumer-Id", applicationName)
-
-            .retrieve()
-            .bodyToMono<List<Bruker>>()
-            .block() ?: throw RuntimeException("Brukere in enhet could not be fetched")
     }
 }
 

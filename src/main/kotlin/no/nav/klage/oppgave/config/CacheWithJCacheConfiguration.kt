@@ -24,6 +24,7 @@ class CacheWithJCacheConfiguration(private val environment: Environment) : JCach
         const val ROLLER_CACHE = "roller"
         const val SAKSBEHANDLERE_I_ENHET_CACHE = "saksbehandlereienhet"
         const val GROUPMEMBERS_CACHE = "groupmembers"
+        const val ANSATTE_I_ENHET_CACHE = "ansatteienhet"
 
         val cacheKeys =
             listOf(ENHET_CACHE, TILGANGER_CACHE, ROLLER_CACHE, SAKSBEHANDLERE_I_ENHET_CACHE, GROUPMEMBERS_CACHE)

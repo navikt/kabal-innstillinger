@@ -78,7 +78,6 @@ class SaksbehandlerController(
         @ApiParam(value = "NavIdent til en ansatt")
         @PathVariable navIdent: String,
     ): Signature {
-        validateNavIdent(navIdent)
         return saksbehandlerService.getSignature(navIdent)
     }
 

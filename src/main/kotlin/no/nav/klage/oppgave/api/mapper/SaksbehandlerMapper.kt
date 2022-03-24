@@ -5,7 +5,10 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.EnhetView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
-import no.nav.klage.oppgave.domain.saksbehandler.*
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -34,25 +37,13 @@ class SaksbehandlerMapper(
         adminRole to "ROLE_ADMIN",
     )
 
-
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
-            info = mapToView(saksbehandlerInfo.info),
+            navIdent = saksbehandlerInfo.navIdent,
             roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
-            valgtEnhetView = mapToView(saksbehandlerInfo.valgtEnhet),
-            innstillinger = mapToView(saksbehandlerInfo.innstillinger)
         )
-
-    fun mapToView(saksbehandlerPersonligInfo: SaksbehandlerPersonligInfo) = SaksbehandlerView.PersonligInfoView(
-        navIdent = saksbehandlerPersonligInfo.navIdent,
-        azureId = saksbehandlerPersonligInfo.azureId,
-        fornavn = saksbehandlerPersonligInfo.fornavn,
-        etternavn = saksbehandlerPersonligInfo.etternavn,
-        sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
-        epost = saksbehandlerPersonligInfo.epost
-    )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
         SaksbehandlerView.InnstillingerView(

@@ -4,12 +4,14 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.Medunderskriver
 import no.nav.klage.oppgave.api.view.Medunderskrivere
+import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.*
+import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
+@Transactional
 class SaksbehandlerService(
     private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
     private val valgtEnhetRepository: ValgtEnhetRepository,
@@ -35,7 +38,6 @@ class SaksbehandlerService(
         private const val VIKAFOSSEN = "2103"
     }
 
-    @Transactional
     fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
         if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
             logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den hen er ansatt i")
@@ -60,13 +62,11 @@ class SaksbehandlerService(
         )
     }
 
-    @Transactional
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
         return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
-
-    private fun findInnstillinger(
+    private fun findSaksbehandlerInnstillinger(
         ident: String,
         ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser
     ): SaksbehandlerInnstillinger {
@@ -75,7 +75,6 @@ class SaksbehandlerService(
             ?: SaksbehandlerInnstillinger()
     }
 
-    @Transactional
     fun storeInnstillinger(
         navIdent: String,
         saksbehandlerInnstillinger: SaksbehandlerInnstillinger
@@ -91,24 +90,25 @@ class SaksbehandlerService(
         ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
     }
 
-    @Transactional
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
-        val dataOmInnloggetSaksbehandler = azureGateway.getDataOmInnloggetSaksbehandler()
+        val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
+
+        val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
+            innloggetSaksbehandlerRepository.getInnloggetIdent(),
+            ansattEnhetForInnloggetSaksbehandler,
+        )
+
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
-        val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
-        val innstillinger = findInnstillinger(
-            innloggetSaksbehandlerRepository.getInnloggetIdent(),
-            ansattEnhetForInnloggetSaksbehandler
-        )
+
         return SaksbehandlerInfo(
-            info = dataOmInnloggetSaksbehandler,
+            navIdent = navIdent,
             roller = rollerForInnloggetSaksbehandler,
             enheter = enheterForInnloggetSaksbehandler,
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
-            innstillinger = innstillinger
+            saksbehandlerInnstillinger = saksbehandlerInnstillinger
         )
     }
 
@@ -131,7 +131,7 @@ class SaksbehandlerService(
                 val medunderskrivere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
                     .filter { it != ident }
                     .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
-                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
                 Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
             }
             if (ytelseTilKlageenheter.contains(ytelse)) {
@@ -143,7 +143,7 @@ class SaksbehandlerService(
                     .filter { saksbehandlerRepository.erSaksbehandler(it) }
                     .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
                     .distinct()
-                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
                 Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
             } else {
                 logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
@@ -159,7 +159,7 @@ class SaksbehandlerService(
                     .filter { it != ident }
                     .filter { saksbehandlerRepository.erSaksbehandler(it) }
                     .distinct()
-                    .map { Medunderskriver(it, getNameForIdent(it)) }
+                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
                 Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
             } else {
                 logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
@@ -176,5 +176,46 @@ class SaksbehandlerService(
 
     fun getNameForIdent(navIdent: String) =
         saksbehandlerRepository.getNameForSaksbehandler(navIdent)
+
+    fun storeShortName(navIdent: String, shortName: String?) {
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.shortName = shortName
+    }
+
+    fun storeLongName(navIdent: String, longName: String?) {
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.longName = longName
+    }
+
+    fun storeJobTitle(navIdent: String, jobTitle: String?) {
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.jobTitle = jobTitle
+    }
+
+    private fun getOrCreateInnstillinger(navIdent: String): Innstillinger {
+        var innstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
+        if (innstillinger == null) {
+            innstillinger = innstillingerRepository.save(
+                Innstillinger(
+                    saksbehandlerident = navIdent,
+                )
+            )
+        }
+        return innstillinger
+    }
+
+    fun getSignature(navIdent: String): Signature {
+        val innstillinger = innstillingerRepository.findBySaksbehandlerident(ident = navIdent)
+
+        val name = saksbehandlerRepository.getNameForSaksbehandler(navIdent)
+
+        return Signature(
+            longName = name.sammensattNavn,
+            generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
+            customLongName = innstillinger?.longName,
+            customShortName = innstillinger?.shortName,
+            customJobTitle = innstillinger?.jobTitle,
+        )
+    }
 
 }

@@ -12,6 +12,8 @@ spec:
       labels:
         job-name: {{jobname}}
         app: kabal-e2e-tests
+      annotations:
+        linkerd.io/inject: "false"
     spec:
       imagePullSecrets:
         - name: gpr-credentials

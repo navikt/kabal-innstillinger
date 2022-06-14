@@ -39,21 +39,6 @@ class Innstillinger(
         private val secureLogger = getSecureLogger()
 
         private val separator = ","
-
-        fun fromSaksbehandlersInnstillinger(
-            navIdent: String,
-            ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser,
-            saksbehandlerInnstillinger: SaksbehandlerInnstillinger
-        ): Innstillinger {
-            return Innstillinger(
-                saksbehandlerident = navIdent,
-                hjemler = saksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
-                ytelser = saksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
-                    .joinToString(separator) { it.id },
-                typer = saksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
-                tidspunkt = LocalDateTime.now()
-            )
-        }
     }
 
     fun toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser): SaksbehandlerInnstillinger {

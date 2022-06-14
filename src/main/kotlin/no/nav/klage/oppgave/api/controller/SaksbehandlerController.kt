@@ -62,7 +62,7 @@ class SaksbehandlerController(
     ): SaksbehandlerView.InnstillingerView {
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         return saksbehandlerMapper.mapToView(
-            saksbehandlerService.storeInnstillinger(
+            saksbehandlerService.storeInnstillingerButKeepSignature(
                 navIdent,
                 saksbehandlerMapper.mapToDomain(input)
             )

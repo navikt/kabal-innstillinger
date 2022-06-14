@@ -75,17 +75,27 @@ class SaksbehandlerService(
             ?: SaksbehandlerInnstillinger()
     }
 
-    fun storeInnstillinger(
+    fun storeInnstillingerButKeepSignature(
         navIdent: String,
-        saksbehandlerInnstillinger: SaksbehandlerInnstillinger
+        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
     ): SaksbehandlerInnstillinger {
         val ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser =
             innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
+
+        val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
+        val separator = ","
+
         return innstillingerRepository.save(
-            Innstillinger.fromSaksbehandlersInnstillinger(
-                navIdent,
-                ansattEnhetForInnloggetSaksbehandler,
-                saksbehandlerInnstillinger
+            Innstillinger(
+                saksbehandlerident = navIdent,
+                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
+                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
+                    .joinToString(separator) { it.id },
+                typer = newSaksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
+                shortName = oldInnstillinger?.shortName,
+                longName = oldInnstillinger?.longName,
+                jobTitle = oldInnstillinger?.jobTitle,
+                tidspunkt = LocalDateTime.now()
             )
         ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
     }

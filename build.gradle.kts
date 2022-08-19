@@ -13,7 +13,7 @@ val testContainersVersion = "1.16.2"
 val kabalKodeverkVersion = "2022.06.02-08.34.27cd881bd751"
 
 plugins {
-    id("org.springframework.boot") version "2.5.12"
+    id("org.springframework.boot") version "2.7.3"
     id("io.spring.dependency-management") version "1.0.12.RELEASE"
     kotlin("jvm") version "1.7.10"
     kotlin("plugin.spring") version "1.7.10"

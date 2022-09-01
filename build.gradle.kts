@@ -9,7 +9,7 @@ val problemSpringWebStartVersion = "0.27.0"
 val springRetryVersion = "1.3.3"
 val springMockkVersion = "3.1.1"
 val springFoxVersion = "3.0.0"
-val testContainersVersion = "1.16.2"
+val testContainersVersion = "1.17.3"
 val kabalKodeverkVersion = "2022.06.02-08.34.27cd881bd751"
 
 plugins {

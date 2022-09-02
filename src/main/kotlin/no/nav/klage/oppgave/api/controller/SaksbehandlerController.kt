@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.api.controller
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.api.view.Signature
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Api(tags = ["kabal-innstillinger"])
+@Tag(name = "kabal-innstillinger")
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
     private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
@@ -30,9 +30,9 @@ class SaksbehandlerController(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    @ApiOperation(
-        value = "Hent brukerdata for innlogget ansatt",
-        notes = "Henter alle brukerdata om en saksbehandler"
+    @Operation(
+        summary = "Hent brukerdata for innlogget ansatt",
+        description = "Henter alle brukerdata om en saksbehandler"
     )
     @GetMapping("/me/brukerdata", produces = ["application/json"])
     fun getBrukerdata(): SaksbehandlerView {
@@ -41,9 +41,9 @@ class SaksbehandlerController(
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }
 
-    @ApiOperation(
-        value = "Hent innstillinger for innlogget ansatt",
-        notes = "Henter alle innstillinger for en saksbehandler"
+    @Operation(
+        summary = "Hent innstillinger for innlogget ansatt",
+        description = "Henter alle innstillinger for en saksbehandler"
     )
     @GetMapping("/me/innstillinger", produces = ["application/json"])
     fun getInnstillinger(): SaksbehandlerView.InnstillingerView {
@@ -52,9 +52,9 @@ class SaksbehandlerController(
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent).saksbehandlerInnstillinger)
     }
 
-    @ApiOperation(
-        value = "Setter innstillinger for en ansatt",
-        notes = "Setter valgt tema, hjemmel og type som den ansatte jobber med"
+    @Operation(
+        summary = "Setter innstillinger for en ansatt",
+        description = "Setter valgt tema, hjemmel og type som den ansatte jobber med"
     )
     @PutMapping("/me/innstillinger", produces = ["application/json"])
     fun setInnstillinger(
@@ -69,21 +69,21 @@ class SaksbehandlerController(
         )
     }
 
-    @ApiOperation(
-        value = "Get signature for saksbehandler",
-        notes = "Get signature for saksbehandler"
+    @Operation(
+        summary = "Get signature for saksbehandler",
+        description = "Get signature for saksbehandler"
     )
     @GetMapping("/ansatte/{navIdent}/signature", produces = ["application/json"])
     fun getSignature(
-        @ApiParam(value = "NavIdent til en ansatt")
+        @Parameter(name = "NavIdent til en ansatt")
         @PathVariable navIdent: String,
     ): Signature {
         return saksbehandlerService.getSignature(navIdent)
     }
 
-    @ApiOperation(
-        value = "Get signature for saksbehandler",
-        notes = "Get signature for saksbehandler"
+    @Operation(
+        summary = "Get signature for saksbehandler",
+        description = "Get signature for saksbehandler"
     )
     @GetMapping("/me/signature", produces = ["application/json"])
     fun getSignature(): Signature {
@@ -91,9 +91,9 @@ class SaksbehandlerController(
         return saksbehandlerService.getSignature(navIdent)
     }
 
-    @ApiOperation(
-        value = "Set short name for saksbehandler",
-        notes = "Set short name for saksbehandler"
+    @Operation(
+        summary = "Set short name for saksbehandler",
+        description = "Set short name for saksbehandler"
     )
     @PutMapping("/me/customShortName", produces = ["application/json"])
     fun setShortName(
@@ -108,9 +108,9 @@ class SaksbehandlerController(
         return input
     }
 
-    @ApiOperation(
-        value = "Set long name for saksbehandler",
-        notes = "Set long name for saksbehandler"
+    @Operation(
+        summary = "Set long name for saksbehandler",
+        description = "Set long name for saksbehandler"
     )
     @PutMapping("/me/customLongName", produces = ["application/json"])
     fun setLongName(
@@ -125,9 +125,9 @@ class SaksbehandlerController(
         return input
     }
 
-    @ApiOperation(
-        value = "Set job title for saksbehandler",
-        notes = "Set job title for saksbehandler"
+    @Operation(
+        summary = "Set job title for saksbehandler",
+        description = "Set job title for saksbehandler"
     )
     @PutMapping("/me/customJobTitle", produces = ["application/json"])
     fun setJobTitle(

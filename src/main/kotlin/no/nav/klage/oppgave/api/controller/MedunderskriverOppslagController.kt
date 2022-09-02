@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.api.controller
 
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.Medunderskrivere
 import no.nav.klage.oppgave.api.view.MedunderskrivereInput
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Api(tags = ["kabal-api"])
+@Tag(name = "kabal-api")
 class MedunderskriverOppslagController(
     private val saksbehandlerService: SaksbehandlerService,
     private val environment: Environment,
@@ -30,10 +30,9 @@ class MedunderskriverOppslagController(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-
-    @ApiOperation(
-        value = "Hent medunderskriver for en ansatt",
-        notes = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
+    @Operation(
+        summary = "Hent medunderskriver for en ansatt",
+        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
     )
     @PostMapping(
         "/search/medunderskrivere",
@@ -44,8 +43,12 @@ class MedunderskriverOppslagController(
     ): Medunderskrivere {
         val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getMedunderskrivereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
-        return saksbehandlerService.getMedunderskrivere(input.navIdent, input.enhet, Ytelse.of(input.ytelseId), input.fnr)
+        return saksbehandlerService.getMedunderskrivere(
+            input.navIdent,
+            input.enhet,
+            Ytelse.of(input.ytelseId),
+            input.fnr
+        )
     }
 
 }
-

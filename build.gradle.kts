@@ -10,7 +10,7 @@ val springRetryVersion = "1.3.3"
 val springMockkVersion = "3.1.1"
 val springDocVersion = "1.6.11"
 val testContainersVersion = "1.17.3"
-val kabalKodeverkVersion = "2022.09.02-09.46.42bb41c078e5"
+val kabalKodeverkVersion = "2022.09.05-15.31.efa194ed62e9"
 
 plugins {
     id("org.springframework.boot") version "2.7.3"

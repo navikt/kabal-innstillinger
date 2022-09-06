@@ -220,7 +220,7 @@ class SaksbehandlerService(
         val name = saksbehandlerRepository.getNameForSaksbehandler(navIdent)
 
         return Signature(
-            longName = name.sammensattNavn,
+            longName = name.fornavn + " " + name.etternavn,
             generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
             customLongName = innstillinger?.longName,
             customShortName = innstillinger?.shortName,

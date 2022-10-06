@@ -11,7 +11,6 @@ import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.NotMatchingUserException
 import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
-import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.klage.oppgave.util.trimToNull
@@ -25,7 +24,6 @@ class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
     private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
     private val saksbehandlerMapper: SaksbehandlerMapper,
-    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -42,8 +40,6 @@ class SaksbehandlerController(
     fun getBrukerdata(): SaksbehandlerView {
         val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getBrukerdata is requested by $navIdent")
-
-        secureLogger.debug("getSaksbehandlerAccessTokenWithGraphScope: {}", tokenUtil.getSaksbehandlerAccessTokenWithGraphScope())
 
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }

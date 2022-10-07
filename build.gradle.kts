@@ -9,7 +9,7 @@ val problemSpringWebStartVersion = "0.27.0"
 val springRetryVersion = "1.3.3"
 val springMockkVersion = "3.1.1"
 val springDocVersion = "1.6.11"
-val testContainersVersion = "1.17.4"
+val testContainersVersion = "1.17.5"
 
 plugins {
     id("org.springframework.boot") version "2.7.4"

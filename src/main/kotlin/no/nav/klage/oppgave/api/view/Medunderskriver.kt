@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.api.view
 
-data class Medunderskrivere(val ytelse: String, val medunderskrivere: List<Medunderskriver>)
+data class MedunderskrivereForYtelse(val ytelse: String, val medunderskrivere: List<Saksbehandler>)
 
-data class Medunderskriver(val navIdent: String, val navn: String)
+data class Saksbehandler(val navIdent: String, val navn: String)
 
 data class MedunderskrivereInput(
     val ytelseId: String,

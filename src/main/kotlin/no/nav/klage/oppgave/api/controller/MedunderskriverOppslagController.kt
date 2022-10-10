@@ -4,7 +4,7 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.oppgave.api.view.Medunderskrivere
+import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
@@ -40,7 +40,7 @@ class MedunderskriverOppslagController(
     )
     fun getMedunderskrivereForYtelseOgFnr(
         @RequestBody input: MedunderskrivereInput
-    ): Medunderskrivere {
+    ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getMedunderskrivereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getMedunderskrivere(

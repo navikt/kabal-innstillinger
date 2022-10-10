@@ -2,8 +2,8 @@ package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
-import no.nav.klage.oppgave.api.view.Medunderskriver
-import no.nav.klage.oppgave.api.view.Medunderskrivere
+import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
+import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
@@ -122,60 +122,48 @@ class SaksbehandlerService(
         )
     }
 
-    //TODO: Skal skrives om til å hente valgte ytelser fra innstillinger og bruke det for å finne medunderskrivere.
-    //Trenger da ikke lenger å kalle enhetRepository.getAnsatteIEnhet(), så jeg bruker ikke tid på å skrive om den nå
-    fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String? = null): Medunderskrivere =
-        if (fnr != null) {
-            val personInfo = pdlFacade.getPersonInfo(fnr)
-            val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
-            val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
-            val erEgenAnsatt = egenAnsattService.erEgenAnsatt(fnr)
+    fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String?): MedunderskrivereForYtelse {
+        return MedunderskrivereForYtelse(
+            ytelse = ytelse.id,
+            medunderskrivere = getPossibleSaksbehandlereForYtelseAndFnr(
+                ytelse = ytelse,
+                fnr = fnr!!
+            ).filter { it.navIdent != ident })
+    }
 
-            if (harBeskyttelsesbehovStrengtFortrolig) {
-                //Kode 6 har skal ikke ha medunderskrivere
-                Medunderskrivere(ytelse.id, emptyList())
-            }
-            if (harBeskyttelsesbehovFortrolig) {
-                //Kode 7 skal ha medunderskrivere fra alle ytelser, men kun de med kode 7-rettigheter
-                //TODO: Dette er klønete, vi burde gjort dette i ETT kall til AD, ikke n.
-                val medunderskrivere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
-                    .filter { it != ident }
-                    .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
-                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
-                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
-            }
-            if (ytelseTilKlageenheter.contains(ytelse)) {
-                val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
-                    .filter { it.navn != VIKAFOSSEN }
-                    .sortedBy { it.navn != enhetId }
-                    .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
-                    .filter { it != ident }
-                    .filter { saksbehandlerRepository.erSaksbehandler(it) }
-                    .filter { egenAnsattFilter(fnr, erEgenAnsatt, ident) }
-                    .distinct()
-                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
-                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
-            } else {
-                logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
-                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = emptyList())
-            }
+    private fun getPossibleSaksbehandlereForYtelseAndFnr(ytelse: Ytelse, fnr: String): Set<Saksbehandler> {
+        val personInfo = pdlFacade.getPersonInfo(fnr)
+        val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
+        val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
+        val erEgenAnsatt = egenAnsattService.erEgenAnsatt(fnr)
 
-        } else {
-            if (ytelseTilKlageenheter.contains(ytelse)) {
-                val medunderskrivere = ytelseTilKlageenheter[ytelse]!!
-                    .filter { it.navn != VIKAFOSSEN }
-                    .sortedBy { it.navn != enhetId }
-                    .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
-                    .filter { it != ident }
-                    .filter { saksbehandlerRepository.erSaksbehandler(it) }
-                    .distinct()
-                    .map { Medunderskriver(it, getNameForIdent(it).sammensattNavn) }
-                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = medunderskrivere)
-            } else {
-                logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
-                Medunderskrivere(ytelse = ytelse.id, medunderskrivere = emptyList())
-            }
+        if (harBeskyttelsesbehovStrengtFortrolig) {
+            //Kode 6 har skal ikke ha medunderskrivere
+            return emptySet()
         }
+        if (harBeskyttelsesbehovFortrolig) {
+            //Kode 7 skal ha medunderskrivere fra alle ytelser, men kun de med kode 7-rettigheter
+            //TODO: Dette er klønete, vi burde gjort dette i ETT kall til AD, ikke n.
+            val saksbehandlere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
+                .filter { egenAnsattFilter(fnr, erEgenAnsatt, it) }
+                .map { Saksbehandler(it, getNameForIdent(it).sammensattNavn) }
+            return HashSet(saksbehandlere)
+        }
+        return if (ytelseTilKlageenheter.contains(ytelse)) {
+            val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
+                .filter { it.navn != VIKAFOSSEN }
+                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
+                .distinct()
+                .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+            return HashSet(saksbehandlere)
+        } else {
+            logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
+            emptySet()
+        }
+    }
+
 
     private fun egenAnsattFilter(fnr: String, erEgenAnsatt: Boolean, ident: String) =
         if (!erEgenAnsatt) {

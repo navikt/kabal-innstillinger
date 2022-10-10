@@ -4,6 +4,7 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
+import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
@@ -122,13 +123,22 @@ class SaksbehandlerService(
         )
     }
 
-    fun getMedunderskrivere(ident: String, enhetId: String, ytelse: Ytelse, fnr: String?): MedunderskrivereForYtelse {
+    fun getMedunderskrivere(ident: String, ytelse: Ytelse, fnr: String?): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
             medunderskrivere = getPossibleSaksbehandlereForYtelseAndFnr(
                 ytelse = ytelse,
                 fnr = fnr!!
             ).filter { it.navIdent != ident })
+    }
+
+    fun getSaksbehandlere(ytelse: Ytelse, fnr: String): Saksbehandlere {
+        return Saksbehandlere(
+            saksbehandlere = getPossibleSaksbehandlereForYtelseAndFnr(
+                ytelse = ytelse,
+                fnr = fnr
+            ).toList()
+        )
     }
 
     private fun getPossibleSaksbehandlereForYtelseAndFnr(ytelse: Ytelse, fnr: String): Set<Saksbehandler> {

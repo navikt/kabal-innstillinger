@@ -3,10 +3,9 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
-import no.nav.klage.oppgave.api.view.SaksbehandlerView
-import no.nav.klage.oppgave.api.view.Signature
-import no.nav.klage.oppgave.api.view.StringInputView
+import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.NotMatchingUserException
 import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
@@ -143,6 +142,25 @@ class SaksbehandlerController(
         )
 
         return input
+    }
+
+    @Operation(
+        summary = "Hent potensielle saksbehandlere for en gitt ytelse og person",
+        description = "Hent potensielle saksbehandlere for en gitt ytelse og person"
+    )
+    @PostMapping(
+        "/search/saksbehandlere",
+        produces = ["application/json"]
+    )
+    fun getSaksbehandlereForYtelseOgFnr(
+        @RequestBody input: SaksbehandlerSearchInput
+    ): Saksbehandlere {
+        val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        logger.debug("getSaksbehandlereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
+        return saksbehandlerService.getSaksbehandlere(
+            ytelse = Ytelse.of(input.ytelseId),
+            fnr = input.fnr
+        )
     }
 
     private fun validateNavIdent(navIdent: String) {

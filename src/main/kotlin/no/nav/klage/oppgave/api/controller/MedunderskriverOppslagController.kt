@@ -44,10 +44,9 @@ class MedunderskriverOppslagController(
         val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
         logger.debug("getMedunderskrivereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getMedunderskrivere(
-            input.navIdent,
-            input.enhet,
-            Ytelse.of(input.ytelseId),
-            input.fnr
+            ident = input.navIdent,
+            ytelse = Ytelse.of(input.ytelseId),
+            fnr = input.fnr
         )
     }
 

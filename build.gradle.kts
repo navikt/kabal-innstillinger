@@ -8,7 +8,7 @@ val unleashVersion = "4.4.1"
 val problemSpringWebStartVersion = "0.27.0"
 val springRetryVersion = "1.3.3"
 val springMockkVersion = "3.1.1"
-val springDocVersion = "1.6.11"
+val springDocVersion = "1.6.12"
 val testContainersVersion = "1.17.5"
 
 plugins {

@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
-@Table(name = "innstillinger", schema = "saksbehandler_access")
+@Table(name = "saksbehandler_access", schema = "innstillinger")
 class SaksbehandlerAccess(
 
     @Id

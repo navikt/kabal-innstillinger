@@ -7,7 +7,7 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
-import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
+import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 class MedunderskriverOppslagController(
     private val saksbehandlerService: SaksbehandlerService,
     private val environment: Environment,
-    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository
+    private val innloggetAnsattRepository: InnloggetAnsattRepository
 ) {
 
     companion object {
@@ -41,7 +41,7 @@ class MedunderskriverOppslagController(
     fun getMedunderskrivereForYtelseOgFnr(
         @RequestBody input: MedunderskrivereInput
     ): MedunderskrivereForYtelse {
-        val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getMedunderskrivereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,

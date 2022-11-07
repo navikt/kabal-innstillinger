@@ -5,7 +5,7 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
 import no.nav.klage.oppgave.domain.saksbehandler.Enhet
 import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
-import no.nav.klage.oppgave.domain.saksbehandler.Innstillinger
+import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

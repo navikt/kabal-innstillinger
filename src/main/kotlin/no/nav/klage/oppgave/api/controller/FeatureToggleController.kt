@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Hidden
 import no.finn.unleash.Unleash
 import no.finn.unleash.UnleashContext
 import no.nav.klage.oppgave.config.SecurityConfiguration
-import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
+import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.api.Unprotected
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @Hidden
 class FeatureToggleController(
     private val unleash: Unleash,
-    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository
+    private val innloggetAnsattRepository: InnloggetAnsattRepository
 ) {
 
     companion object {
@@ -41,7 +41,7 @@ class FeatureToggleController(
         UnleashContext.builder().userId(getIdent()).build()
 
     private fun getIdent() = try {
-        innloggetSaksbehandlerRepository.getInnloggetIdent()
+        innloggetAnsattRepository.getInnloggetIdent()
     } catch (e: Exception) {
         logger.info("Not able to retrieve token", e)
         "UINNLOGGET"

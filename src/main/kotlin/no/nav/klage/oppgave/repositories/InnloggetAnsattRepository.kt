@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class InnloggetSaksbehandlerRepository(
+class InnloggetAnsattRepository(
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val tokenUtil: TokenUtil,
     @Value("\${ROLE_GOSYS_OPPGAVE_BEHANDLER}") private val gosysSaksbehandlerRole: String,
@@ -41,6 +41,8 @@ class InnloggetSaksbehandlerRepository(
     fun harTilgangTilEnhetOgYtelse(enhetId: String, ytelse: Ytelse): Boolean {
         return saksbehandlerRepository.harTilgangTilEnhetOgYtelse(getInnloggetIdent(), enhetId, ytelse)
     }
+
+    fun isLeder() = tokenUtil.getRollerFromToken().hasRole(lederRole)
 
     private fun List<String>.hasRole(role: String) = any { it.contains(role) }
 

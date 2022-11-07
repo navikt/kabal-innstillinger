@@ -51,7 +51,11 @@ class AdministerAccessController(
     ): SaksbehandlerAccess {
         verifyIsLeder()
 
-        return saksbehandlerAccessService.setYtelser(saksbehandlerIdent = navIdent, ytelseIdList = input.ytelseIdList)
+        return saksbehandlerAccessService.setYtelser(
+            saksbehandlerIdent = navIdent,
+            ytelseIdList = input.ytelseIdList,
+            innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent()
+        )
     }
 
     private fun verifyIsLeder() {

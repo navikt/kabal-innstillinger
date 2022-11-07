@@ -12,6 +12,8 @@ class SaksbehandlerAccess(
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
+    @Column(name = "modified_by")
+    var modifiedBy: String,
     @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.EAGER)
     @CollectionTable(
         name = "saksbehandler_access_ytelse",

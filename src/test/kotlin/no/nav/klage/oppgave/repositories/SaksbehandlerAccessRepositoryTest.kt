@@ -35,9 +35,11 @@ class SaksbehandlerAccessRepositoryTest {
     @Test
     fun `persist SaksbehandlerAccess works`() {
         val saksbehandlerident = "AB12345"
+        val innloggetIdent = "BA54321"
         val ytelser = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
         val saksbehandlerAccess = SaksbehandlerAccess(
             saksbehandlerident = saksbehandlerident,
+            modifiedBy = innloggetIdent,
             ytelser = ytelser,
         )
 

@@ -1,6 +1,7 @@
 CREATE TABLE innstillinger.saksbehandler_access
 (
     saksbehandlerident     TEXT PRIMARY KEY,
+    modified_by            TEXT      NOT NULL,
     created                TIMESTAMP NOT NULL,
     access_rights_modified TIMESTAMP NOT NULL
 );

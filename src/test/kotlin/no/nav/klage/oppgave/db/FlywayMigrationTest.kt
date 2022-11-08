@@ -30,20 +30,20 @@ class FlywayMigrationTest {
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
 
-    data class MiniValgtEnhet(val saksbehandlerident: String, val enhetId: String)
+    data class MiniInnstilling(val saksbehandlerident: String, val hjemler: String)
 
     @Test
     fun flyway_should_run() {
-        val valgteEnheter: List<MiniValgtEnhet> = jdbcTemplate.query(
-            "SELECT * FROM innstillinger.valgt_enhet"
+        val innstilling = jdbcTemplate.query(
+            "SELECT * FROM innstillinger.innstillinger"
         ) { rs: ResultSet, _: Int ->
-            MiniValgtEnhet(
+            MiniInnstilling(
                 saksbehandlerident = rs.getString("saksbehandlerident"),
-                enhetId = rs.getString("enhet_id")
+                hjemler = rs.getString("hjemler")
             )
         }
 
-        assertThat(valgteEnheter).hasSize(0)
+        assertThat(innstilling).hasSize(0)
     }
 
 }

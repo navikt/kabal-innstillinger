@@ -31,10 +31,11 @@ class SaksbehandlerAccessService(
         )
     }
 
-    fun setYtelser(saksbehandlerIdent: String, ytelseIdList: List<String>): SaksbehandlerAccess {
+    fun setYtelser(saksbehandlerIdent: String, ytelseIdList: List<String>, innloggetAnsattIdent: String): SaksbehandlerAccess {
         logger.debug("setYtelser for saksbehandler {} with ytelser {}", saksbehandlerIdent, ytelseIdList)
 
         val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
+        saksbehandlerAccess.modifiedBy = innloggetAnsattIdent
         saksbehandlerAccess.ytelser = ytelseIdList.map { Ytelse.of(it) }.toSet()
         saksbehandlerAccess.accessRightsModified = LocalDateTime.now()
         return SaksbehandlerAccess(

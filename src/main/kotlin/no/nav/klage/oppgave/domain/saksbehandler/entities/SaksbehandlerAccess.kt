@@ -6,12 +6,14 @@ import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
-@Table(name = "innstillinger", schema = "saksbehandler_access")
+@Table(name = "saksbehandler_access", schema = "innstillinger")
 class SaksbehandlerAccess(
 
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
+    @Column(name = "modified_by")
+    var modifiedBy: String,
     @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.EAGER)
     @CollectionTable(
         name = "saksbehandler_access_ytelse",

@@ -20,6 +20,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SaksbehandlerAccessRepositoryTest {
 
+    val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
+    val SAKSBEHANDLER_IDENT_2 = "SAKSBEHANDLER_IDENT_2"
+    val SAKSBEHANDLER_IDENT_3 = "SAKSBEHANDLER_IDENT_3"
+
     companion object {
         @Container
         @JvmField
@@ -34,8 +38,8 @@ class SaksbehandlerAccessRepositoryTest {
 
     @Test
     fun `persist SaksbehandlerAccess works`() {
-        val saksbehandlerident = "AB12345"
-        val innloggetIdent = "BA54321"
+        val saksbehandlerident = SAKSBEHANDLER_IDENT_1
+        val innloggetIdent = SAKSBEHANDLER_IDENT_2
         val ytelser = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
         val saksbehandlerAccess = SaksbehandlerAccess(
             saksbehandlerident = saksbehandlerident,
@@ -49,4 +53,40 @@ class SaksbehandlerAccessRepositoryTest {
 
         assertThat(saksbehandlerAccessRepository.findById(saksbehandlerident).get().ytelser).isEqualTo(ytelser)
     }
+
+    @Test
+    fun `findByYtelser functionality`() {
+        val ytelser1 = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
+        val saksbehandlerAccess1 = SaksbehandlerAccess(
+            saksbehandlerident = SAKSBEHANDLER_IDENT_1,
+            modifiedBy = SAKSBEHANDLER_IDENT_3,
+            ytelser = ytelser1,
+        )
+
+        val ytelser2 = setOf(Ytelse.SYK_SYK, Ytelse.BAR_BAR)
+        val saksbehandlerAccess2 = SaksbehandlerAccess(
+            saksbehandlerident = SAKSBEHANDLER_IDENT_2,
+            modifiedBy = SAKSBEHANDLER_IDENT_3,
+            ytelser = ytelser2,
+        )
+
+        val ytelser3 = setOf(Ytelse.OMS_OLP)
+        val saksbehandlerAccess3 = SaksbehandlerAccess(
+            saksbehandlerident = SAKSBEHANDLER_IDENT_3,
+            modifiedBy = SAKSBEHANDLER_IDENT_3,
+            ytelser = ytelser3,
+        )
+
+        saksbehandlerAccessRepository.save(saksbehandlerAccess1)
+        saksbehandlerAccessRepository.save(saksbehandlerAccess2)
+        saksbehandlerAccessRepository.save(saksbehandlerAccess3)
+        testEntityManager.flush()
+        testEntityManager.clear()
+
+        assertThat(saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.SYK_SYK).size).isEqualTo(2)
+        assertThat(saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.OMS_OLP).size).isEqualTo(1)
+        assertThat(saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.OMS_PLS).size).isEqualTo(0)
+    }
+
+
 }

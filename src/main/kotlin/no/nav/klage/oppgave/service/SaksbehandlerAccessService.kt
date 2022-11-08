@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.getLogger
@@ -31,7 +32,11 @@ class SaksbehandlerAccessService(
         )
     }
 
-    fun setYtelser(saksbehandlerIdent: String, ytelseIdList: List<String>, innloggetAnsattIdent: String): SaksbehandlerAccess {
+    fun setYtelser(
+        saksbehandlerIdent: String,
+        ytelseIdList: List<String>,
+        innloggetAnsattIdent: String
+    ): SaksbehandlerAccess {
         logger.debug("setYtelser for saksbehandler {} with ytelser {}", saksbehandlerIdent, ytelseIdList)
 
         val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
@@ -46,4 +51,11 @@ class SaksbehandlerAccessService(
         )
     }
 
+    fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
+        logger.debug("Getting saksbehandlere for ytelse $ytelse")
+        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+        return results.map {
+            it.saksbehandlerident
+        }
+    }
 }

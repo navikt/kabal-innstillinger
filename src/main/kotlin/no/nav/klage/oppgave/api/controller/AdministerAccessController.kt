@@ -8,6 +8,7 @@ import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
+import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "kabal-innstillinger")
 class AdministerAccessController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
+    private val saksbehandlerService: SaksbehandlerService,
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
 ) {
 
@@ -41,21 +43,50 @@ class AdministerAccessController(
     }
 
     @Operation(
-        summary = "Setter hvilke ytelser som den ansatte får lov til å jobbe med",
-        description = "Setter hvilke ytelser som den ansatte får lov til å jobbe med"
+        summary = "Hent saksbehandlere for en enhet",
+        description = "Hent saksbehandlere for en enhet"
     )
-    @PutMapping("/ansatte/{navIdent}/ytelser", produces = ["application/json"])
-    fun setYtelserForSaksbehandler(
-        @PathVariable navIdent: String,
-        @RequestBody input: YtelseInput
-    ): SaksbehandlerAccess {
+    @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
+    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): List<SaksbehandlerAccess> {
         verifyIsLeder()
 
-        return saksbehandlerAccessService.setYtelser(
-            saksbehandlerIdent = navIdent,
+        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
+        logger.debug("getSaksbehandlereForEnhet is requested by $innloggetSaksbehandlerNavIdent")
+        return saksbehandlerAccessService.getSaksbehandlere(enhet = enhet)
+    }
+
+    @Operation(
+        summary = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
+        description = "Setter hvilke ytelser som de ansatte får lov til å jobbe med"
+    )
+    @PutMapping("/ansatte/addytelser", produces = ["application/json"])
+    fun setYtelserForSaksbehandlere(
+        @RequestBody input: YtelseInput
+    ): List<SaksbehandlerAccess> {
+        verifyIsLeder()
+
+        return saksbehandlerAccessService.addYtelser(
+            saksbehandleridentList = input.saksbehandleridentList,
             ytelseIdList = input.ytelseIdList,
             innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent()
         )
+    }
+
+    @Operation(
+        summary = "Fjerner ytelser som de ansatte får lov til å jobbe med",
+        description = "Fjerner ytelser som de ansatte får lov til å jobbe med"
+    )
+    @PutMapping("/ansatte/removeytelser", produces = ["application/json"])
+    fun removeYtelserForSaksbehandlere(
+        @RequestBody input: YtelseInput
+    ): List<SaksbehandlerAccess> {
+        verifyIsLeder()
+
+        return saksbehandlerAccessService.removeYtelser(
+            saksbehandleridentList = input.saksbehandleridentList,
+            ytelseIdList = input.ytelseIdList,
+            innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent())
+
     }
 
     private fun verifyIsLeder() {

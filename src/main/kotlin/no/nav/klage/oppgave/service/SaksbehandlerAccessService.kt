@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.service
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
+import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.repositories.EnhetRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
@@ -39,20 +40,17 @@ class SaksbehandlerAccessService(
         )
     }
 
-    //TODO: all, or just the ones with SaksbehandlerAccess? Connected to "default values".
-    fun getSaksbehandlere(enhet: String): List<SaksbehandlerAccess> {
-        return enhetRepository.getAnsatteIEnhet(enhet)
-            .filter { saksbehandlerRepository.erSaksbehandler(it) }
-            .map { ident ->
-                val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(ident)
-                SaksbehandlerAccess(
-                    saksbehandlerIdent = saksbehandlerAccess.saksbehandlerident,
-                    saksbehandlerName = saksbehandlerService.getNameForIdent(ident).sammensattNavn,
-                    ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
-                    created = saksbehandlerAccess.created,
-                    accessRightsModified = saksbehandlerAccess.accessRightsModified,
-                )
-            }
+    fun getSaksbehandlere(enhet: String): Saksbehandlere {
+        return Saksbehandlere(
+            saksbehandlere = enhetRepository.getAnsatteIEnhet(enhet)
+                .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                .map { ident ->
+                    Saksbehandler(
+                        navIdent = ident,
+                        navn = saksbehandlerService.getNameForIdent(ident).sammensattNavn,
+                    )
+                }
+        )
     }
 
     fun addYtelser(

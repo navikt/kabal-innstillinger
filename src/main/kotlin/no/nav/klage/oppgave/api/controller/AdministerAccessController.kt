@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
+import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
@@ -47,7 +48,7 @@ class AdministerAccessController(
         description = "Hent saksbehandlere for en enhet"
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
-    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): List<SaksbehandlerAccess> {
+    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): Saksbehandlere {
         verifyIsLeder()
 
         val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()

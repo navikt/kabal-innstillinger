@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.repositories.EnhetRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
@@ -136,4 +137,11 @@ class SaksbehandlerAccessService(
         return modifiedSaksbehandlerAccessList
     }
 
+    fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
+        logger.debug("Getting saksbehandlere for ytelse $ytelse")
+        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+        return results.map {
+            it.saksbehandlerident
+        }
+    }
 }

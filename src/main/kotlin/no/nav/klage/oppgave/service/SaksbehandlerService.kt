@@ -87,6 +87,7 @@ class SaksbehandlerService(
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
+        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccess(navIdent).ytelseIdList
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -94,7 +95,8 @@ class SaksbehandlerService(
             enheter = enheterForInnloggetSaksbehandler,
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
-            saksbehandlerInnstillinger = saksbehandlerInnstillinger
+            saksbehandlerInnstillinger = saksbehandlerInnstillinger,
+            tildelteYtelser = tildelteYtelser.map { Ytelse.of(it) }
         )
     }
 

@@ -5,6 +5,7 @@ data class SaksbehandlerView(
     val roller: List<String>,
     val enheter: List<EnhetView>,
     val ansattEnhet: EnhetView,
+    val tildelteYtelser: List<String>,
 ) {
 
     data class InnstillingerView(

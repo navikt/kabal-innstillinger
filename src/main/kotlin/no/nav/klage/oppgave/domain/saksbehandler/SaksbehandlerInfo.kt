@@ -1,5 +1,7 @@
 package no.nav.klage.oppgave.domain.saksbehandler
 
+import no.nav.klage.kodeverk.Ytelse
+
 data class SaksbehandlerInfo(
     val navIdent: String,
     val roller: List<SaksbehandlerRolle>,
@@ -7,4 +9,5 @@ data class SaksbehandlerInfo(
     val ansattEnhet: EnhetMedLovligeYtelser,
     val valgtEnhet: EnhetMedLovligeYtelser,
     val saksbehandlerInnstillinger: SaksbehandlerInnstillinger,
+    val tildelteYtelser: List<Ytelse>,
 )

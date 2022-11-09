@@ -27,9 +27,9 @@ class SaksbehandlerService(
     private val azureGateway: AzureGateway,
     private val pdlFacade: PdlFacade,
     private val saksbehandlerRepository: SaksbehandlerRepository,
-    private val enhetRepository: EnhetRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
+    private val saksbehandlerAccessService: SaksbehandlerAccessService,
 ) {
 
     companion object {
@@ -87,6 +87,7 @@ class SaksbehandlerService(
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
+        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccess(navIdent).ytelseIdList
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -94,7 +95,8 @@ class SaksbehandlerService(
             enheter = enheterForInnloggetSaksbehandler,
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
-            saksbehandlerInnstillinger = saksbehandlerInnstillinger
+            saksbehandlerInnstillinger = saksbehandlerInnstillinger,
+            tildelteYtelser = tildelteYtelser.map { Ytelse.of(it) }
         )
     }
 
@@ -134,19 +136,13 @@ class SaksbehandlerService(
                 .map { Saksbehandler(it, getNameForIdent(it).sammensattNavn) }
             return HashSet(saksbehandlere)
         }
-        return if (ytelseTilKlageenheter.contains(ytelse)) {
-            val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
-                .filter { it.navn != VIKAFOSSEN }
-                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
-                .distinct()
-                .filter { saksbehandlerRepository.erSaksbehandler(it) }
-                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
-                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
-            return HashSet(saksbehandlere)
-        } else {
-            logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
-            emptySet()
-        }
+
+        val saksbehandlere = saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(ytelse)
+            .filter { saksbehandlerRepository.erSaksbehandler(it) }
+            .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+            .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+
+        return HashSet(saksbehandlere)
     }
 
 

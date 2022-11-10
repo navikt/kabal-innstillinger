@@ -1,7 +1,6 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -87,7 +86,7 @@ class SaksbehandlerService(
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
-        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccess(navIdent).ytelseIdList
+        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccessView(navIdent).ytelseIdList
 
         return SaksbehandlerInfo(
             navIdent = navIdent,

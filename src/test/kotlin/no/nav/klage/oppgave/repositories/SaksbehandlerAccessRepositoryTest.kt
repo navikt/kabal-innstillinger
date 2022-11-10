@@ -42,7 +42,7 @@ class SaksbehandlerAccessRepositoryTest {
         val innloggetIdent = SAKSBEHANDLER_IDENT_2
         val ytelser = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
         val saksbehandlerAccess = SaksbehandlerAccess(
-            saksbehandlerident = saksbehandlerident,
+            saksbehandlerIdent = saksbehandlerident,
             modifiedBy = innloggetIdent,
             ytelser = ytelser,
         )
@@ -58,21 +58,21 @@ class SaksbehandlerAccessRepositoryTest {
     fun `findByYtelser functionality`() {
         val ytelser1 = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
         val saksbehandlerAccess1 = SaksbehandlerAccess(
-            saksbehandlerident = SAKSBEHANDLER_IDENT_1,
+            saksbehandlerIdent = SAKSBEHANDLER_IDENT_1,
             modifiedBy = SAKSBEHANDLER_IDENT_3,
             ytelser = ytelser1,
         )
 
         val ytelser2 = setOf(Ytelse.SYK_SYK, Ytelse.BAR_BAR)
         val saksbehandlerAccess2 = SaksbehandlerAccess(
-            saksbehandlerident = SAKSBEHANDLER_IDENT_2,
+            saksbehandlerIdent = SAKSBEHANDLER_IDENT_2,
             modifiedBy = SAKSBEHANDLER_IDENT_3,
             ytelser = ytelser2,
         )
 
         val ytelser3 = setOf(Ytelse.OMS_OLP)
         val saksbehandlerAccess3 = SaksbehandlerAccess(
-            saksbehandlerident = SAKSBEHANDLER_IDENT_3,
+            saksbehandlerIdent = SAKSBEHANDLER_IDENT_3,
             modifiedBy = SAKSBEHANDLER_IDENT_3,
             ytelser = ytelser3,
         )

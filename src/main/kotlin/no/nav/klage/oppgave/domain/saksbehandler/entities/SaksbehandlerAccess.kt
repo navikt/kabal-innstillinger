@@ -11,7 +11,7 @@ class SaksbehandlerAccess(
 
     @Id
     @Column(name = "saksbehandlerident")
-    val saksbehandlerident: String,
+    val saksbehandlerIdent: String,
     @Column(name = "modified_by")
     var modifiedBy: String,
     @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.EAGER)
@@ -38,7 +38,7 @@ class SaksbehandlerAccess(
 
         other as SaksbehandlerAccess
 
-        if (saksbehandlerident != other.saksbehandlerident) return false
+        if (saksbehandlerIdent != other.saksbehandlerIdent) return false
         if (ytelser != other.ytelser) return false
         if (created != other.created) return false
         if (accessRightsModified != other.accessRightsModified) return false
@@ -47,7 +47,7 @@ class SaksbehandlerAccess(
     }
 
     override fun hashCode(): Int {
-        var result = saksbehandlerident.hashCode()
+        var result = saksbehandlerIdent.hashCode()
         result = 31 * result + ytelser.hashCode()
         result = 31 * result + created.hashCode()
         result = 31 * result + accessRightsModified.hashCode()
@@ -55,7 +55,7 @@ class SaksbehandlerAccess(
     }
 
     override fun toString(): String {
-        return "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerident', ytelser=$ytelser, created=$created, accessRightsModified=$accessRightsModified)"
+        return "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerIdent', ytelser=$ytelser, created=$created, accessRightsModified=$accessRightsModified)"
     }
 
 

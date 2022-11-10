@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
+import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
@@ -39,7 +40,7 @@ class AdministerAccessController(
     ): SaksbehandlerAccess {
         verifyIsLeder()
 
-        return saksbehandlerAccessService.getSaksbehandlerAccess(saksbehandlerIdent = navIdent)
+        return saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = navIdent)
     }
 
     @Operation(
@@ -47,7 +48,7 @@ class AdministerAccessController(
         description = "Hent saksbehandlere for en enhet"
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
-    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): List<SaksbehandlerAccess> {
+    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
         verifyIsLeder()
 
         val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
@@ -59,34 +60,16 @@ class AdministerAccessController(
         summary = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
         description = "Setter hvilke ytelser som de ansatte får lov til å jobbe med"
     )
-    @PutMapping("/ansatte/addytelser", produces = ["application/json"])
+    @PutMapping("/ansatte/setytelser", produces = ["application/json"])
     fun setYtelserForSaksbehandlere(
         @RequestBody input: YtelseInput
-    ): List<SaksbehandlerAccess> {
+    ): SaksbehandlerAccessResponse {
         verifyIsLeder()
 
-        return saksbehandlerAccessService.addYtelser(
-            saksbehandleridentList = input.saksbehandleridentList,
-            ytelseIdList = input.ytelseIdList,
+        return saksbehandlerAccessService.setYtelser(
+            ytelseInput = input,
             innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent()
         )
-    }
-
-    @Operation(
-        summary = "Fjerner ytelser som de ansatte får lov til å jobbe med",
-        description = "Fjerner ytelser som de ansatte får lov til å jobbe med"
-    )
-    @PutMapping("/ansatte/removeytelser", produces = ["application/json"])
-    fun removeYtelserForSaksbehandlere(
-        @RequestBody input: YtelseInput
-    ): List<SaksbehandlerAccess> {
-        verifyIsLeder()
-
-        return saksbehandlerAccessService.removeYtelser(
-            saksbehandleridentList = input.saksbehandleridentList,
-            ytelseIdList = input.ytelseIdList,
-            innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent())
-
     }
 
     private fun verifyIsLeder() {

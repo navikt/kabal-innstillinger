@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -24,6 +25,7 @@ class SaksbehandlerService(
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
+    private val enhetRepository: EnhetRepository,
     private val pdlFacade: PdlFacade,
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
@@ -136,12 +138,19 @@ class SaksbehandlerService(
             return saksbehandlere.toSet()
         }
 
-        val saksbehandlere = saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(ytelse)
-            .filter { saksbehandlerRepository.erSaksbehandler(it) }
-            .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
-            .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
-
-        return saksbehandlere.toSet()
+        return if (ytelseTilKlageenheter.contains(ytelse)) {
+            val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
+                .filter { it.navn != VIKAFOSSEN }
+                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
+                .distinct()
+                .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+            saksbehandlere.toSet()
+        } else {
+            logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
+            emptySet()
+        }
     }
 
 

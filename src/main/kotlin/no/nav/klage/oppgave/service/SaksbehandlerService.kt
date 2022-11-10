@@ -133,7 +133,7 @@ class SaksbehandlerService(
             val saksbehandlere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
                 .filter { egenAnsattFilter(fnr, erEgenAnsatt, it) }
                 .map { Saksbehandler(it, getNameForIdent(it).sammensattNavn) }
-            return HashSet(saksbehandlere)
+            return saksbehandlere.toSet()
         }
 
         val saksbehandlere = saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(ytelse)
@@ -141,7 +141,7 @@ class SaksbehandlerService(
             .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
             .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
 
-        return HashSet(saksbehandlere)
+        return saksbehandlere.toSet()
     }
 
 

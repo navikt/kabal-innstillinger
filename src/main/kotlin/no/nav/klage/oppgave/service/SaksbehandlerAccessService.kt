@@ -68,7 +68,7 @@ class SaksbehandlerAccessService(
         val saksbehandlerAccessList = mutableListOf<SaksbehandlerAccessView>()
 
         ytelseInput.accessRights.forEach { accessRight ->
-            val ytelseSet = accessRight.ytelseIdList.map { Ytelse.valueOf(it) }.toSet()
+            val ytelseSet = accessRight.ytelseIdList.map { Ytelse.of(it) }.toSet()
             val saksbehandlerAccess = if (!saksbehandlerAccessRepository.existsById(accessRight.saksbehandlerIdent)) {
                 saksbehandlerAccessRepository.save(
                     SaksbehandlerAccessEntity(

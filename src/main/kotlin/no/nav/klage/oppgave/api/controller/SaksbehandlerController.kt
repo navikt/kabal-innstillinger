@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Tag(name = "kabal-innstillinger")
+@Tag(name = "Saksbehandler")
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
     private val innloggetAnsattRepository: InnloggetAnsattRepository,

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Tag(name = "kabal-api")
+@Tag(name = "Medunderskriver")
 class MedunderskriverOppslagController(
     private val saksbehandlerService: SaksbehandlerService,
     private val environment: Environment,

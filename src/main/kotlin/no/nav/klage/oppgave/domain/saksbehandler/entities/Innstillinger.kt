@@ -1,8 +1,10 @@
-package no.nav.klage.oppgave.domain.saksbehandler
+package no.nav.klage.oppgave.domain.saksbehandler.entities
 
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import java.time.LocalDateTime
@@ -73,12 +75,3 @@ class Innstillinger(
     }
 
 }
-
-data class SaksbehandlerInnstillinger(
-    val hjemler: List<Hjemmel> = emptyList(),
-    val ytelser: List<Ytelse> = emptyList(),
-    val typer: List<Type> = emptyList(),
-    val shortName: String? = null,
-    val longName: String? = null,
-    val jobTitle: String? = null,
-)

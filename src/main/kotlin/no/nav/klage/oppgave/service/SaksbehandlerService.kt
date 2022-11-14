@@ -9,7 +9,7 @@ import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
-import no.nav.klage.oppgave.exceptions.MissingTilgangException
+import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.*
 import no.nav.klage.oppgave.util.generateShortNameOrNull
@@ -22,15 +22,15 @@ import java.time.LocalDateTime
 @Service
 @Transactional
 class SaksbehandlerService(
-    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
-    private val valgtEnhetRepository: ValgtEnhetRepository,
+    private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
+    private val enhetRepository: EnhetRepository,
     private val pdlFacade: PdlFacade,
     private val saksbehandlerRepository: SaksbehandlerRepository,
-    private val enhetRepository: EnhetRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
+//    private val saksbehandlerAccessService: SaksbehandlerAccessService,
 ) {
 
     companion object {
@@ -39,32 +39,8 @@ class SaksbehandlerService(
         private const val VIKAFOSSEN = "2103"
     }
 
-    fun storeValgtEnhetId(ident: String, enhetId: String): EnhetMedLovligeYtelser {
-        if (enhetId != findValgtEnhet(ident).enhet.enhetId) {
-            logger.warn("Saksbehandler skal ikke kunne velge denne enheten, det er ikke den hen er ansatt i")
-        }
-
-        val enhet =
-            innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler().enheter.find { it.enhet.enhetId == enhetId }
-                ?: throw MissingTilgangException("Saksbehandler $ident har ikke tilgang til enhet $enhetId")
-
-        valgtEnhetRepository.save(
-            mapToValgtEnhet(ident, enhet)
-        )
-        return enhet
-    }
-
-    private fun mapToValgtEnhet(ident: String, enhet: EnhetMedLovligeYtelser): ValgtEnhet {
-        return ValgtEnhet(
-            saksbehandlerident = ident,
-            enhetId = enhet.enhet.enhetId,
-            enhetNavn = enhet.enhet.navn,
-            tidspunkt = LocalDateTime.now()
-        )
-    }
-
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
-        return innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
+        return innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
     private fun findSaksbehandlerInnstillinger(
@@ -81,7 +57,7 @@ class SaksbehandlerService(
         newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
     ): SaksbehandlerInnstillinger {
         val ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser =
-            innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
+            innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
 
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
         val separator = ","
@@ -102,16 +78,17 @@ class SaksbehandlerService(
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
-        val ansattEnhetForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnhetMedYtelserForSaksbehandler()
+        val ansattEnhetForInnloggetSaksbehandler = innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
 
         val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
-            innloggetSaksbehandlerRepository.getInnloggetIdent(),
+            innloggetAnsattRepository.getInnloggetIdent(),
             ansattEnhetForInnloggetSaksbehandler,
         )
 
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
-        val enheterForInnloggetSaksbehandler = innloggetSaksbehandlerRepository.getEnheterMedYtelserForSaksbehandler()
-        val valgtEnhet = findValgtEnhet(innloggetSaksbehandlerRepository.getInnloggetIdent())
+        val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
+        val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
+//        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccessView(navIdent).ytelseIdList
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -119,7 +96,8 @@ class SaksbehandlerService(
             enheter = enheterForInnloggetSaksbehandler,
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
-            saksbehandlerInnstillinger = saksbehandlerInnstillinger
+            saksbehandlerInnstillinger = saksbehandlerInnstillinger,
+            tildelteYtelser = emptyList(),// tildelteYtelser.map { Ytelse.of(it) }
         )
     }
 
@@ -157,8 +135,9 @@ class SaksbehandlerService(
             val saksbehandlere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
                 .filter { egenAnsattFilter(fnr, erEgenAnsatt, it) }
                 .map { Saksbehandler(it, getNameForIdent(it).sammensattNavn) }
-            return HashSet(saksbehandlere)
+            return saksbehandlere.toSet()
         }
+
         return if (ytelseTilKlageenheter.contains(ytelse)) {
             val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
                 .filter { it.navn != VIKAFOSSEN }
@@ -167,7 +146,7 @@ class SaksbehandlerService(
                 .filter { saksbehandlerRepository.erSaksbehandler(it) }
                 .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
                 .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
-            return HashSet(saksbehandlere)
+            saksbehandlere.toSet()
         } else {
             logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
             emptySet()

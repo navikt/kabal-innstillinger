@@ -8,7 +8,7 @@ import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.NotMatchingUserException
-import no.nav.klage.oppgave.repositories.InnloggetSaksbehandlerRepository
+import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.*
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Tag(name = "kabal-innstillinger")
+@Tag(name = "Saksbehandler")
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
-    private val innloggetSaksbehandlerRepository: InnloggetSaksbehandlerRepository,
+    private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val saksbehandlerMapper: SaksbehandlerMapper,
 ) {
 
@@ -37,7 +37,7 @@ class SaksbehandlerController(
     )
     @GetMapping("/me/brukerdata", produces = ["application/json"])
     fun getBrukerdata(): SaksbehandlerView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getBrukerdata is requested by $navIdent")
 
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
@@ -49,7 +49,7 @@ class SaksbehandlerController(
     )
     @GetMapping("/me/innstillinger", produces = ["application/json"])
     fun getInnstillinger(): SaksbehandlerView.InnstillingerView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getBrukerdata is requested by $navIdent")
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent).saksbehandlerInnstillinger)
     }
@@ -62,7 +62,7 @@ class SaksbehandlerController(
     fun setInnstillinger(
         @RequestBody input: SaksbehandlerView.InnstillingerView
     ): SaksbehandlerView.InnstillingerView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         return saksbehandlerMapper.mapToView(
             saksbehandlerService.storeInnstillingerButKeepSignature(
                 navIdent,
@@ -89,7 +89,7 @@ class SaksbehandlerController(
     )
     @GetMapping("/me/signature", produces = ["application/json"])
     fun getSignature(): Signature {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         return saksbehandlerService.getSignature(navIdent)
     }
 
@@ -101,7 +101,7 @@ class SaksbehandlerController(
     fun setShortName(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         saksbehandlerService.storeShortName(
             navIdent,
             input.value.trimToNull(),
@@ -118,7 +118,7 @@ class SaksbehandlerController(
     fun setLongName(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         saksbehandlerService.storeLongName(
             navIdent,
             input.value.trimToNull(),
@@ -135,7 +135,7 @@ class SaksbehandlerController(
     fun setJobTitle(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
         saksbehandlerService.storeJobTitle(
             navIdent,
             input.value.trimToNull(),
@@ -155,7 +155,7 @@ class SaksbehandlerController(
     fun getSaksbehandlereForYtelseOgFnr(
         @RequestBody input: SaksbehandlerSearchInput
     ): Saksbehandlere {
-        val innloggetSaksbehandlerNavIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getSaksbehandlereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getSaksbehandlere(
             ytelse = Ytelse.of(input.ytelseId),
@@ -164,7 +164,7 @@ class SaksbehandlerController(
     }
 
     private fun validateNavIdent(navIdent: String) {
-        val innloggetIdent = innloggetSaksbehandlerRepository.getInnloggetIdent()
+        val innloggetIdent = innloggetAnsattRepository.getInnloggetIdent()
         if (innloggetIdent != navIdent) {
             throw NotMatchingUserException(
                 "logged in user does not match sent in user. " +

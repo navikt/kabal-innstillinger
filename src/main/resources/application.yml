@@ -122,6 +122,4 @@ navConsumerId: Nav-Consumer-Id
 MICROSOFT_GRAPH_URL: https://graph.microsoft.com/v1.0
 UNLEASH_URL: https://unleash.nais.io/api/
 
-SERVICE_USER_PASSWORD: itest
-
 EGENANSATT_KAFKA_TOPIC: nom.skjermede-personer-v1

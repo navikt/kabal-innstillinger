@@ -18,7 +18,7 @@ class SaksbehandlerMapper(private val roleUtils: RoleUtils) {
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
             navIdent = saksbehandlerInfo.navIdent,
-            roller = saksbehandlerInfo.roller.map { roleUtils.getRoleNameFromId(it.id) },
+            roller = saksbehandlerInfo.roller.mapNotNull { roleUtils.getRoleNameFromId(it.id) },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
             tildelteYtelser = saksbehandlerInfo.tildelteYtelser.map { it.id }

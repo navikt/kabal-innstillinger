@@ -24,7 +24,7 @@ class RoleUtils(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun getRoleNameFromId(roleId: String): String {
+    fun getRoleNameFromId(roleId: String): String? {
         return when (roleId) {
             oppgavestyringAlleEnheterRole -> "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER"
             maltekstredigering -> "ROLE_KLAGE_MALTEKSTREDIGERING"
@@ -35,10 +35,7 @@ class RoleUtils(
             kanBehandleStrengtFortroligRole -> "ROLE_KLAGE_STRENGT_FORTROLIG"
             kanBehandleEgenAnsattRole -> "ROLE_KLAGE_EGEN_ANSATT"
             adminRole -> "ROLE_ADMIN"
-            else -> {
-                logger.error("Could not find role name for role id {}", roleId)
-                "UNKNOWN"
-            }
+            else -> null
         }
     }
 

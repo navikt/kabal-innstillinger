@@ -58,7 +58,7 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
     override fun getRollerForInnloggetSaksbehandler(): List<SaksbehandlerRolle> =
         try {
             microsoftGraphClient.getInnloggetSaksbehandlersGroups()
-                .map { SaksbehandlerRolle(it.id, it.displayName ?: it.mailNickname ?: it.id) }
+                .map { SaksbehandlerRolle(id = it.id, navn = it.displayName ?: it.mailNickname ?: it.id) }
         } catch (e: Exception) {
             logger.error("Failed to call getInnloggetSaksbehandlersGroups", e)
             throw e

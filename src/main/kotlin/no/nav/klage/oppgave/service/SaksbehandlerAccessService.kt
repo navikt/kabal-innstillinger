@@ -5,7 +5,7 @@ import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.repositories.EnhetRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
-import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
+import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.stereotype.Service
@@ -19,8 +19,8 @@ import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess as
 class SaksbehandlerAccessService(
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
     private val enhetRepository: EnhetRepository,
-    private val saksbehandlerRepository: SaksbehandlerRepository,
     private val saksbehandlerService: SaksbehandlerService,
+    private val roleUtils: RoleUtils,
 ) {
 
     companion object {
@@ -42,7 +42,7 @@ class SaksbehandlerAccessService(
 
     fun getSaksbehandlere(enhet: String): SaksbehandlerAccessResponse {
         return SaksbehandlerAccessResponse(accessRights = enhetRepository.getAnsatteIEnhet(enhet)
-            .filter { saksbehandlerRepository.erSaksbehandler(it) }
+            .filter { roleUtils.isSaksbehandler(ident = it) }
             .map { ident ->
                 if (saksbehandlerAccessRepository.existsById(ident)) {
                     getSaksbehandlerAccessView(ident)

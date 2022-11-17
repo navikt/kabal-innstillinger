@@ -12,6 +12,7 @@ import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.*
+import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
@@ -25,6 +26,7 @@ class SaksbehandlerService(
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
+    private val roleUtils: RoleUtils,
     private val enhetRepository: EnhetRepository,
     private val pdlFacade: PdlFacade,
     private val saksbehandlerRepository: SaksbehandlerRepository,
@@ -143,7 +145,7 @@ class SaksbehandlerService(
                 .filter { it.navn != VIKAFOSSEN }
                 .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
                 .distinct()
-                .filter { saksbehandlerRepository.erSaksbehandler(it) }
+                .filter { roleUtils.isSaksbehandler(ident = it) }
                 .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
                 .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
             saksbehandlere.toSet()

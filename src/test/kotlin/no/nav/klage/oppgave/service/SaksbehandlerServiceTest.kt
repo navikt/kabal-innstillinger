@@ -13,6 +13,7 @@ import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
+import no.nav.klage.oppgave.util.RoleUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -27,6 +28,7 @@ class SaksbehandlerServiceTest {
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
+    private val roleUtils: RoleUtils = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
@@ -58,6 +60,7 @@ class SaksbehandlerServiceTest {
             saksbehandlerRepository = saksbehandlerRepository,
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
+            roleUtils = roleUtils,
 //            saksbehandlerAccessService = saksbehandlerAccessService
         )
 
@@ -88,8 +91,8 @@ class SaksbehandlerServiceTest {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
         every { saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(Ytelse.AAP_AAP) }.returns(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2))
-        every { saksbehandlerRepository.erSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
-        every { saksbehandlerRepository.erSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
+        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
+        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
 
@@ -103,8 +106,8 @@ class SaksbehandlerServiceTest {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
         every { saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(Ytelse.AAP_AAP) }.returns(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2))
-        every { saksbehandlerRepository.erSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
-        every { saksbehandlerRepository.erSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
+        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
+        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
 

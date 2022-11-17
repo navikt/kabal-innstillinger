@@ -2,16 +2,16 @@ package no.nav.klage.oppgave.service
 
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
-import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
+import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.stereotype.Service
 
 @Service
 class TilgangService(
-    private val saksbehandlerRepository: SaksbehandlerRepository,
     private val pdlFacade: PdlFacade,
     private val egenAnsattService: EgenAnsattService,
+    private val roleUtils: RoleUtils,
 ) {
 
     companion object {
@@ -24,9 +24,9 @@ class TilgangService(
         return verifiserTilgangTilPersonForSaksbehandler(
             fnr = fnr,
             ident = ident,
-            kanBehandleStrengtFortrolig = { saksbehandlerRepository.kanBehandleStrengtFortrolig(ident) },
-            kanBehandleFortrolig = { saksbehandlerRepository.kanBehandleFortrolig(ident) },
-            kanBehandleEgenAnsatt = { saksbehandlerRepository.kanBehandleEgenAnsatt(ident) },
+            kanBehandleStrengtFortrolig = { roleUtils.kanBehandleStrengtFortrolig(ident) },
+            kanBehandleFortrolig = { roleUtils.kanBehandleFortrolig(ident) },
+            kanBehandleEgenAnsatt = { roleUtils.kanBehandleEgenAnsatt(ident) },
         )
     }
 

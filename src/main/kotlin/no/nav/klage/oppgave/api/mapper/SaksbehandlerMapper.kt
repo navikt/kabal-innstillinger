@@ -9,38 +9,16 @@ import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
-import org.springframework.beans.factory.annotation.Value
+import no.nav.klage.oppgave.util.RoleUtils
 import org.springframework.stereotype.Component
 
 @Component
-class SaksbehandlerMapper(
-    @Value("\${ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER}") private val oppgavestyringAlleEnheterRole: String,
-    @Value("\${ROLE_KLAGE_MALTEKSTREDIGERING}") private val maltekstredigering: String,
-    @Value("\${ROLE_KLAGE_SAKSBEHANDLER}") private val saksbehandlerRole: String,
-    @Value("\${ROLE_KLAGE_FAGANSVARLIG}") private val fagansvarligRole: String,
-    @Value("\${ROLE_KLAGE_LEDER}") private val lederRole: String,
-    @Value("\${ROLE_KLAGE_FORTROLIG}") private val kanBehandleFortroligRole: String,
-    @Value("\${ROLE_KLAGE_STRENGT_FORTROLIG}") private val kanBehandleStrengtFortroligRole: String,
-    @Value("\${ROLE_KLAGE_EGEN_ANSATT}") private val kanBehandleEgenAnsattRole: String,
-    @Value("\${ROLE_ADMIN}") private val adminRole: String,
-) {
-
-    val rolleMapper = mapOf(
-        oppgavestyringAlleEnheterRole to "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER",
-        maltekstredigering to "ROLE_KLAGE_MALTEKSTREDIGERING",
-        saksbehandlerRole to "ROLE_KLAGE_SAKSBEHANDLER",
-        fagansvarligRole to "ROLE_KLAGE_FAGANSVARLIG",
-        lederRole to "ROLE_KLAGE_LEDER",
-        kanBehandleFortroligRole to "ROLE_KLAGE_FORTROLIG",
-        kanBehandleStrengtFortroligRole to "ROLE_KLAGE_STRENGT_FORTROLIG",
-        kanBehandleEgenAnsattRole to "ROLE_KLAGE_EGEN_ANSATT",
-        adminRole to "ROLE_ADMIN",
-    )
+class SaksbehandlerMapper(private val roleUtils: RoleUtils) {
 
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
             navIdent = saksbehandlerInfo.navIdent,
-            roller = saksbehandlerInfo.roller.mapNotNull { rolleMapper[it.id] },
+            roller = saksbehandlerInfo.roller.map { roleUtils.getRoleNameFromId(it.id) },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
             tildelteYtelser = saksbehandlerInfo.tildelteYtelser.map { it.id }

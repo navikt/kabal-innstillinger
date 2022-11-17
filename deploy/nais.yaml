@@ -104,7 +104,6 @@ spec:
       {{/each}}
   envFrom:
     - secret: srvklage-saksbeh
-    - secret: sts-apikey
     - secret: pdl-apikey
     - secret: norg2
     - secret: axsys

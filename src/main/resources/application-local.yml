@@ -1,11 +1,9 @@
 SECURITY_TOKEN_SERVICE_REST_URL: http://localhost:8088
 SERVICE_USER_USERNAME: igroup
-SERVICE_USER_PASSWORD: itest
 NAIS_CLUSTER_NAME: local
 AZURE_APP_WELL_KNOWN_URL: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration
 NORG2_API_V1_URL: local
 NORG2_APIKEY: 123
-STS_APIKEY: 789
 AXSYS_APIKEY: 357
 nais:
   cluster:

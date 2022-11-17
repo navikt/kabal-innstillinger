@@ -1,5 +1,4 @@
 TENANT_ID: 62366534-1ec3-4962-8869-9b5535279d0b
-SECURITY_TOKEN_SERVICE_REST_URL: https://api-gw.oera.no/security-token-service
 
 NORG2_API_V1_URL: https://api-gw.oera.no/norg2/api/v1
 PROXY_APP_CLIENT_ID: 981be1fb-1379-465f-bddc-7563197aed84

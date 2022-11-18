@@ -9,7 +9,7 @@ import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
-import no.nav.klage.oppgave.service.SaksbehandlerService
+import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Administer access")
 class AdministerAccessController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
-    private val saksbehandlerService: SaksbehandlerService,
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
+    private val roleUtils: RoleUtils,
 ) {
 
     companion object {
@@ -73,7 +73,7 @@ class AdministerAccessController(
     }
 
     private fun verifyIsLeder() {
-        if (!innloggetAnsattRepository.isLeder()) {
+        if (!roleUtils.isLeder()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke lederrolle")
         }
     }

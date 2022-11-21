@@ -32,16 +32,16 @@ spec:
       tenant: {{tenant}}
       claims:
         groups:
-          - id: {{ROLE_KLAGE_SAKSBEHANDLER}}
-          - id: {{ROLE_KLAGE_FAGANSVARLIG}}
-          - id: {{ROLE_KLAGE_LEDER}}
-          - id: {{ROLE_KLAGE_FORTROLIG}}
-          - id: {{ROLE_KLAGE_STRENGT_FORTROLIG}}
-          - id: {{ROLE_KLAGE_EGEN_ANSATT}}
-          - id: {{ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER}}
-          - id: {{ROLE_KLAGE_MALTEKSTREDIGERING}}
-          {{#if ROLE_ADMIN}}
-          - id: {{ROLE_ADMIN}}
+          - id: {{KABAL_SAKSBEHANDLING}}
+          - id: {{KABAL_FAGTEKSTREDIGERING}}
+          - id: {{KABAL_OPPGAVESTYRING_EGEN_ENHET}}
+          - id: {{FORTROLIG}}
+          - id: {{STRENGT_FORTROLIG}}
+          - id: {{EGEN_ANSATT}}
+          - id: {{KABAL_OPPGAVESTYRING_ALLE_ENHETER}}
+          - id: {{KABAL_MALTEKSTREDIGERING}}
+          {{#if KABAL_ADMIN}}
+          - id: {{KABAL_ADMIN}}
           {{/if}}
         extra:
           - NAVident

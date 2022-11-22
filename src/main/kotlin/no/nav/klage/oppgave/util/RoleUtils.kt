@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component
 class RoleUtils(
     private val tokenUtil: TokenUtil,
     private val azureGateway: AzureGateway,
-    @Value("\${ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER}") private val oppgavestyringAlleEnheterRole: String,
-    @Value("\${ROLE_KLAGE_MALTEKSTREDIGERING}") private val maltekstredigering: String,
-    @Value("\${ROLE_KLAGE_SAKSBEHANDLER}") private val saksbehandlerRole: String,
-    @Value("\${ROLE_KLAGE_FAGANSVARLIG}") private val fagansvarligRole: String,
-    @Value("\${ROLE_KLAGE_LEDER}") private val lederRole: String,
-    @Value("\${ROLE_KLAGE_FORTROLIG}") private val kanBehandleFortroligRole: String,
-    @Value("\${ROLE_KLAGE_STRENGT_FORTROLIG}") private val kanBehandleStrengtFortroligRole: String,
-    @Value("\${ROLE_KLAGE_EGEN_ANSATT}") private val kanBehandleEgenAnsattRole: String,
-    @Value("\${ROLE_ADMIN}") private val adminRole: String,
+    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER}") private val oppgavestyringAlleEnheterRole: String,
+    @Value("\${KABAL_MALTEKSTREDIGERING}") private val maltekstredigering: String,
+    @Value("\${KABAL_SAKSBEHANDLING}") private val saksbehandlerRole: String,
+    @Value("\${KABAL_FAGTEKSTREDIGERING}") private val fagansvarligRole: String,
+    @Value("\${KABAL_OPPGAVESTYRING_EGEN_ENHET}") private val lederRole: String,
+    @Value("\${FORTROLIG}") private val kanBehandleFortroligRole: String,
+    @Value("\${STRENGT_FORTROLIG}") private val kanBehandleStrengtFortroligRole: String,
+    @Value("\${EGEN_ANSATT}") private val kanBehandleEgenAnsattRole: String,
+    @Value("\${KABAL_ADMIN}") private val adminRole: String,
 ) {
 
     companion object {
@@ -24,18 +24,18 @@ class RoleUtils(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun getRoleNameFromId(roleId: String): String? {
+    fun getRoleNamesFromId(roleId: String): List<String> {
         return when (roleId) {
-            oppgavestyringAlleEnheterRole -> "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER"
-            maltekstredigering -> "ROLE_KLAGE_MALTEKSTREDIGERING"
-            saksbehandlerRole -> "ROLE_KLAGE_SAKSBEHANDLER"
-            fagansvarligRole -> "ROLE_KLAGE_FAGANSVARLIG"
-            lederRole -> "ROLE_KLAGE_LEDER"
-            kanBehandleFortroligRole -> "ROLE_KLAGE_FORTROLIG"
-            kanBehandleStrengtFortroligRole -> "ROLE_KLAGE_STRENGT_FORTROLIG"
-            kanBehandleEgenAnsattRole -> "ROLE_KLAGE_EGEN_ANSATT"
-            adminRole -> "ROLE_ADMIN"
-            else -> null
+            oppgavestyringAlleEnheterRole -> listOf("ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER", "KABAL_OPPGAVESTYRING_ALLE_ENHETER")
+            maltekstredigering -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
+            saksbehandlerRole -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
+            fagansvarligRole -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
+            lederRole -> listOf("ROLE_KLAGE_LEDER", "KABAL_OPPGAVESTYRING_EGEN_ENHET")
+            kanBehandleFortroligRole -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
+            kanBehandleStrengtFortroligRole -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
+            kanBehandleEgenAnsattRole -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
+            adminRole -> listOf("ROLE_ADMIN", "KABAL_ADMIN")
+            else -> emptyList()
         }
     }
 

@@ -24,10 +24,6 @@ PDL_BASE_URL: https://pdl-api.dev-fss-pub.nais.io/graphql
 PDL_SCOPE: dev-fss.pdl.pdl-api
 
 #nais-related config
-db_tier: db-custom-1-3840
-db_size: 10
-db_ha: true
-
 ingresses:
   - https://kabal-innstillinger.dev.intern.nav.no
 externalHosts:
@@ -35,6 +31,10 @@ externalHosts:
   - host: unleash.nais.io
 springProfile: dev-gcp
 tenant: trygdeetaten.no
+db_tier: db-custom-1-3840
+db_size: 10
+db_ha: true
+kafka_pool: nav-dev
 
 envs:
   - name: JAVA_TOOL_OPTIONS

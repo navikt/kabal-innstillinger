@@ -32,14 +32,9 @@ spec:
       tenant: {{tenant}}
       claims:
         groups:
-          - id: {{KABAL_SAKSBEHANDLING}}
-          - id: {{KABAL_FAGTEKSTREDIGERING}}
-          - id: {{KABAL_INNSYN_EGEN_ENHET}}
-          - id: {{KABAL_OPPGAVESTYRING_ALLE_ENHETER}}
-          - id: {{KABAL_MALTEKSTREDIGERING}}
-          {{#if KABAL_ADMIN}}
-          - id: {{KABAL_ADMIN}}
-          {{/if}}
+        {{#each adRoles}}
+          - id: {{value}}
+        {{/each}}
         extra:
           - NAVident
   kafka:
@@ -108,6 +103,10 @@ spec:
     - name: SPRING_PROFILES_ACTIVE
       value: {{springProfile}}
   {{#each envs}}
+    - name: {{name}}
+      value: {{value}}
+  {{/each}}
+  {{#each adRoles}}
     - name: {{name}}
       value: {{value}}
   {{/each}}

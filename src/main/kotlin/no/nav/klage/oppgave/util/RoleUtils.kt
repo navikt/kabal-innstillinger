@@ -30,7 +30,7 @@ class RoleUtils(
             kabalMaltekstredigeringRoleId -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
             kabalSaksbehandlingRoleId -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
             kabalFagtekstredigeringRoleId -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
-            kabalInnsynEgenEnhetRoleId -> listOf("ROLE_KLAGE_LEDER", "KABAL_INNSYN_EGEN_ENHET")
+            kabalInnsynEgenEnhetRoleId -> listOf("ROLE_KLAGE_LEDER", "KABAL_INNSYN_EGEN_ENHET", "KABAL_OPPGAVESTYRING_EGEN_ENHET")
             fortroligRoleId -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
             strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
             egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")

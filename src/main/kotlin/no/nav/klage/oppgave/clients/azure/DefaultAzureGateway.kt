@@ -64,9 +64,9 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
             throw e
         }
 
-    override fun getRolleIder(navIdent: String): List<String> {
+    override fun getRoleIds(navIdent: String): List<String> {
         return try {
-            logger.info("Finding roles for ident $navIdent")
+            logger.info("Finding role ids for ident $navIdent")
             microsoftGraphClient.getSaksbehandlersGroups(navIdent)
                 .map { it.id }
         } catch (e: Exception) {

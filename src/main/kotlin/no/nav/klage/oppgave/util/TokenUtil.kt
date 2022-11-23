@@ -51,8 +51,7 @@ class TokenUtil(
             .jwtTokenClaims?.get("NAVident")?.toString()
             ?: throw RuntimeException("Ident not found in token")
 
-    //NB! Returnerer objectId'er, ikke navn på gruppene!
-    fun getRollerFromToken(): List<String> =
+    fun getRoleIdsFromToken(): List<String> =
         tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
             .jwtTokenClaims?.getAsList("groups").orEmpty().toList()
 

@@ -8,6 +8,6 @@ interface AzureGateway {
     fun getDataOmInnloggetSaksbehandler(): SaksbehandlerPersonligInfo
     fun getRollerForInnloggetSaksbehandler(): List<SaksbehandlerRolle>
     fun getGroupMembersNavIdents(groupId: String): List<String>
-    fun getRolleIder(navIdent: String): List<String>
+    fun getRoleIds(navIdent: String): List<String>
     fun getEnhetensAnsattesNavIdents(enhetNr: String): List<String>
 }

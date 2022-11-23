@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component
 class RoleUtils(
     private val tokenUtil: TokenUtil,
     private val azureGateway: AzureGateway,
-    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER}") private val kabalOppgavestyringAlleEnheterRoleId: String,
-    @Value("\${KABAL_MALTEKSTREDIGERING}") private val kabalMaltekstredigeringRoleId: String,
-    @Value("\${KABAL_SAKSBEHANDLING}") private val kabalSaksbehandlingRoleId: String,
-    @Value("\${KABAL_FAGTEKSTREDIGERING}") private val kabalFagtekstredigeringRoleId: String,
-    @Value("\${KABAL_INNSYN_EGEN_ENHET}") private val kabalInnsynEgenEnhetRoleId: String,
-    @Value("\${FORTROLIG}") private val fortroligRoleId: String,
-    @Value("\${STRENGT_FORTROLIG}") private val strengtFortroligRoleId: String,
-    @Value("\${EGEN_ANSATT}") private val egenAnsattRoleId: String,
-    @Value("\${KABAL_ADMIN}") private val kabalAdminRoleId: String,
+    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER_ROLE_ID}") private val kabalOppgavestyringAlleEnheterRoleId: String,
+    @Value("\${KABAL_MALTEKSTREDIGERING_ROLE_ID}") private val kabalMaltekstredigeringRoleId: String,
+    @Value("\${KABAL_SAKSBEHANDLING_ROLE_ID}") private val kabalSaksbehandlingRoleId: String,
+    @Value("\${KABAL_FAGTEKSTREDIGERING_ROLE_ID}") private val kabalFagtekstredigeringRoleId: String,
+    @Value("\${KABAL_INNSYN_EGEN_ENHET_ROLE_ID}") private val kabalInnsynEgenEnhetRoleId: String,
+    @Value("\${FORTROLIG_ROLE_ID}") private val fortroligRoleId: String,
+    @Value("\${STRENGT_FORTROLIG_ROLE_ID}") private val strengtFortroligRoleId: String,
+    @Value("\${EGEN_ANSATT_ROLE_ID}") private val egenAnsattRoleId: String,
+    @Value("\${KABAL_ADMIN_ROLE_ID}") private val kabalAdminRoleId: String,
 ) {
 
     companion object {

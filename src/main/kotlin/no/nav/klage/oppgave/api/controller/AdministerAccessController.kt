@@ -73,7 +73,7 @@ class AdministerAccessController(
     }
 
     private fun verifyIsLeder() {
-        if (!roleUtils.isLeder()) {
+        if (!roleUtils.isKabalInnsynEgenEnhet()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke lederrolle")
         }
     }

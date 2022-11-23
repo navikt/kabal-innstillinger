@@ -34,7 +34,7 @@ spec:
         groups:
           - id: {{KABAL_SAKSBEHANDLING}}
           - id: {{KABAL_FAGTEKSTREDIGERING}}
-          - id: {{KABAL_OPPGAVESTYRING_EGEN_ENHET}}
+          - id: {{KABAL_INNSYN_EGEN_ENHET}}
           - id: {{KABAL_OPPGAVESTYRING_ALLE_ENHETER}}
           - id: {{KABAL_MALTEKSTREDIGERING}}
           {{#if KABAL_ADMIN}}

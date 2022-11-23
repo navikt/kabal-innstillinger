@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component
 class RoleUtils(
     private val tokenUtil: TokenUtil,
     private val azureGateway: AzureGateway,
-    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER}") private val oppgavestyringAlleEnheterRole: String,
-    @Value("\${KABAL_MALTEKSTREDIGERING}") private val maltekstredigering: String,
-    @Value("\${KABAL_SAKSBEHANDLING}") private val saksbehandlerRole: String,
-    @Value("\${KABAL_FAGTEKSTREDIGERING}") private val fagansvarligRole: String,
-    @Value("\${KABAL_OPPGAVESTYRING_EGEN_ENHET}") private val lederRole: String,
-    @Value("\${FORTROLIG}") private val kanBehandleFortroligRole: String,
-    @Value("\${STRENGT_FORTROLIG}") private val kanBehandleStrengtFortroligRole: String,
-    @Value("\${EGEN_ANSATT}") private val kanBehandleEgenAnsattRole: String,
-    @Value("\${KABAL_ADMIN}") private val adminRole: String,
+    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER}") private val kabalOppgavestyringAlleEnheterRoleId: String,
+    @Value("\${KABAL_MALTEKSTREDIGERING}") private val kabalMaltekstredigeringRoleId: String,
+    @Value("\${KABAL_SAKSBEHANDLING}") private val kabalSaksbehandlingRoleId: String,
+    @Value("\${KABAL_FAGTEKSTREDIGERING}") private val kabalFagtekstredigeringRoleId: String,
+    @Value("\${KABAL_INNSYN_EGEN_ENHET}") private val kabalInnsynEgenEnhetRoleId: String,
+    @Value("\${FORTROLIG}") private val fortroligRoleId: String,
+    @Value("\${STRENGT_FORTROLIG}") private val strengtFortroligRoleId: String,
+    @Value("\${EGEN_ANSATT}") private val egenAnsattRoleId: String,
+    @Value("\${KABAL_ADMIN}") private val kabalAdminRoleId: String,
 ) {
 
     companion object {
@@ -26,33 +26,30 @@ class RoleUtils(
 
     fun getRoleNamesFromId(roleId: String): List<String> {
         return when (roleId) {
-            oppgavestyringAlleEnheterRole -> listOf("ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER", "KABAL_OPPGAVESTYRING_ALLE_ENHETER")
-            maltekstredigering -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
-            saksbehandlerRole -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
-            fagansvarligRole -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
-            lederRole -> listOf("ROLE_KLAGE_LEDER", "KABAL_OPPGAVESTYRING_EGEN_ENHET")
-            kanBehandleFortroligRole -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
-            kanBehandleStrengtFortroligRole -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
-            kanBehandleEgenAnsattRole -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
-            adminRole -> listOf("ROLE_ADMIN", "KABAL_ADMIN")
+            kabalOppgavestyringAlleEnheterRoleId -> listOf("ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER", "KABAL_OPPGAVESTYRING_ALLE_ENHETER")
+            kabalMaltekstredigeringRoleId -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
+            kabalSaksbehandlingRoleId -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
+            kabalFagtekstredigeringRoleId -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
+            kabalInnsynEgenEnhetRoleId -> listOf("ROLE_KLAGE_LEDER", "KABAL_INNSYN_EGEN_ENHET")
+            fortroligRoleId -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
+            strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
+            egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
+            kabalAdminRoleId -> listOf("ROLE_ADMIN", "KABAL_ADMIN")
             else -> emptyList()
         }
     }
 
-    fun isLeder() = tokenUtil.getRollerFromToken().hasRole(lederRole)
+    fun isKabalInnsynEgenEnhet() = tokenUtil.getRoleIdsFromToken().contains(kabalInnsynEgenEnhetRoleId)
 
-    fun isSaksbehandler() = tokenUtil.getRollerFromToken().hasRole(saksbehandlerRole)
+    fun isSaksbehandler() = tokenUtil.getRoleIdsFromToken().contains(kabalSaksbehandlingRoleId)
 
-    fun isSaksbehandler(ident: String) = azureGateway.getRolleIder(ident).hasRole(saksbehandlerRole)
+    fun isSaksbehandler(ident: String) = azureGateway.getRoleIds(ident).contains(kabalSaksbehandlingRoleId)
 
-    fun getKanBehandleFortroligRoleId(): String = kanBehandleFortroligRole
+    fun getKanBehandleFortroligRoleId(): String = fortroligRoleId
 
-    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRolleIder(ident).hasRole(kanBehandleStrengtFortroligRole)
+    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(strengtFortroligRoleId)
 
-    fun kanBehandleFortrolig(ident: String) = azureGateway.getRolleIder(ident).hasRole(kanBehandleFortroligRole)
+    fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(fortroligRoleId)
 
-    fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRolleIder(ident).hasRole(kanBehandleEgenAnsattRole)
-
-    private fun List<String>.hasRole(role: String) = any { it.contains(role) }
-
+    fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRoleIds(ident).contains(egenAnsattRoleId)
 }

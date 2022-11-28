@@ -25,9 +25,20 @@ class CacheWithJCacheConfiguration(private val environment: Environment) : JCach
         const val SAKSBEHANDLERE_I_ENHET_CACHE = "saksbehandlereienhet"
         const val GROUPMEMBERS_CACHE = "groupmembers"
         const val ANSATTE_I_ENHET_CACHE = "ansatteienhet"
+        const val NAVIDENT_TO_GROUPS_CACHE = "navidenttogroups"
+        const val SAKSBEHANDLER_CACHE = "saksbehandler"
 
         val cacheKeys =
-            listOf(ENHET_CACHE, TILGANGER_CACHE, ROLLER_CACHE, SAKSBEHANDLERE_I_ENHET_CACHE, GROUPMEMBERS_CACHE, ANSATTE_I_ENHET_CACHE)
+            listOf(
+                ENHET_CACHE,
+                TILGANGER_CACHE,
+                ROLLER_CACHE,
+                SAKSBEHANDLERE_I_ENHET_CACHE,
+                GROUPMEMBERS_CACHE,
+                ANSATTE_I_ENHET_CACHE,
+                NAVIDENT_TO_GROUPS_CACHE,
+                SAKSBEHANDLER_CACHE,
+            )
 
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)

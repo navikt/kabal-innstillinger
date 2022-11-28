@@ -46,6 +46,7 @@ class MicrosoftGraphClient(
     }
 
     @Retryable
+    @Cacheable(CacheWithJCacheConfiguration.SAKSBEHANDLER_CACHE)
     fun getSaksbehandler(navIdent: String): AzureUser {
         logger.debug("Fetching data about authenticated user from Microsoft Graph")
         return findUserByNavIdent(navIdent)
@@ -99,6 +100,7 @@ class MicrosoftGraphClient(
     }
 
     @Retryable
+    @Cacheable(CacheWithJCacheConfiguration.NAVIDENT_TO_GROUPS_CACHE)
     fun getSaksbehandlersGroups(navIdent: String): List<AzureGroup> {
         logger.debug("Fetching data about users groups from Microsoft Graph")
         val user = findUserByNavIdent(navIdent)

@@ -54,14 +54,9 @@ class RoleUtils(
 
     fun isSaksbehandler(ident: String) = azureGateway.getRoleIds(ident).contains(kabalSaksbehandlingRoleId)
 
-    fun getKanBehandleFortroligRoleId(): String = fortroligRoleId
+    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(strengtFortroligRoleId)
 
-    fun getKabalSaksbehandlingRoleId(): String = kabalSaksbehandlingRoleId
+    fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(fortroligRoleId)
 
-    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).containsAll(listOf(strengtFortroligRoleId, kabalSaksbehandlingRoleId))
-
-    fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).containsAll(listOf(fortroligRoleId, kabalSaksbehandlingRoleId))
-
-    fun kanBehandleEgenAnsatt(ident: String): Boolean =
-        azureGateway.getRoleIds(ident).containsAll(listOf(egenAnsattRoleId, kabalSaksbehandlingRoleId))
+    fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRoleIds(ident).contains(egenAnsattRoleId)
 }

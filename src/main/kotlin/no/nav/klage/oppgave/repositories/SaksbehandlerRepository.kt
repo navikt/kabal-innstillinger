@@ -69,5 +69,7 @@ class SaksbehandlerRepository(
     }
 
     fun getSaksbehandlereSomKanBehandleFortrolig(): List<String> =
-        azureGateway.getGroupMembersNavIdents(roleUtils.getKanBehandleFortroligRoleId())
+        azureGateway.getGroupMembersNavIdents(roleUtils.getKanBehandleFortroligRoleId()).intersect(
+            azureGateway.getGroupMembersNavIdents(roleUtils.getKabalSaksbehandlingRoleId()).toSet()
+        ).toList()
 }

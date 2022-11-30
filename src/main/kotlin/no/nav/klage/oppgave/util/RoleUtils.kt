@@ -26,11 +26,20 @@ class RoleUtils(
 
     fun getRoleNamesFromId(roleId: String): List<String> {
         return when (roleId) {
-            kabalOppgavestyringAlleEnheterRoleId -> listOf("ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER", "KABAL_OPPGAVESTYRING_ALLE_ENHETER")
+            kabalOppgavestyringAlleEnheterRoleId -> listOf(
+                "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER",
+                "KABAL_OPPGAVESTYRING_ALLE_ENHETER"
+            )
+
             kabalMaltekstredigeringRoleId -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
             kabalSaksbehandlingRoleId -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
             kabalFagtekstredigeringRoleId -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
-            kabalInnsynEgenEnhetRoleId -> listOf("ROLE_KLAGE_LEDER", "KABAL_INNSYN_EGEN_ENHET", "KABAL_OPPGAVESTYRING_EGEN_ENHET")
+            kabalInnsynEgenEnhetRoleId -> listOf(
+                "ROLE_KLAGE_LEDER",
+                "KABAL_INNSYN_EGEN_ENHET",
+                "KABAL_OPPGAVESTYRING_EGEN_ENHET"
+            )
+
             fortroligRoleId -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
             strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
             egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
@@ -47,9 +56,12 @@ class RoleUtils(
 
     fun getKanBehandleFortroligRoleId(): String = fortroligRoleId
 
-    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(strengtFortroligRoleId)
+    fun getKabalSaksbehandlingRoleId(): String = kabalSaksbehandlingRoleId
 
-    fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(fortroligRoleId)
+    fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).containsAll(listOf(strengtFortroligRoleId, kabalSaksbehandlingRoleId))
 
-    fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRoleIds(ident).contains(egenAnsattRoleId)
+    fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).containsAll(listOf(fortroligRoleId, kabalSaksbehandlingRoleId))
+
+    fun kanBehandleEgenAnsatt(ident: String): Boolean =
+        azureGateway.getRoleIds(ident).containsAll(listOf(egenAnsattRoleId, kabalSaksbehandlingRoleId))
 }

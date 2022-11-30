@@ -67,7 +67,4 @@ class SaksbehandlerRepository(
             sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
         )
     }
-
-    fun getSaksbehandlereSomKanBehandleFortrolig(): List<String> =
-        azureGateway.getGroupMembersNavIdents(roleUtils.getKanBehandleFortroligRoleId())
 }

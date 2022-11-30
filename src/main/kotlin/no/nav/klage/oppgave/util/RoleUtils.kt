@@ -26,11 +26,20 @@ class RoleUtils(
 
     fun getRoleNamesFromId(roleId: String): List<String> {
         return when (roleId) {
-            kabalOppgavestyringAlleEnheterRoleId -> listOf("ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER", "KABAL_OPPGAVESTYRING_ALLE_ENHETER")
+            kabalOppgavestyringAlleEnheterRoleId -> listOf(
+                "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER",
+                "KABAL_OPPGAVESTYRING_ALLE_ENHETER"
+            )
+
             kabalMaltekstredigeringRoleId -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
             kabalSaksbehandlingRoleId -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
             kabalFagtekstredigeringRoleId -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
-            kabalInnsynEgenEnhetRoleId -> listOf("ROLE_KLAGE_LEDER", "KABAL_INNSYN_EGEN_ENHET", "KABAL_OPPGAVESTYRING_EGEN_ENHET")
+            kabalInnsynEgenEnhetRoleId -> listOf(
+                "ROLE_KLAGE_LEDER",
+                "KABAL_INNSYN_EGEN_ENHET",
+                "KABAL_OPPGAVESTYRING_EGEN_ENHET"
+            )
+
             fortroligRoleId -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
             strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
             egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
@@ -44,8 +53,6 @@ class RoleUtils(
     fun isSaksbehandler() = tokenUtil.getRoleIdsFromToken().contains(kabalSaksbehandlingRoleId)
 
     fun isSaksbehandler(ident: String) = azureGateway.getRoleIds(ident).contains(kabalSaksbehandlingRoleId)
-
-    fun getKanBehandleFortroligRoleId(): String = fortroligRoleId
 
     fun kanBehandleStrengtFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(strengtFortroligRoleId)
 

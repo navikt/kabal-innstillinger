@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
@@ -134,9 +135,17 @@ class SaksbehandlerService(
         if (harBeskyttelsesbehovFortrolig) {
             //Kode 7 skal ha medunderskrivere fra alle ytelser, men kun de med kode 7-rettigheter
             //TODO: Dette er klønete, vi burde gjort dette i ETT kall til AD, ikke n.
-            val saksbehandlere = saksbehandlerRepository.getSaksbehandlereSomKanBehandleFortrolig()
-                .filter { egenAnsattFilter(fnr, erEgenAnsatt, it) }
-                .map { Saksbehandler(it, getNameForIdent(it).sammensattNavn) }
+            val saksbehandlere = klageenheter
+                .filter { it.navn != VIKAFOSSEN }
+                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
+                .asSequence()
+                .distinct()
+                .filter { roleUtils.isSaksbehandler(ident = it) }
+                .filter { roleUtils.kanBehandleFortrolig(ident = it) }
+                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+                .toList()
+
             return saksbehandlere.toSet()
         }
 

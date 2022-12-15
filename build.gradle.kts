@@ -52,7 +52,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:klage-kodeverk:1.1.8")
+    implementation("com.github.navikt:klage-kodeverk:v1.1.11")
 
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$springSleuthVersion")
     implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")

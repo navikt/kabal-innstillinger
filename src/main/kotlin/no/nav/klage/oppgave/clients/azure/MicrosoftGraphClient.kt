@@ -74,6 +74,7 @@ class MicrosoftGraphClient(
                 .path("/users")
                 .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
                 .queryParam("\$select", userSelect)
+                .queryParam("\$count", true)
                 .build()
         }
         .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")

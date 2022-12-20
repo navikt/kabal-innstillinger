@@ -72,7 +72,7 @@ class MicrosoftGraphClient(
         .uri { uriBuilder ->
             uriBuilder
                 .path("/users")
-                .queryParam("\$filter", "onpremsamaccountname eq '$navIdent'")
+                .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
                 .queryParam("\$select", userSelect)
                 .build()
         }

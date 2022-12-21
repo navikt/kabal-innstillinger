@@ -70,20 +70,21 @@ class MicrosoftGraphClient(
 
     private fun findUserByNavIdent(navIdent: String): AzureUser {
         logger.debug("findUserByNavIdent $navIdent")
-       return microsoftGraphWebClient.get()
-           .uri { uriBuilder ->
-               uriBuilder
-                   .path("/users")
-                   .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
-                   .queryParam("\$select", userSelect)
-                   .queryParam("\$count", true)
-                   .build()
-           }
-           .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
-           .header("ConsistencyLevel", "eventual")
-           .retrieve()
-           .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()?.let { secureLogger.debug("Saksbehandler: $it"); it }
-           ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")
+        return microsoftGraphWebClient.get()
+            .uri { uriBuilder ->
+                uriBuilder
+                    .path("/users")
+                    .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
+                    .queryParam("\$select", userSelect)
+                    .queryParam("\$count", true)
+                    .build()
+            }
+            .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
+            .header("ConsistencyLevel", "eventual")
+            .retrieve()
+            .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()
+            ?.let { secureLogger.debug("Saksbehandler: $it"); it }
+            ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")
     }
 
     @Retryable

@@ -68,20 +68,23 @@ class MicrosoftGraphClient(
             ?: throw RuntimeException("AzureAD data about authenticated users groups could not be fetched")
     }
 
-    private fun findUserByNavIdent(navIdent: String): AzureUser = microsoftGraphWebClient.get()
-        .uri { uriBuilder ->
-            uriBuilder
-                .path("/users")
-                .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
-                .queryParam("\$select", userSelect)
-                .queryParam("\$count", true)
-                .build()
-        }
-        .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
-        .header("ConsistencyLevel", "eventual")
-        .retrieve()
-        .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()?.let { secureLogger.debug("Saksbehandler: $it"); it }
-        ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")
+    private fun findUserByNavIdent(navIdent: String): AzureUser {
+        logger.debug("findUserByNavIdent $navIdent")
+       return microsoftGraphWebClient.get()
+           .uri { uriBuilder ->
+               uriBuilder
+                   .path("/users")
+                   .queryParam("\$filter", "onPremisesSamAccountName eq '$navIdent'")
+                   .queryParam("\$select", userSelect)
+                   .queryParam("\$count", true)
+                   .build()
+           }
+           .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
+           .header("ConsistencyLevel", "eventual")
+           .retrieve()
+           .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()?.let { secureLogger.debug("Saksbehandler: $it"); it }
+           ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")
+    }
 
     @Retryable
     @Cacheable(CacheWithJCacheConfiguration.GROUPMEMBERS_CACHE)
@@ -105,13 +108,14 @@ class MicrosoftGraphClient(
     @Cacheable(CacheWithJCacheConfiguration.NAV_IDENT_TO_AZURE_GROUP_LIST_CACHE)
     fun getSaksbehandlersGroups(navIdent: String): List<AzureGroup> {
         logger.debug("Fetching data about users groups from Microsoft Graph")
-        val user = findUserByNavIdent(navIdent)
+        val user = getSaksbehandler(navIdent)
         return getGroupsByUserPrincipalName(user.userPrincipalName)
     }
 
     @Retryable
     @Cacheable(CacheWithJCacheConfiguration.ANSATTE_I_ENHET_CACHE)
     fun getEnhetensAnsattesNavIdents(enhetNr: String): List<String> {
+        logger.debug("getEnhetensAnsattesNavIdents from Microsoft Graph")
         return microsoftGraphWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder
@@ -132,6 +136,7 @@ class MicrosoftGraphClient(
     }
 
     private fun getGroupsByUserPrincipalName(userPrincipalName: String): List<AzureGroup> {
+        logger.debug("getGroupsByUserPrincipalName $userPrincipalName")
         val aadAzureGroups: List<AzureGroup> = microsoftGraphWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder

@@ -22,6 +22,8 @@ spec:
       containers:
         - image: ghcr.io/navikt/kabal-e2e-tests:latest
           name: kabal-e2e-tests
+          securityContext:
+            allowPrivilegeEscalation: false
           envFrom:
             - secretRef:
                 name: kabal-e2e-test-users

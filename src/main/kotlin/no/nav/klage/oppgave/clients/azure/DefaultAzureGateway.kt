@@ -27,12 +27,9 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
             throw e
         }
         return SaksbehandlerPersonligInfo(
-            navIdent = data.onPremisesSamAccountName,
-            azureId = data.id,
             fornavn = data.givenName,
             etternavn = data.surname,
             sammensattNavn = data.displayName,
-            epost = data.mail,
             enhet = mapToEnhet(data.streetAddress),
         )
     }
@@ -45,12 +42,9 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
             throw e
         }
         return SaksbehandlerPersonligInfo(
-            navIdent = data.onPremisesSamAccountName,
-            azureId = data.id,
             fornavn = data.givenName,
             etternavn = data.surname,
             sammensattNavn = data.displayName,
-            epost = data.mail,
             enhet = mapToEnhet(data.streetAddress),
         )
     }

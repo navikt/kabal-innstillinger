@@ -22,9 +22,9 @@ class MicrosoftGraphClient(
         private val secureLogger = getSecureLogger()
 
         private const val userSelect =
-            "onPremisesSamAccountName,displayName,givenName,surname,mail,officeLocation,userPrincipalName,id,jobTitle,streetAddress"
+            "displayName,givenName,surname,userPrincipalName,streetAddress"
 
-        private const val groupMemberSelect = "id,mail,onPremisesSamAccountName,displayName"
+        private const val onPremisesSamAccountNameSelect = "onPremisesSamAccountName"
     }
 
     @Retryable
@@ -90,16 +90,16 @@ class MicrosoftGraphClient(
     @Retryable
     @Cacheable(CacheWithJCacheConfiguration.GROUPMEMBERS_CACHE)
     fun getGroupMembersNavIdents(groupid: String): List<String> {
-        val azureGroupMember: List<AzureGroupMember> = microsoftGraphWebClient.get()
+        val azureGroupMember: List<AzureOnPremisesSamAccountName> = microsoftGraphWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder
                     .path("/groups/{groupid}/members")
-                    .queryParam("\$select", groupMemberSelect)
+                    .queryParam("\$select", onPremisesSamAccountNameSelect)
                     .build(groupid)
             }
             .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
             .retrieve()
-            .bodyToMono<AzureGroupMemberList>().block()?.value
+            .bodyToMono<AzureOnPremisesSamAccountNameList>().block()?.value
             ?: throw RuntimeException("AzureAD data about group members nav idents could not be fetched")
         return azureGroupMember.map { secureLogger.debug("Group member $it"); it }
             .mapNotNull { it.onPremisesSamAccountName }

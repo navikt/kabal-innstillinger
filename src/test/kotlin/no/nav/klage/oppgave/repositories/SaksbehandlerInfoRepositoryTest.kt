@@ -18,12 +18,9 @@ internal class SaksbehandlerInfoRepositoryTest {
 
 
     private fun personligInfo() = SaksbehandlerPersonligInfo(
-        navIdent = "Z12345",
-        azureId = "Whatever",
         fornavn = "Test",
         etternavn = "Saksbehandler",
         sammensattNavn = "Test Saksbehandler",
-        epost = "test.saksbehandler@trygdeetaten.no",
         enhet = Enhet("4295", "KA Nord"),
     )
 

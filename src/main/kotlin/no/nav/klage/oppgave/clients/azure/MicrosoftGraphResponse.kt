@@ -4,15 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AzureUser(
-    val onPremisesSamAccountName: String,
     val displayName: String,
     val givenName: String,
     val surname: String,
-    val mail: String,
-    val officeLocation: String?,
     val userPrincipalName: String,
-    val id: String,
-    val jobTitle: String?,
     val streetAddress: String,
 )
 

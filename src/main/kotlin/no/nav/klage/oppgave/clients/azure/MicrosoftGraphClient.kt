@@ -22,7 +22,7 @@ class MicrosoftGraphClient(
         private val secureLogger = getSecureLogger()
 
         private const val userSelect =
-            "onPremisesSamAccountName,displayName,givenName,surname,mail,officeLocation,userPrincipalName,id,jobTitle,streetAddress"
+            "displayName,givenName,surname,userPrincipalName,streetAddress"
 
         private const val onPremisesSamAccountNameSelect = "onPremisesSamAccountName"
     }

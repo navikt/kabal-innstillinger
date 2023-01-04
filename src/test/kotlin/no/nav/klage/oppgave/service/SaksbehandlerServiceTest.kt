@@ -61,7 +61,7 @@ class SaksbehandlerServiceTest {
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
             roleUtils = roleUtils,
-//            saksbehandlerAccessService = saksbehandlerAccessService
+            saksbehandlerAccessService = saksbehandlerAccessService
         )
 
     val person = Person(

@@ -33,7 +33,7 @@ class SaksbehandlerService(
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
-//    private val saksbehandlerAccessService: SaksbehandlerAccessService,
+    private val saksbehandlerAccessService: SaksbehandlerAccessService,
 ) {
 
     companion object {
@@ -91,7 +91,7 @@ class SaksbehandlerService(
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
-//        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccessView(navIdent).ytelseIdList
+        val tildelteYtelser = saksbehandlerAccessService.getSaksbehandlerAccessYtelseIdList(navIdent)
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -100,7 +100,7 @@ class SaksbehandlerService(
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
-            tildelteYtelser = emptyList(),// tildelteYtelser.map { Ytelse.of(it) }
+            tildelteYtelser = tildelteYtelser.map { Ytelse.of(it) }
         )
     }
 

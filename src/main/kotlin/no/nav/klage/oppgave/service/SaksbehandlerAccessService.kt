@@ -40,6 +40,11 @@ class SaksbehandlerAccessService(
         )
     }
 
+    fun getSaksbehandlerAccessYtelseIdList(saksbehandlerIdent: String): List<String> {
+        val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
+        return saksbehandlerAccess.ytelser.map { it.id }
+    }
+
     fun getSaksbehandlere(enhet: String): SaksbehandlerAccessResponse {
         return SaksbehandlerAccessResponse(accessRights = enhetRepository.getAnsatteIEnhet(enhet)
             .filter { roleUtils.isSaksbehandler(ident = it) }

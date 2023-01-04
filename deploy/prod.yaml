@@ -29,6 +29,8 @@ adRoles:
     value: e750ceb5-b70b-4d94-b4fa-9d22467b786b
   - name: KABAL_ADMIN_ROLE_ID
     value: cd78b8e8-73a3-4fb6-8234-7bebb5e5b9e9
+  - name: KABAL_TILGANGSSTYRING_EGEN_ENHET_ROLE_ID
+    value: 7cb733c8-2558-4235-a5ec-8c4e9b397494
 
 envs:
   - name: JAVA_OPTS

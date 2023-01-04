@@ -13,6 +13,7 @@ class RoleUtils(
     @Value("\${KABAL_SAKSBEHANDLING_ROLE_ID}") private val kabalSaksbehandlingRoleId: String,
     @Value("\${KABAL_FAGTEKSTREDIGERING_ROLE_ID}") private val kabalFagtekstredigeringRoleId: String,
     @Value("\${KABAL_INNSYN_EGEN_ENHET_ROLE_ID}") private val kabalInnsynEgenEnhetRoleId: String,
+    @Value("\${KABAL_TILGANGSSTYRING_EGEN_ENHET_ROLE_ID}") private val kabalTilgangsstyringEgenEnhetRoleId: String,
     @Value("\${FORTROLIG_ROLE_ID}") private val fortroligRoleId: String,
     @Value("\${STRENGT_FORTROLIG_ROLE_ID}") private val strengtFortroligRoleId: String,
     @Value("\${EGEN_ANSATT_ROLE_ID}") private val egenAnsattRoleId: String,
@@ -44,11 +45,13 @@ class RoleUtils(
             strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
             egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
             kabalAdminRoleId -> listOf("ROLE_ADMIN", "KABAL_ADMIN")
+            kabalTilgangsstyringEgenEnhetRoleId -> listOf("KABAL_TILGANGSSTYRING_EGEN_ENHET")
             else -> emptyList()
         }
     }
 
-    fun isKabalInnsynEgenEnhet() = tokenUtil.getRoleIdsFromToken().contains(kabalInnsynEgenEnhetRoleId)
+    fun isKabalTilgangsstyringEgenEnhet() =
+        tokenUtil.getRoleIdsFromToken().contains(kabalTilgangsstyringEgenEnhetRoleId)
 
     fun isSaksbehandler() = tokenUtil.getRoleIdsFromToken().contains(kabalSaksbehandlingRoleId)
 

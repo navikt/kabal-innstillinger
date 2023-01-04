@@ -38,7 +38,7 @@ class AdministerAccessController(
     fun getSaksbehandlerAccess(
         @PathVariable navIdent: String,
     ): SaksbehandlerAccess {
-        verifyIsLeder()
+        verifyIsTilgangsstyringEgenEnhet()
 
         return saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = navIdent)
     }
@@ -49,7 +49,7 @@ class AdministerAccessController(
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
     fun getSaksbehandlereForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
-        verifyIsLeder()
+        verifyIsTilgangsstyringEgenEnhet()
 
         val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getSaksbehandlereForEnhet is requested by $innloggetSaksbehandlerNavIdent")
@@ -64,7 +64,7 @@ class AdministerAccessController(
     fun setYtelserForSaksbehandlere(
         @RequestBody input: YtelseInput
     ): SaksbehandlerAccessResponse {
-        verifyIsLeder()
+        verifyIsTilgangsstyringEgenEnhet()
 
         return saksbehandlerAccessService.setYtelser(
             ytelseInput = input,
@@ -72,9 +72,9 @@ class AdministerAccessController(
         )
     }
 
-    private fun verifyIsLeder() {
-        if (!roleUtils.isKabalInnsynEgenEnhet()) {
-            throw MissingTilgangException(msg = "Innlogget ansatt har ikke lederrolle")
+    private fun verifyIsTilgangsstyringEgenEnhet() {
+        if (!roleUtils.isKabalTilgangsstyringEgenEnhet()) {
+            throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")
         }
     }
 

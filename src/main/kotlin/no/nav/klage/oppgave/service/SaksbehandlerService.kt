@@ -217,8 +217,10 @@ class SaksbehandlerService(
     }
 
     private fun getSaksbehandlerAccessYtelseIdList(saksbehandlerIdent: String): List<String> {
-        val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
-        return saksbehandlerAccess.ytelser.map { it.id }
+        return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
+            val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
+            saksbehandlerAccess.ytelser.map { it.id }
+        } else emptyList()
     }
 
 }

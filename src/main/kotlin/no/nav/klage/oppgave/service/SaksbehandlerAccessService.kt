@@ -91,6 +91,14 @@ class SaksbehandlerAccessService(
                 }
             }
 
+            val innstillingerYtelser =
+                saksbehandlerService.getDataOmSaksbehandler(accessRight.saksbehandlerIdent).saksbehandlerInnstillinger.ytelser
+
+            saksbehandlerService.storeYtelser(
+                navIdent = accessRight.saksbehandlerIdent,
+                newYtelseList = innstillingerYtelser
+            )
+
             saksbehandlerAccessList += SaksbehandlerAccessView(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
                 saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerAccess.saksbehandlerIdent).sammensattNavn,

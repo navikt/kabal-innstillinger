@@ -39,6 +39,7 @@ class SaksbehandlerService(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private const val VIKAFOSSEN = "2103"
+        const val separator = ","
     }
 
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
@@ -47,10 +48,10 @@ class SaksbehandlerService(
 
     private fun findSaksbehandlerInnstillinger(
         ident: String,
-        ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser
+        assignedYtelseIdList: List<Ytelse>
     ): SaksbehandlerInnstillinger {
         return innstillingerRepository.findByIdOrNull(ident)
-            ?.toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
+            ?.toSaksbehandlerInnstillinger(assignedYtelseIdList)
             ?: SaksbehandlerInnstillinger()
     }
 
@@ -58,17 +59,15 @@ class SaksbehandlerService(
         navIdent: String,
         newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
     ): SaksbehandlerInnstillinger {
-        val ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser =
-            innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
+        val assignedYtelseIdList = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
-        val separator = ","
 
         return innstillingerRepository.save(
             Innstillinger(
                 saksbehandlerident = navIdent,
                 hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
-                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
+                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseIdList }
                     .joinToString(separator) { it.id },
                 typer = newSaksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
                 shortName = oldInnstillinger?.shortName,
@@ -76,21 +75,50 @@ class SaksbehandlerService(
                 jobTitle = oldInnstillinger?.jobTitle,
                 modified = LocalDateTime.now()
             )
-        ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
+        ).toSaksbehandlerInnstillinger(assignedYtelseIdList)
+    }
+
+    fun storeYtelser(
+        navIdent: String,
+        newYtelseList: List<Ytelse>,
+    ) {
+        val assignedYtelseIdList = getSaksbehandlerAssignedYtelseIdList(navIdent)
+
+        if (!innstillingerRepository.existsById(navIdent)) {
+            innstillingerRepository.save(
+                Innstillinger(
+                    saksbehandlerident = navIdent,
+                    hjemler = "",
+                    ytelser = newYtelseList.filter { it in assignedYtelseIdList }
+                        .joinToString(separator) { it.id },
+                    typer = "",
+                    shortName = null,
+                    longName = null,
+                    jobTitle = null,
+                    tidspunkt = LocalDateTime.now()
+                )
+            )
+        } else {
+            innstillingerRepository.getReferenceById(navIdent).apply {
+                ytelser = newYtelseList.filter { it in assignedYtelseIdList }
+                    .joinToString(separator) { it.id }
+                tidspunkt = LocalDateTime.now()
+            }
+        }
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val ansattEnhetForInnloggetSaksbehandler = innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
+        val assignedYtelser = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
             innloggetAnsattRepository.getInnloggetIdent(),
-            ansattEnhetForInnloggetSaksbehandler,
+            assignedYtelser,
         )
 
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
-        val tildelteYtelser = getSaksbehandlerAccessYtelseIdList(navIdent)
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -99,7 +127,7 @@ class SaksbehandlerService(
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
-            tildelteYtelser = tildelteYtelser.map { Ytelse.of(it) }
+            tildelteYtelser = assignedYtelser
         )
     }
 
@@ -203,11 +231,23 @@ class SaksbehandlerService(
         )
     }
 
-    private fun getSaksbehandlerAccessYtelseIdList(saksbehandlerIdent: String): List<String> {
+    private fun getSaksbehandlerAssignedYtelseIdList(saksbehandlerIdent: String): List<Ytelse> {
         return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
-            saksbehandlerAccess.ytelser.map { it.id }
+            saksbehandlerAccess.ytelser.toList()
         } else emptyList()
     }
 
+    fun cleanupInnstillinger() {
+        val existingInnstillinger = innstillingerRepository.findAll()
+        existingInnstillinger.forEach { innstilling ->
+            logger.debug("Data before cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser}")
+            storeYtelser(
+                innstilling.saksbehandlerident,
+                innstilling.ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) })
+            val resultingInnstilling =
+                innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
+            logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")
+        }
+    }
 }

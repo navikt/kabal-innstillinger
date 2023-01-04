@@ -3,7 +3,6 @@ package no.nav.klage.oppgave.domain.saksbehandler.entities
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
-import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
@@ -23,7 +22,7 @@ class Innstillinger(
     @Column(name = "hjemler")
     val hjemler: String = "",
     @Column(name = "ytelser")
-    val ytelser: String = "",
+    var ytelser: String = "",
     @Column(name = "typer")
     val typer: String = "",
     @Column(name = "short_name")
@@ -43,11 +42,11 @@ class Innstillinger(
         private val separator = ","
     }
 
-    fun toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser): SaksbehandlerInnstillinger {
+    fun toSaksbehandlerInnstillinger(assignedYtelseIdList: List<Ytelse>): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
             hjemler = hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
             ytelser = ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
-                .filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser },
+                .filter { it in assignedYtelseIdList },
             typer = typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) },
             shortName = shortName,
             longName = longName,

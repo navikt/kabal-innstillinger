@@ -12,6 +12,7 @@ import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
 import no.nav.klage.oppgave.util.RoleUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -28,6 +29,7 @@ class SaksbehandlerServiceTest {
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
+    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val roleUtils: RoleUtils = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
@@ -61,7 +63,7 @@ class SaksbehandlerServiceTest {
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
             roleUtils = roleUtils,
-//            saksbehandlerAccessService = saksbehandlerAccessService
+            saksbehandlerAccessRepository = saksbehandlerAccessRepository
         )
 
     val person = Person(

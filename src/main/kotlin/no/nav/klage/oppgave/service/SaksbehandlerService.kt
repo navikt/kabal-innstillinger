@@ -1,6 +1,9 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
+import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
@@ -48,10 +51,9 @@ class SaksbehandlerService(
 
     private fun findSaksbehandlerInnstillinger(
         ident: String,
-        assignedYtelseIdList: List<Ytelse>
     ): SaksbehandlerInnstillinger {
         return innstillingerRepository.findByIdOrNull(ident)
-            ?.toSaksbehandlerInnstillinger(assignedYtelseIdList)
+            ?.toSaksbehandlerInnstillinger()
             ?: SaksbehandlerInnstillinger()
     }
 
@@ -75,36 +77,101 @@ class SaksbehandlerService(
                 jobTitle = oldInnstillinger?.jobTitle,
                 modified = LocalDateTime.now()
             )
-        ).toSaksbehandlerInnstillinger(assignedYtelseIdList)
+        ).toSaksbehandlerInnstillinger()
     }
 
-    fun storeYtelser(
+    fun storeInnstillingerYtelser(
         navIdent: String,
-        newYtelseList: List<Ytelse>,
+        inputYtelseSet: Set<Ytelse>,
     ) {
         val assignedYtelseIdList = getSaksbehandlerAssignedYtelseIdList(navIdent)
+        val filteredYtelseList = inputYtelseSet.filter { it in assignedYtelseIdList }
 
         if (!innstillingerRepository.existsById(navIdent)) {
+            val hjemmelSet = getUpdatedHjemmelSet(
+                ytelserToAdd = filteredYtelseList.toSet()
+            )
+
             innstillingerRepository.save(
                 Innstillinger(
                     saksbehandlerident = navIdent,
-                    hjemler = "",
-                    ytelser = newYtelseList.filter { it in assignedYtelseIdList }
+                    hjemler = hjemmelSet
+                        .joinToString(SEPARATOR) { it.id },
+                    ytelser = filteredYtelseList
                         .joinToString(SEPARATOR) { it.id },
                     typer = "",
                     shortName = null,
                     longName = null,
                     jobTitle = null,
-                    tidspunkt = LocalDateTime.now()
+                    modified = LocalDateTime.now()
                 )
             )
         } else {
+
+            val existingInnstillinger = findSaksbehandlerInnstillinger(
+                ident = navIdent,
+            )
+
+            val existingInnstillingerYtelseSet = existingInnstillinger.ytelser.toSet()
+            val existingHjemmelSet = existingInnstillinger.hjemler.toSet()
+
+            val ytelserToAdd = getYtelserToAdd(
+                inputYtelser = inputYtelseSet,
+                existingInnstillingerYtelser = existingInnstillingerYtelseSet
+            )
+            val ytelserToKeep = getYtelserToKeep(
+                inputYtelser = inputYtelseSet,
+                existingInnstillingerYtelser = existingInnstillingerYtelseSet
+            )
+
+            val hjemmelSet = getUpdatedHjemmelSet(
+                ytelserToAdd = ytelserToAdd, ytelserToKeep = ytelserToKeep, existingHjemler = existingHjemmelSet
+            )
+
             innstillingerRepository.getReferenceById(navIdent).apply {
-                ytelser = newYtelseList.filter { it in assignedYtelseIdList }
+                ytelser = filteredYtelseList
                     .joinToString(SEPARATOR) { it.id }
-                tidspunkt = LocalDateTime.now()
+                hjemler = hjemmelSet
+                    .joinToString(SEPARATOR) { it.id }
+                modified = LocalDateTime.now()
             }
         }
+    }
+
+    fun getYtelserToAdd(
+        inputYtelser: Set<Ytelse>,
+        existingInnstillingerYtelser: Set<Ytelse> = emptySet()
+    ): Set<Ytelse> {
+        return inputYtelser.filter { it !in existingInnstillingerYtelser }.toSet()
+    }
+
+    fun getYtelserToKeep(inputYtelser: Set<Ytelse>, existingInnstillingerYtelser: Set<Ytelse>): Set<Ytelse> {
+        return inputYtelser.intersect(existingInnstillingerYtelser)
+    }
+
+    fun getUpdatedHjemmelSet(
+        ytelserToAdd: Set<Ytelse>,
+        ytelserToKeep: Set<Ytelse>? = null,
+        existingHjemler: Set<Hjemmel>? = null,
+    ): MutableSet<Hjemmel> {
+        val hjemmelSet = mutableSetOf<Hjemmel>()
+
+        ytelserToAdd.forEach { ytelse ->
+            ytelseTilHjemler[ytelse]?.let { hjemmelSet.addAll(it) }
+        }
+
+        if (ytelserToKeep != null && existingHjemler != null) {
+            for (hjemmel in existingHjemler) {
+                for (ytelse in ytelserToKeep) {
+                    if (ytelseTilHjemler[ytelse]?.contains(hjemmel) == true) {
+                        hjemmelSet.add(hjemmel)
+                        break
+                    }
+                }
+            }
+        }
+
+        return hjemmelSet
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
@@ -112,8 +179,7 @@ class SaksbehandlerService(
         val assignedYtelser = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
-            innloggetAnsattRepository.getInnloggetIdent(),
-            assignedYtelser,
+            ident = navIdent,
         )
 
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
@@ -242,9 +308,11 @@ class SaksbehandlerService(
         val existingInnstillinger = innstillingerRepository.findAll()
         existingInnstillinger.forEach { innstilling ->
             logger.debug("Data before cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser}")
-            storeYtelser(
-                innstilling.saksbehandlerident,
-                innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) })
+            storeInnstillingerYtelser(
+                navIdent = innstilling.saksbehandlerident,
+                inputYtelseSet = innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+                    .toSet()
+            )
             val resultingInnstilling =
                 innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
             logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")

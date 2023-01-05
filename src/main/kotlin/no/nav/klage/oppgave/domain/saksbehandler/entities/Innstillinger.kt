@@ -20,7 +20,7 @@ class Innstillinger(
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
     @Column(name = "hjemler")
-    val hjemler: String = "",
+    var hjemler: String = "",
     @Column(name = "ytelser")
     var ytelser: String = "",
     @Column(name = "typer")
@@ -42,11 +42,10 @@ class Innstillinger(
         const val SEPARATOR = ","
     }
 
-    fun toSaksbehandlerInnstillinger(assignedYtelseIdList: List<Ytelse>): SaksbehandlerInnstillinger {
+    fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
             hjemler = hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
-                .filter { it in assignedYtelseIdList },
+            ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) },
             typer = typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) },
             shortName = shortName,
             longName = longName,

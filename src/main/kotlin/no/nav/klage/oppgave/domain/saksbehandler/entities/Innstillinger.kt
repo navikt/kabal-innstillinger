@@ -39,15 +39,15 @@ class Innstillinger(
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
 
-        private val separator = ","
+        const val SEPARATOR = ","
     }
 
     fun toSaksbehandlerInnstillinger(assignedYtelseIdList: List<Ytelse>): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
-            hjemler = hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser = ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+            hjemler = hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
+            ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
                 .filter { it in assignedYtelseIdList },
-            typer = typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) },
+            typer = typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) },
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,

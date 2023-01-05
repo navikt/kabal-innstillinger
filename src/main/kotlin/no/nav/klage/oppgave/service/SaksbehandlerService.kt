@@ -39,7 +39,7 @@ class SaksbehandlerService(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private const val VIKAFOSSEN = "2103"
-        const val separator = ","
+        const val SEPARATOR = ","
     }
 
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
@@ -66,10 +66,10 @@ class SaksbehandlerService(
         return innstillingerRepository.save(
             Innstillinger(
                 saksbehandlerident = navIdent,
-                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
+                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(SEPARATOR) { it.id },
                 ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseIdList }
-                    .joinToString(separator) { it.id },
-                typer = newSaksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
+                    .joinToString(SEPARATOR) { it.id },
+                typer = newSaksbehandlerInnstillinger.typer.joinToString(SEPARATOR) { it.id },
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
@@ -90,7 +90,7 @@ class SaksbehandlerService(
                     saksbehandlerident = navIdent,
                     hjemler = "",
                     ytelser = newYtelseList.filter { it in assignedYtelseIdList }
-                        .joinToString(separator) { it.id },
+                        .joinToString(SEPARATOR) { it.id },
                     typer = "",
                     shortName = null,
                     longName = null,
@@ -101,7 +101,7 @@ class SaksbehandlerService(
         } else {
             innstillingerRepository.getReferenceById(navIdent).apply {
                 ytelser = newYtelseList.filter { it in assignedYtelseIdList }
-                    .joinToString(separator) { it.id }
+                    .joinToString(SEPARATOR) { it.id }
                 tidspunkt = LocalDateTime.now()
             }
         }
@@ -244,7 +244,7 @@ class SaksbehandlerService(
             logger.debug("Data before cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser}")
             storeYtelser(
                 innstilling.saksbehandlerident,
-                innstilling.ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) })
+                innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) })
             val resultingInnstilling =
                 innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
             logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")

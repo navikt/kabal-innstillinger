@@ -33,15 +33,13 @@ class AdministerAccessController(
     }
 
     @Operation(
-        summary = "Henter hvilke ytelser som den ansatte fått spesiell tilgang til å jobbe med",
-        description = "Henter hvilke ytelser som den ansatte fått spesiell tilgang til å jobbe med"
+        summary = "Henter ytelser som den ansatte har blitt tildelt av leder",
+        description = "Henter ytelser som den ansatte har blitt tildelt av leder"
     )
-    @GetMapping("/ansatte/{navIdent}", produces = ["application/json"])
+    @GetMapping("/ansatte/{navIdent}/tildelteytelser", produces = ["application/json"])
     fun getSaksbehandlerAccess(
         @PathVariable navIdent: String,
     ): SaksbehandlerAccess {
-        verifyIsTilgangsstyringEgenEnhet()
-
         return saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = navIdent)
     }
 

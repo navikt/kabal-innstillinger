@@ -35,7 +35,6 @@ class SaksbehandlerService(
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
-    private val saksbehandlerAccessService: SaksbehandlerAccessService
 ) {
 
     companion object {
@@ -230,7 +229,7 @@ class SaksbehandlerService(
             return emptySet()
         }
 
-        return saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(ytelse)
+        return getSaksbehandlerIdentsForYtelse(ytelse)
             .map { it }
             .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
             .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
@@ -308,6 +307,14 @@ class SaksbehandlerService(
             val resultingInnstilling =
                 innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
             logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")
+        }
+    }
+
+    private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
+        logger.debug("Getting saksbehandlere for ytelse $ytelse")
+        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+        return results.map {
+            it.saksbehandlerIdent
         }
     }
 }

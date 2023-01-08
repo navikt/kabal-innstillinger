@@ -106,12 +106,4 @@ class SaksbehandlerAccessService(
         }
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
     }
-
-    fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
-        logger.debug("Getting saksbehandlere for ytelse $ytelse")
-        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
-        return results.map {
-            it.saksbehandlerIdent
-        }
-    }
 }

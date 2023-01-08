@@ -10,6 +10,7 @@ import no.nav.klage.oppgave.clients.pdl.Beskyttelsesbehov
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.clients.pdl.Person
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
+import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.*
 import no.nav.klage.oppgave.util.RoleUtils
@@ -61,7 +62,6 @@ class SaksbehandlerServiceTest {
             tilgangService = tilgangService,
             roleUtils = roleUtils,
             saksbehandlerAccessRepository = saksbehandlerAccessRepository,
-            saksbehandlerAccessService = saksbehandlerAccessService
         )
 
     val person = Person(
@@ -90,10 +90,15 @@ class SaksbehandlerServiceTest {
     fun `getSaksbehandlere inneholder relevante saksbehandlere for ytelse og fnr`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
-        every { saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(Ytelse.AAP_AAP) }.returns(
+        every { saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.AAP_AAP) }.returns(
             listOf(
-                SAKSBEHANDLER_IDENT_1,
-                SAKSBEHANDLER_IDENT_2
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                ),
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
+
+                    )
             )
         )
         every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
@@ -111,10 +116,15 @@ class SaksbehandlerServiceTest {
     fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
-        every { saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(Ytelse.AAP_AAP) }.returns(
+        every { saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.AAP_AAP) }.returns(
             listOf(
-                SAKSBEHANDLER_IDENT_1,
-                SAKSBEHANDLER_IDENT_2
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                ),
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
+
+                    )
             )
         )
         every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)

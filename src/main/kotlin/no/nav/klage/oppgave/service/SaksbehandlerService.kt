@@ -34,7 +34,8 @@ class SaksbehandlerService(
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
-    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository
+    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
+    private val saksbehandlerAccessService: SaksbehandlerAccessService
 ) {
 
     companion object {
@@ -229,8 +230,8 @@ class SaksbehandlerService(
             return emptySet()
         }
 
-        return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
-            .map { it.saksbehandlerIdent }
+        return saksbehandlerAccessService.getSaksbehandlerIdentsForYtelse(ytelse)
+            .map { it }
             .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
             .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
             .toSet()

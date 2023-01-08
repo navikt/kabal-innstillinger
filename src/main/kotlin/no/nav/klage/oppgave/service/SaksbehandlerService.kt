@@ -4,7 +4,6 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
 import no.nav.klage.kodeverk.klageenheter
-import no.nav.klage.kodeverk.ytelseTilKlageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -230,19 +229,11 @@ class SaksbehandlerService(
             return emptySet()
         }
 
-        return if (ytelseTilKlageenheter.contains(ytelse)) {
-            val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
-                .filter { it.navn != VIKAFOSSEN }
-                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
-                .distinct()
-                .filter { roleUtils.isSaksbehandler(ident = it) }
-                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
-                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
-            saksbehandlere.toSet()
-        } else {
-            logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
-            emptySet()
-        }
+        return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+            .map { it.saksbehandlerIdent }
+            .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+            .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+            .toSet()
     }
 
 

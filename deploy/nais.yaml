@@ -81,6 +81,7 @@ spec:
       rules:
         - application: kabal-frontend
         - application: kabal-api
+        - application: kabal-search
     outbound:
       external:
       {{#each externalHosts}}

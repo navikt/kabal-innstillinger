@@ -91,6 +91,11 @@ class SaksbehandlerAccessService(
                 }
             }
 
+            saksbehandlerService.storeInnstillingerYtelser(
+                navIdent = accessRight.saksbehandlerIdent,
+                inputYtelseSet = ytelseSet
+            )
+
             saksbehandlerAccessList += SaksbehandlerAccessView(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
                 saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerAccess.saksbehandlerIdent).sammensattNavn,
@@ -100,13 +105,5 @@ class SaksbehandlerAccessService(
             )
         }
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
-    }
-
-    fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
-        logger.debug("Getting saksbehandlere for ytelse $ytelse")
-        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
-        return results.map {
-            it.saksbehandlerIdent
-        }
     }
 }

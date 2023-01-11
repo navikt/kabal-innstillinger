@@ -9,6 +9,7 @@ import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
+import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Administer access")
 class AdministerAccessController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
+    private val saksbehandlerService: SaksbehandlerService,
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val roleUtils: RoleUtils,
 ) {
@@ -31,15 +33,13 @@ class AdministerAccessController(
     }
 
     @Operation(
-        summary = "Henter hvilke ytelser som den ansatte fått spesiell tilgang til å jobbe med",
-        description = "Henter hvilke ytelser som den ansatte fått spesiell tilgang til å jobbe med"
+        summary = "Henter ytelser som den ansatte har blitt tildelt av leder",
+        description = "Henter ytelser som den ansatte har blitt tildelt av leder"
     )
-    @GetMapping("/ansatte/{navIdent}", produces = ["application/json"])
+    @GetMapping("/ansatte/{navIdent}/tildelteytelser", produces = ["application/json"])
     fun getSaksbehandlerAccess(
         @PathVariable navIdent: String,
     ): SaksbehandlerAccess {
-        verifyIsTilgangsstyringEgenEnhet()
-
         return saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = navIdent)
     }
 
@@ -72,9 +72,25 @@ class AdministerAccessController(
         )
     }
 
+    @Operation(
+        summary = "Admin-endepunkt. Fjerner ytelser i innstillinger som ikke er tillatt for saksbehandler.",
+        description = "Admin-endepunkt. Fjerner ytelser i innstillinger som ikke er tillatt for saksbehandler."
+    )
+    @PostMapping("/admin/cleanupinnstillinger", produces = ["application/json"])
+    fun cleanupInnstillinger() {
+        verifyIsAdmin()
+        saksbehandlerService.cleanupInnstillinger()
+    }
+
     private fun verifyIsTilgangsstyringEgenEnhet() {
         if (!roleUtils.isKabalTilgangsstyringEgenEnhet()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")
+        }
+    }
+
+    private fun verifyIsAdmin() {
+        if (!roleUtils.isAdmin()) {
+            throw MissingTilgangException(msg = "Innlogget ansatt har ikke admin")
         }
     }
 

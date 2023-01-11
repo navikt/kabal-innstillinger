@@ -62,4 +62,6 @@ class RoleUtils(
     fun kanBehandleFortrolig(ident: String) = azureGateway.getRoleIds(ident).contains(fortroligRoleId)
 
     fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRoleIds(ident).contains(egenAnsattRoleId)
+
+    fun isAdmin() = tokenUtil.getRoleIdsFromToken().contains(kabalAdminRoleId)
 }

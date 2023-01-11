@@ -3,7 +3,6 @@ package no.nav.klage.oppgave.domain.saksbehandler.entities
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
-import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
@@ -21,9 +20,9 @@ class Innstillinger(
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
     @Column(name = "hjemler")
-    val hjemler: String = "",
+    var hjemler: String = "",
     @Column(name = "ytelser")
-    val ytelser: String = "",
+    var ytelser: String = "",
     @Column(name = "typer")
     val typer: String = "",
     @Column(name = "short_name")
@@ -40,15 +39,14 @@ class Innstillinger(
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
 
-        private val separator = ","
+        const val SEPARATOR = ","
     }
 
-    fun toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser): SaksbehandlerInnstillinger {
+    fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
-            hjemler = hjemler.split(separator).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser = ytelser.split(separator).filterNot { it.isBlank() }.map { Ytelse.of(it) }
-                .filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser },
-            typer = typer.split(separator).filterNot { it.isBlank() }.map { Type.of(it) },
+            hjemler = hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
+            ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) },
+            typer = typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) },
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,

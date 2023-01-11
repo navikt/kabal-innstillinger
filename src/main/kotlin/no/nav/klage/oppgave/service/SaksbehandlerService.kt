@@ -1,7 +1,9 @@
 package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.kodeverk.ytelseTilKlageenheter
+import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
+import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -32,13 +34,14 @@ class SaksbehandlerService(
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
-    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository
+    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
 ) {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private const val VIKAFOSSEN = "2103"
+        const val SEPARATOR = ","
     }
 
     fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
@@ -47,10 +50,9 @@ class SaksbehandlerService(
 
     private fun findSaksbehandlerInnstillinger(
         ident: String,
-        ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser
     ): SaksbehandlerInnstillinger {
         return innstillingerRepository.findByIdOrNull(ident)
-            ?.toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
+            ?.toSaksbehandlerInnstillinger()
             ?: SaksbehandlerInnstillinger()
     }
 
@@ -58,39 +60,130 @@ class SaksbehandlerService(
         navIdent: String,
         newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
     ): SaksbehandlerInnstillinger {
-        val ansattEnhetForInnloggetSaksbehandler: EnhetMedLovligeYtelser =
-            innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
+        val assignedYtelseIdList = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
-        val separator = ","
 
         return innstillingerRepository.save(
             Innstillinger(
                 saksbehandlerident = navIdent,
-                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(separator) { it.id },
-                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in ansattEnhetForInnloggetSaksbehandler.ytelser }
-                    .joinToString(separator) { it.id },
-                typer = newSaksbehandlerInnstillinger.typer.joinToString(separator) { it.id },
+                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(SEPARATOR) { it.id },
+                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseIdList }
+                    .joinToString(SEPARATOR) { it.id },
+                typer = newSaksbehandlerInnstillinger.typer.joinToString(SEPARATOR) { it.id },
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
                 modified = LocalDateTime.now()
             )
-        ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
+        ).toSaksbehandlerInnstillinger()
+    }
+
+    fun storeInnstillingerYtelser(
+        navIdent: String,
+        inputYtelseSet: Set<Ytelse>,
+    ) {
+        val assignedYtelseIdList = getSaksbehandlerAssignedYtelseIdList(navIdent)
+        val filteredYtelseList = inputYtelseSet.filter { it in assignedYtelseIdList }
+
+        if (!innstillingerRepository.existsById(navIdent)) {
+            val hjemmelSet = getUpdatedHjemmelSet(
+                ytelserToAdd = filteredYtelseList.toSet()
+            )
+
+            innstillingerRepository.save(
+                Innstillinger(
+                    saksbehandlerident = navIdent,
+                    hjemler = hjemmelSet
+                        .joinToString(SEPARATOR) { it.id },
+                    ytelser = filteredYtelseList
+                        .joinToString(SEPARATOR) { it.id },
+                    typer = "",
+                    shortName = null,
+                    longName = null,
+                    jobTitle = null,
+                    modified = LocalDateTime.now()
+                )
+            )
+        } else {
+
+            val existingInnstillinger = findSaksbehandlerInnstillinger(
+                ident = navIdent,
+            )
+
+            val existingInnstillingerYtelseSet = existingInnstillinger.ytelser.toSet()
+            val existingHjemmelSet = existingInnstillinger.hjemler.toSet()
+
+            val ytelserToAdd = getYtelserToAdd(
+                inputYtelser = inputYtelseSet,
+                existingInnstillingerYtelser = existingInnstillingerYtelseSet
+            )
+            val ytelserToKeep = getYtelserToKeep(
+                inputYtelser = inputYtelseSet,
+                existingInnstillingerYtelser = existingInnstillingerYtelseSet
+            )
+
+            val hjemmelSet = getUpdatedHjemmelSet(
+                ytelserToAdd = ytelserToAdd, ytelserToKeep = ytelserToKeep, existingHjemler = existingHjemmelSet
+            )
+
+            innstillingerRepository.getReferenceById(navIdent).apply {
+                ytelser = filteredYtelseList
+                    .joinToString(SEPARATOR) { it.id }
+                hjemler = hjemmelSet
+                    .joinToString(SEPARATOR) { it.id }
+                modified = LocalDateTime.now()
+            }
+        }
+    }
+
+    fun getYtelserToAdd(
+        inputYtelser: Set<Ytelse>,
+        existingInnstillingerYtelser: Set<Ytelse> = emptySet()
+    ): Set<Ytelse> {
+        return inputYtelser.filter { it !in existingInnstillingerYtelser }.toSet()
+    }
+
+    fun getYtelserToKeep(inputYtelser: Set<Ytelse>, existingInnstillingerYtelser: Set<Ytelse>): Set<Ytelse> {
+        return inputYtelser.intersect(existingInnstillingerYtelser)
+    }
+
+    fun getUpdatedHjemmelSet(
+        ytelserToAdd: Set<Ytelse>,
+        ytelserToKeep: Set<Ytelse>? = null,
+        existingHjemler: Set<Hjemmel>? = null,
+    ): MutableSet<Hjemmel> {
+        val hjemmelSet = mutableSetOf<Hjemmel>()
+
+        ytelserToAdd.forEach { ytelse ->
+            ytelseTilHjemler[ytelse]?.let { hjemmelSet.addAll(it) }
+        }
+
+        if (ytelserToKeep != null && existingHjemler != null) {
+            for (hjemmel in existingHjemler) {
+                for (ytelse in ytelserToKeep) {
+                    if (ytelseTilHjemler[ytelse]?.contains(hjemmel) == true) {
+                        hjemmelSet.add(hjemmel)
+                        break
+                    }
+                }
+            }
+        }
+
+        return hjemmelSet
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val ansattEnhetForInnloggetSaksbehandler = innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
+        val assignedYtelser = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
-            innloggetAnsattRepository.getInnloggetIdent(),
-            ansattEnhetForInnloggetSaksbehandler,
+            ident = navIdent,
         )
 
         val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
         val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
         val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
-        val tildelteYtelser = getSaksbehandlerAccessYtelseIdList(navIdent)
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -99,7 +192,7 @@ class SaksbehandlerService(
             ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
             valgtEnhet = valgtEnhet,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
-            tildelteYtelser = tildelteYtelser.map { Ytelse.of(it) }
+            tildelteYtelser = assignedYtelser
         )
     }
 
@@ -136,19 +229,11 @@ class SaksbehandlerService(
             return emptySet()
         }
 
-        return if (ytelseTilKlageenheter.contains(ytelse)) {
-            val saksbehandlere = ytelseTilKlageenheter[ytelse]!!
-                .filter { it.navn != VIKAFOSSEN }
-                .flatMap { enhetRepository.getAnsatteIEnhet(it.navn) }
-                .distinct()
-                .filter { roleUtils.isSaksbehandler(ident = it) }
-                .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
-                .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
-            saksbehandlere.toSet()
-        } else {
-            logger.error("Ytelsen $ytelse har ingen registrerte enheter i systemet vårt")
-            emptySet()
-        }
+        return getSaksbehandlerIdentsForYtelse(ytelse)
+            .map { it }
+            .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+            .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+            .toSet()
     }
 
 
@@ -203,11 +288,33 @@ class SaksbehandlerService(
         )
     }
 
-    private fun getSaksbehandlerAccessYtelseIdList(saksbehandlerIdent: String): List<String> {
+    private fun getSaksbehandlerAssignedYtelseIdList(saksbehandlerIdent: String): List<Ytelse> {
         return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
-            saksbehandlerAccess.ytelser.map { it.id }
+            saksbehandlerAccess.ytelser.toList()
         } else emptyList()
     }
 
+    fun cleanupInnstillinger() {
+        val existingInnstillinger = innstillingerRepository.findAll()
+        existingInnstillinger.forEach { innstilling ->
+            logger.debug("Data before cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser}")
+            storeInnstillingerYtelser(
+                navIdent = innstilling.saksbehandlerident,
+                inputYtelseSet = innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+                    .toSet()
+            )
+            val resultingInnstilling =
+                innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
+            logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")
+        }
+    }
+
+    private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
+        logger.debug("Getting saksbehandlere for ytelse $ytelse")
+        val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+        return results.map {
+            it.saksbehandlerIdent
+        }
+    }
 }

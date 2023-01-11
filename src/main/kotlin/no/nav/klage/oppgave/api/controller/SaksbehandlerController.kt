@@ -7,7 +7,6 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
-import no.nav.klage.oppgave.exceptions.NotMatchingUserException
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.getLogger
@@ -161,16 +160,6 @@ class SaksbehandlerController(
             ytelse = Ytelse.of(input.ytelseId),
             fnr = input.fnr
         )
-    }
-
-    private fun validateNavIdent(navIdent: String) {
-        val innloggetIdent = innloggetAnsattRepository.getInnloggetIdent()
-        if (innloggetIdent != navIdent) {
-            throw NotMatchingUserException(
-                "logged in user does not match sent in user. " +
-                        "Logged in: $innloggetIdent, sent in: $navIdent"
-            )
-        }
     }
 }
 

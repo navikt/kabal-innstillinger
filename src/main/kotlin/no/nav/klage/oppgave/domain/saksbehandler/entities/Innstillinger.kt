@@ -32,8 +32,8 @@ class Innstillinger(
     var longName: String? = null,
     @Column(name = "job_title")
     var jobTitle: String? = null,
-    @Column(name = "tidspunkt")
-    val tidspunkt: LocalDateTime = LocalDateTime.now()
+    @Column(name = "modified")
+    var modified: LocalDateTime = LocalDateTime.now()
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -71,7 +71,7 @@ class Innstillinger(
     }
 
     override fun toString(): String {
-        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', typer='$typer', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', tidspunkt=$tidspunkt)"
+        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', typer='$typer', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', modified=$modified)"
     }
 
 }

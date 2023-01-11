@@ -74,7 +74,7 @@ class SaksbehandlerService(
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
-                tidspunkt = LocalDateTime.now()
+                modified = LocalDateTime.now()
             )
         ).toSaksbehandlerInnstillinger(ansattEnhetForInnloggetSaksbehandler)
     }

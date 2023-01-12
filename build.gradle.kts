@@ -51,7 +51,7 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:klage-kodeverk:1.2.2")
+    implementation("com.github.navikt:klage-kodeverk:v1.2.4")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 

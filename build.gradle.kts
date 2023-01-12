@@ -8,6 +8,8 @@ val springRetryVersion = "2.0.0"
 val springMockkVersion = "4.0.0"
 val springDocVersion = "2.0.2"
 val testContainersVersion = "1.17.6"
+val ehcacheVersion = "3.10.8"
+val kodeverkVersion = "1.2.4"
 
 plugins {
     val kotlinVersion = "1.8.0"
@@ -39,7 +41,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("javax.cache:cache-api")
-    implementation("org.ehcache:ehcache:3.10.8")
+    implementation("org.ehcache:ehcache:$ehcacheVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.kafka:spring-kafka")
@@ -51,7 +53,7 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:klage-kodeverk:v1.2.4")
+    implementation("com.github.navikt:klage-kodeverk:$kodeverkVersion")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 

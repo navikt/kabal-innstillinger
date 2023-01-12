@@ -10,9 +10,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.sql.ResultSet
-import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Id
 
 
 @ActiveProfiles("local")

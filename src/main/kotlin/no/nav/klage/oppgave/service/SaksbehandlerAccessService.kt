@@ -30,14 +30,18 @@ class SaksbehandlerAccessService(
     }
 
     fun getSaksbehandlerAccessView(saksbehandlerIdent: String): SaksbehandlerAccessView {
-        val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
-        return SaksbehandlerAccessView(
-            saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
-            saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerIdent).sammensattNavn,
-            ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
-            created = saksbehandlerAccess.created,
-            accessRightsModified = saksbehandlerAccess.accessRightsModified,
-        )
+        return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
+            val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
+            SaksbehandlerAccessView(
+                saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
+                saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerIdent).sammensattNavn,
+                ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
+                created = saksbehandlerAccess.created,
+                accessRightsModified = saksbehandlerAccess.accessRightsModified,
+            )
+        } else {
+            getEmptySaksbehandlerAccess(saksbehandlerIdent)
+        }
     }
 
     fun getSaksbehandlere(enhet: String): SaksbehandlerAccessResponse {
@@ -47,16 +51,18 @@ class SaksbehandlerAccessService(
                 if (saksbehandlerAccessRepository.existsById(ident)) {
                     getSaksbehandlerAccessView(ident)
                 } else {
-                    SaksbehandlerAccessView(
-                        saksbehandlerIdent = ident,
-                        saksbehandlerName = saksbehandlerService.getNameForIdent(ident).sammensattNavn,
-                        ytelseIdList = emptyList(),
-                        created = null,
-                        accessRightsModified = null,
-                    )
+                    getEmptySaksbehandlerAccess(ident)
                 }
             })
     }
+
+    private fun getEmptySaksbehandlerAccess(saksbehandlerIdent: String) = SaksbehandlerAccessView(
+        saksbehandlerIdent = saksbehandlerIdent,
+        saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerIdent).sammensattNavn,
+        ytelseIdList = emptyList(),
+        created = null,
+        accessRightsModified = null,
+    )
 
     fun setYtelser(
         ytelseInput: YtelseInput,

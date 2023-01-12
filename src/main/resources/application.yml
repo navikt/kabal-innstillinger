@@ -3,14 +3,6 @@ spring:
     name: kabal-innstillinger
   main:
     banner-mode: OFF
-  sleuth:
-    baggage:
-      remote-fields:
-        - Nav-Callid
-        - Nav-Consumer-Id
-      correlation-fields:
-        - Nav-Callid
-        - Nav-Consumer-Id
   web:
     resources:
       add-mappings: false
@@ -56,6 +48,8 @@ server:
       enabled: false
   shutdown: graceful
 
+navCallIdName: Nav-Callid
+
 management:
   health:
     elasticsearch:
@@ -68,11 +62,19 @@ management:
       include: info, health, metrics, prometheus
     base-path: "/internal"
   metrics:
-    export:
-      prometheus:
-        enabled: true
     tags:
       application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    baggage:
+      remote-fields:
+        - ${navCallIdName}
+      correlation:
+        fields:
+          - ${navCallIdName}
 
 SERVICE_USER_USERNAME: srvklage-saksbeh
 
@@ -115,9 +117,6 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-jwk: ${AZURE_APP_JWK}
           client-auth-method: private_key_jwt
-
-navCallId: Nav-Callid
-navConsumerId: Nav-Consumer-Id
 
 MICROSOFT_GRAPH_URL: https://graph.microsoft.com/v1.0
 UNLEASH_URL: https://unleash.nais.io/api/

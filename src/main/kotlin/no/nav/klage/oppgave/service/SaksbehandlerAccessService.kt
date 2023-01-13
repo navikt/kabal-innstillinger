@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
+import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.repositories.EnhetRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
@@ -63,6 +64,13 @@ class SaksbehandlerAccessService(
         created = null,
         accessRightsModified = null,
     )
+
+    fun getTildelteYtelserForEnhet(enhet: String): TildelteYtelserResponse {
+        val saksbehandlereAccess = getSaksbehandlere(enhet)
+        val ytelseIdUnion = saksbehandlereAccess.accessRights.flatMap { it.ytelseIdList }.toSet()
+
+        return TildelteYtelserResponse(ytelseIdList = ytelseIdUnion.toList())
+    }
 
     fun setYtelser(
         ytelseInput: YtelseInput,

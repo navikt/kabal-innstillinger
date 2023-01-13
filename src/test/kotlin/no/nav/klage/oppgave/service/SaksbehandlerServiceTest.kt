@@ -26,7 +26,6 @@ class SaksbehandlerServiceTest {
     private val enhetRepository: EnhetRepository = mockk()
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
-    private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val roleUtils: RoleUtils = mockk()
 

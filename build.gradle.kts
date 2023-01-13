@@ -1,19 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mockkVersion = "1.13.3"
-val tokenValidationVersion = "2.1.8"
+val tokenValidationVersion = "3.0.2"
 val logstashVersion = "7.2"
-val springSleuthVersion = "3.1.5"
 val unleashVersion = "4.4.1"
-val problemSpringWebStartVersion = "0.27.0"
 val springRetryVersion = "2.0.0"
-val springMockkVersion = "3.1.2"
-val springDocVersion = "1.6.14"
+val springMockkVersion = "4.0.0"
+val springDocVersion = "2.0.2"
 val testContainersVersion = "1.17.6"
+val ehcacheVersion = "3.10.8"
+val kodeverkVersion = "1.2.4"
 
 plugins {
-    val kotlinVersion = "1.7.22"
-    id("org.springframework.boot") version "2.7.5"
+    val kotlinVersion = "1.8.0"
+    id("org.springframework.boot") version "3.0.1"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -41,7 +41,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("javax.cache:cache-api")
-    implementation("org.ehcache:ehcache")
+    implementation("org.ehcache:ehcache:$ehcacheVersion")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.kafka:spring-kafka")
@@ -50,12 +50,12 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:klage-kodeverk:v1.2.4")
+    implementation("com.github.navikt:klage-kodeverk:$kodeverkVersion")
 
-    implementation("org.springframework.cloud:spring-cloud-starter-sleuth:$springSleuthVersion")
-    implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
 
@@ -64,7 +64,6 @@ dependencies {
 
     implementation("org.springframework.retry:spring-retry:$springRetryVersion")
     implementation("no.finn.unleash:unleash-client-java:$unleashVersion")
-    implementation("org.zalando:problem-spring-web-starter:$problemSpringWebStartVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage")

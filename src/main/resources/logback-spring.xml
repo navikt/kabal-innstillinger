@@ -51,10 +51,6 @@
             <appender-ref ref="secureJson"/>
         </logger>
 
-        <logger name="org.zalando" level="info" additivity="false">
-            <appender-ref ref="secureJson"/>
-        </logger>
-
         <logger name="reactor.netty.http.client" level="debug" additivity="false">
             <appender-ref ref="secureJson"/>
         </logger>

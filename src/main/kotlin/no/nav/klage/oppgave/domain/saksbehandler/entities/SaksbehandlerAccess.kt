@@ -1,9 +1,8 @@
 package no.nav.klage.oppgave.domain.saksbehandler.entities
 
+import jakarta.persistence.*
 import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.kodeverk.YtelseConverter
 import java.time.LocalDateTime
-import javax.persistence.*
 
 @Entity
 @Table(name = "saksbehandler_access", schema = "innstillinger")

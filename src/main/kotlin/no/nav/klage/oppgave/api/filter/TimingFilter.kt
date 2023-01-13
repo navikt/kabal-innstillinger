@@ -1,13 +1,13 @@
 package no.nav.klage.oppgave.api.filter
 
+import jakarta.servlet.*
+import jakarta.servlet.annotation.WebFilter
+import jakarta.servlet.http.HttpServletRequest
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.time.Duration
 import java.time.Instant
-import javax.servlet.*
-import javax.servlet.annotation.WebFilter
-import javax.servlet.http.HttpServletRequest
 
 
 @Component

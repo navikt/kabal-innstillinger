@@ -2,6 +2,10 @@ package no.nav.klage.oppgave.api.view
 
 import java.time.LocalDateTime
 
+data class TildelteYtelserResponse(
+    val ytelseIdList: List<String>
+)
+
 data class SaksbehandlerAccessResponse(
     val accessRights: List<SaksbehandlerAccess>
 )

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
+import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
 @Tag(name = "Administer access")
-class AdministerAccessController(
+class TildelteYtelserController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val saksbehandlerService: SaksbehandlerService,
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
@@ -44,8 +45,8 @@ class AdministerAccessController(
     }
 
     @Operation(
-        summary = "Hent saksbehandlere for en enhet",
-        description = "Hent saksbehandlere for en enhet"
+        summary = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser",
+        description = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser"
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
     fun getSaksbehandlereForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
@@ -54,6 +55,17 @@ class AdministerAccessController(
         val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
         logger.debug("getSaksbehandlereForEnhet is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerAccessService.getSaksbehandlere(enhet = enhet)
+    }
+
+    @Operation(
+        summary = "Hent alle tildelte ytelser i en enhet",
+        description = "Hent alle tildelte ytelser i en enhet"
+    )
+    @GetMapping("/enhet/{enhet}/tildelteytelser", produces = ["application/json"])
+    fun getTildelteYtelserForEnhet(@PathVariable enhet: String): TildelteYtelserResponse {
+        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
+        logger.debug("getTildelteYtelserForEnhet is requested by $innloggetSaksbehandlerNavIdent")
+        return saksbehandlerAccessService.getTildelteYtelserForEnhet(enhet = enhet)
     }
 
     @Operation(
@@ -93,5 +105,4 @@ class AdministerAccessController(
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke admin")
         }
     }
-
 }

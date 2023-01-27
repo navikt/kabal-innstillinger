@@ -240,6 +240,8 @@ class SaksbehandlerServiceTest {
             Hjemmel.FTRL_15_11,
             Hjemmel.FTRL_15_12,
             Hjemmel.FTRL_15_13,
+            Hjemmel.FTRL_22_12,
+            Hjemmel.FTRL_22_13,
             Hjemmel.FTRL_22_15,
         )
 

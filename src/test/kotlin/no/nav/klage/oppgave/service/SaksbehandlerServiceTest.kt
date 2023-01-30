@@ -12,8 +12,10 @@ import no.nav.klage.oppgave.clients.pdl.Person
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.repositories.*
-import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
+import no.nav.klage.oppgave.repositories.InnstillingerRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -23,11 +25,9 @@ class SaksbehandlerServiceTest {
     private val azureGateway: AzureGateway = mockk()
     private val pdlFacade: PdlFacade = mockk()
     private val saksbehandlerRepository: SaksbehandlerRepository = mockk()
-    private val enhetRepository: EnhetRepository = mockk()
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
-    private val roleUtils: RoleUtils = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
@@ -54,12 +54,10 @@ class SaksbehandlerServiceTest {
             innloggetAnsattRepository = innloggetAnsattRepository,
             innstillingerRepository = innstillingerRepository,
             azureGateway = azureGateway,
-            enhetRepository = enhetRepository,
             pdlFacade = pdlFacade,
             saksbehandlerRepository = saksbehandlerRepository,
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
-            roleUtils = roleUtils,
             saksbehandlerAccessRepository = saksbehandlerAccessRepository,
         )
 
@@ -100,11 +98,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
-        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
-        every { enhetRepository.getAnsatteIEnhet(any()) }.returns(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2))
 
         val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
@@ -126,11 +121,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(true)
-        every { roleUtils.isSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(true)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
         every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
-        every { enhetRepository.getAnsatteIEnhet(any()) }.returns(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2))
 
         val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)

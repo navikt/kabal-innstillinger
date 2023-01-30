@@ -1,9 +1,9 @@
 package no.nav.klage.oppgave.service
 
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
-import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -14,7 +14,6 @@ import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.*
-import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
@@ -28,8 +27,6 @@ class SaksbehandlerService(
     private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
-    private val roleUtils: RoleUtils,
-    private val enhetRepository: EnhetRepository,
     private val pdlFacade: PdlFacade,
     private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
@@ -307,6 +304,43 @@ class SaksbehandlerService(
             val resultingInnstilling =
                 innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
             logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")
+        }
+    }
+
+    fun addMissingENFHjemler() {
+        val existingInnstillinger = innstillingerRepository.findAll()
+        existingInnstillinger.forEach { innstilling ->
+            logger.debug("Data before ENF cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser} hjemler ${innstilling.hjemler}")
+            val existingYtelser = innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
+            if (Ytelse.ENF_ENF in existingYtelser) {
+                val hjemmelSet = innstilling.hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) }
+                    .toMutableSet()
+
+                if (Hjemmel.FTRL_22_12 !in hjemmelSet || Hjemmel.FTRL_22_13 !in hjemmelSet) {
+                    hjemmelSet.addAll(setOf(Hjemmel.FTRL_22_12, Hjemmel.FTRL_22_13))
+                    val existingTypes =
+                        innstilling.typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) }
+
+                    logger.debug("Adding missing hjemler to saksbehandler ${innstilling.saksbehandlerident}")
+
+                    storeInnstillingerButKeepSignature(
+                        navIdent = innstilling.saksbehandlerident,
+                        newSaksbehandlerInnstillinger = SaksbehandlerInnstillinger(
+                            hjemler = hjemmelSet.toList(),
+                            ytelser = existingYtelser,
+                            typer = existingTypes,
+                            shortName = null,
+                            longName = null,
+                            jobTitle = null
+
+                        )
+                    )
+                }
+
+            }
+            val resultingInnstilling =
+                innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
+            logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser} hjemler ${resultingInnstilling.hjemler}")
         }
     }
 

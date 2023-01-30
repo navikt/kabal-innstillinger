@@ -321,7 +321,7 @@ class SaksbehandlerService(
                     val existingTypes =
                         innstilling.typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) }
 
-                    logger.debug("Adding missing hjemler")
+                    logger.debug("Adding missing hjemler to saksbehandler ${innstilling.saksbehandlerident}")
 
                     storeInnstillingerButKeepSignature(
                         navIdent = innstilling.saksbehandlerident,

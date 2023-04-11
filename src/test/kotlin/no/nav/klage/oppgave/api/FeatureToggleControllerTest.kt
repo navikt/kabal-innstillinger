@@ -8,7 +8,6 @@ import no.nav.klage.oppgave.api.controller.FeatureToggleController
 import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -42,11 +41,5 @@ class FeatureToggleControllerTest {
     fun `open toggle should return true`() {
         this.mockMvc.perform(get("/aapenfeaturetoggle/testing")).andDo(print()).andExpect(status().isOk())
             .andExpect(content().string(containsString("true")))
-    }
-
-    @Test
-    @Disabled("Authentication is not turned on..")
-    fun `protected toggle should throw exception`() {
-        this.mockMvc.perform(get("/featuretoggle/testing")).andDo(print()).andExpect(status().is4xxClientError())
     }
 }

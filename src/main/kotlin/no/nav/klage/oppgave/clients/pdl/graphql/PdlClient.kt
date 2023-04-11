@@ -36,12 +36,17 @@ class PdlClient(
     fun getPersonInfo(fnr: String): HentPersonResponse {
         return runWithTiming {
             val token = tokenUtil.getSaksbehandlerTokenWithPdlScope()
-            pdlWebClient.post()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                .bodyValue(hentPersonQuery(fnr))
-                .retrieve()
-                .bodyToMono<HentPersonResponse>()
-                .block() ?: throw RuntimeException("Person not found")
+            try {
+                pdlWebClient.post()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                    .bodyValue(hentPersonQuery(fnr))
+                    .retrieve()
+                    .bodyToMono<HentPersonResponse>()
+                    .block() ?: throw RuntimeException("Person not found")
+            } catch (e: Exception) {
+                secureLogger.error("Could not get personinfo for fnr $fnr", e)
+                throw e
+            }
         }
     }
 }

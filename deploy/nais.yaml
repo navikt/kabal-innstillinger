@@ -100,7 +100,6 @@ spec:
     - secret: srvklage-saksbeh
     - secret: pdl-apikey
     - secret: norg2
-    - secret: axsys
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: {{springProfile}}

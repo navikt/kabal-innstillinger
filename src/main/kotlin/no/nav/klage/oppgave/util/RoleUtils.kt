@@ -35,7 +35,6 @@ class RoleUtils(
             kabalSaksbehandlingRoleId -> listOf("KABAL_SAKSBEHANDLING")
             kabalFagtekstredigeringRoleId -> listOf("KABAL_FAGTEKSTREDIGERING")
             kabalInnsynEgenEnhetRoleId -> listOf(
-                "ROLE_KLAGE_LEDER",
                 "KABAL_INNSYN_EGEN_ENHET"
             )
 

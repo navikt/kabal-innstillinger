@@ -28,23 +28,21 @@ class RoleUtils(
     fun getRoleNamesFromId(roleId: String): List<String> {
         return when (roleId) {
             kabalOppgavestyringAlleEnheterRoleId -> listOf(
-                "ROLE_KLAGE_OPPGAVESTYRING_ALLE_ENHETER",
                 "KABAL_OPPGAVESTYRING_ALLE_ENHETER"
             )
 
-            kabalMaltekstredigeringRoleId -> listOf("ROLE_KLAGE_MALTEKSTREDIGERING", "KABAL_MALTEKSTREDIGERING")
-            kabalSaksbehandlingRoleId -> listOf("ROLE_KLAGE_SAKSBEHANDLER", "KABAL_SAKSBEHANDLING")
-            kabalFagtekstredigeringRoleId -> listOf("ROLE_KLAGE_FAGANSVARLIG", "KABAL_FAGTEKSTREDIGERING")
+            kabalMaltekstredigeringRoleId -> listOf("KABAL_MALTEKSTREDIGERING")
+            kabalSaksbehandlingRoleId -> listOf("KABAL_SAKSBEHANDLING")
+            kabalFagtekstredigeringRoleId -> listOf("KABAL_FAGTEKSTREDIGERING")
             kabalInnsynEgenEnhetRoleId -> listOf(
                 "ROLE_KLAGE_LEDER",
-                "KABAL_INNSYN_EGEN_ENHET",
-                "KABAL_OPPGAVESTYRING_EGEN_ENHET"
+                "KABAL_INNSYN_EGEN_ENHET"
             )
 
-            fortroligRoleId -> listOf("ROLE_KLAGE_FORTROLIG", "FORTROLIG")
-            strengtFortroligRoleId -> listOf("ROLE_KLAGE_STRENGT_FORTROLIG", "STRENGT_FORTROLIG")
-            egenAnsattRoleId -> listOf("ROLE_KLAGE_EGEN_ANSATT", "EGEN_ANSATT")
-            kabalAdminRoleId -> listOf("ROLE_ADMIN", "KABAL_ADMIN")
+            fortroligRoleId -> listOf("FORTROLIG")
+            strengtFortroligRoleId -> listOf("STRENGT_FORTROLIG")
+            egenAnsattRoleId -> listOf("EGEN_ANSATT")
+            kabalAdminRoleId -> listOf("KABAL_ADMIN")
             kabalTilgangsstyringEgenEnhetRoleId -> listOf("KABAL_TILGANGSSTYRING_EGEN_ENHET")
             else -> emptyList()
         }

@@ -1,5 +1,6 @@
 ingresses:
   - https://kabal-innstillinger.dev.intern.nav.no
+  - https://kabal-innstillinger.intern.dev.nav.no
 externalHosts:
   - host: login.microsoftonline.com
   - host: unleash.nais.io

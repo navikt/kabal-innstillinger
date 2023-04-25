@@ -83,6 +83,7 @@ spec:
         - application: kabal-api
         - application: kabal-search
         - application: kabin
+        - application: kabin-api
     outbound:
       external:
       {{#each externalHosts}}

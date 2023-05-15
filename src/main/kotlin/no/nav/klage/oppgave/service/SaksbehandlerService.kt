@@ -10,10 +10,15 @@ import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
-import no.nav.klage.oppgave.domain.saksbehandler.*
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.repositories.*
+import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
+import no.nav.klage.oppgave.repositories.InnstillingerRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
@@ -229,7 +234,14 @@ class SaksbehandlerService(
         return getSaksbehandlerIdentsForYtelse(ytelse)
             .map { it }
             .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
-            .map { Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn) }
+            .mapNotNull {
+                try {
+                    Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn)
+                } catch (e: Exception) {
+                    logger.error("Error when getting name for ident $it", e)
+                    null
+                }
+            }
             .toSet()
     }
 

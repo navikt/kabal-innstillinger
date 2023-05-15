@@ -238,7 +238,7 @@ class SaksbehandlerService(
                 try {
                     Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn)
                 } catch (e: Exception) {
-                    logger.error("Error when getting name for ident $it", e)
+                    logger.warn("Error when getting name for ident $it", e)
                     null
                 }
             }

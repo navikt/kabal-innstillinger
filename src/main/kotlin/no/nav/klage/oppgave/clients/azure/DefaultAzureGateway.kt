@@ -23,7 +23,7 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
         val data = try {
             microsoftGraphClient.getSaksbehandler(navIdent)
         } catch (e: Exception) {
-            logger.error("Failed to call getSaksbehandler", e)
+            logger.warn("Failed to call getSaksbehandler", e)
             throw e
         }
         return SaksbehandlerPersonligInfo(

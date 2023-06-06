@@ -232,8 +232,14 @@ class SaksbehandlerService(
         }
 
         return getSaksbehandlerIdentsForYtelse(ytelse)
-            .map { it }
-            .filter { egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it) }
+            .filter {
+                try {
+                    egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it)
+                } catch(e: Exception) {
+                    logger.warn("Error when checking egenAnsattFilter for ident $it", e)
+                    false
+                }
+            }
             .mapNotNull {
                 try {
                     Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn)

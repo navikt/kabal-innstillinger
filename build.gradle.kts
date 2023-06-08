@@ -12,7 +12,7 @@ val ehcacheVersion = "3.10.8"
 val kodeverkVersion = "1.3.6"
 
 plugins {
-    val kotlinVersion = "1.8.21"
+    val kotlinVersion = "1.8.22"
     id("org.springframework.boot") version "3.0.7"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion

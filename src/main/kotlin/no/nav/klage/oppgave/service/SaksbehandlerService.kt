@@ -204,7 +204,9 @@ class SaksbehandlerService(
             medunderskrivere = getPossibleSaksbehandlereForYtelseAndFnr(
                 ytelse = ytelse,
                 fnr = fnr!!
-            ).filter { it.navIdent != ident })
+            ).filter { it.navIdent != ident }
+                .sortedBy { it.navn }
+        )
     }
 
     fun getSaksbehandlere(ytelse: Ytelse, fnr: String): Saksbehandlere {
@@ -213,6 +215,7 @@ class SaksbehandlerService(
                 ytelse = ytelse,
                 fnr = fnr
             ).toList()
+                .sortedBy { it.navn }
         )
     }
 

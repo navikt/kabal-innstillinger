@@ -18,6 +18,7 @@ class RoleUtils(
     @Value("\${STRENGT_FORTROLIG_ROLE_ID}") private val strengtFortroligRoleId: String,
     @Value("\${EGEN_ANSATT_ROLE_ID}") private val egenAnsattRoleId: String,
     @Value("\${KABAL_ADMIN_ROLE_ID}") private val kabalAdminRoleId: String,
+    @Value("\${KABAL_ROL_ROLE_ID}") private val kabalROLRoleId: String,
 ) {
 
     companion object {
@@ -43,6 +44,7 @@ class RoleUtils(
             egenAnsattRoleId -> listOf("EGEN_ANSATT")
             kabalAdminRoleId -> listOf("KABAL_ADMIN")
             kabalTilgangsstyringEgenEnhetRoleId -> listOf("KABAL_TILGANGSSTYRING_EGEN_ENHET")
+            kabalROLRoleId -> listOf("KABAL_ROL")
             else -> emptyList()
         }
     }
@@ -61,4 +63,8 @@ class RoleUtils(
     fun kanBehandleEgenAnsatt(ident: String) = azureGateway.getRoleIds(ident).contains(egenAnsattRoleId)
 
     fun isAdmin() = tokenUtil.getRoleIdsFromToken().contains(kabalAdminRoleId)
+
+    fun getROLRoleId(): String {
+        return kabalROLRoleId
+    }
 }

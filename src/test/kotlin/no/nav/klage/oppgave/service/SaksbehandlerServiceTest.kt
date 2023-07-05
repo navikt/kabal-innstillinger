@@ -16,6 +16,7 @@ import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
+import no.nav.klage.oppgave.util.RoleUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -28,6 +29,7 @@ class SaksbehandlerServiceTest {
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
+    private val roleUtils: RoleUtils = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
@@ -59,6 +61,7 @@ class SaksbehandlerServiceTest {
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
             saksbehandlerAccessRepository = saksbehandlerAccessRepository,
+            roleUtils = roleUtils,
         )
 
     val person = Person(
@@ -133,6 +136,10 @@ class SaksbehandlerServiceTest {
     fun `Person med beskyttelsesbehov Strengt Fortrolig skal ikke ha medunderskriver`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(personStrengtFortrolig)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
+
+        every { saksbehandlerAccessRepository.findAllByYtelserContaining(any()) }.returns(
+            emptyList()
+        )
 
         val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
         assertThat(result.medunderskrivere).isEmpty()

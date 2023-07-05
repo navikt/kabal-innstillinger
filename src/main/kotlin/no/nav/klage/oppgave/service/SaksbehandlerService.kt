@@ -19,6 +19,7 @@ import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
+import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.data.repository.findByIdOrNull
@@ -37,6 +38,7 @@ class SaksbehandlerService(
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
+    private val roleUtils: RoleUtils,
 ) {
 
     companion object {
@@ -201,9 +203,9 @@ class SaksbehandlerService(
     fun getMedunderskrivere(ident: String, ytelse: Ytelse, fnr: String?): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
-            medunderskrivere = getPossibleSaksbehandlereForYtelseAndFnr(
-                ytelse = ytelse,
-                fnr = fnr!!
+            medunderskrivere = getPossibleSaksbehandlereForFnr(
+                fnr = fnr!!,
+                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
             ).filter { it.navIdent != ident }
                 .sortedBy { it.navn }
         )
@@ -211,15 +213,24 @@ class SaksbehandlerService(
 
     fun getSaksbehandlere(ytelse: Ytelse, fnr: String): Saksbehandlere {
         return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlereForYtelseAndFnr(
-                ytelse = ytelse,
-                fnr = fnr
-            ).toList()
+            saksbehandlere = getPossibleSaksbehandlereForFnr(
+                fnr = fnr,
+                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+            ).sortedBy { it.navn }
+        )
+    }
+
+    fun getROLList(fnr: String): Saksbehandlere {
+        return Saksbehandlere(
+            saksbehandlere = getPossibleSaksbehandlereForFnr(
+                fnr = fnr,
+                saksbehandlerIdentList = getROLIdents(),
+            ).filter { it.navIdent != innloggetAnsattRepository.getInnloggetIdent() }
                 .sortedBy { it.navn }
         )
     }
 
-    private fun getPossibleSaksbehandlereForYtelseAndFnr(ytelse: Ytelse, fnr: String): Set<Saksbehandler> {
+    private fun getPossibleSaksbehandlereForFnr(fnr: String, saksbehandlerIdentList: List<String>): Set<Saksbehandler> {
         val personInfo = pdlFacade.getPersonInfo(fnr)
         val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
         val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
@@ -234,7 +245,7 @@ class SaksbehandlerService(
             return emptySet()
         }
 
-        return getSaksbehandlerIdentsForYtelse(ytelse)
+        return saksbehandlerIdentList
             .filter {
                 try {
                     egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it)
@@ -371,5 +382,10 @@ class SaksbehandlerService(
         return results.map {
             it.saksbehandlerIdent
         }
+    }
+
+    private fun getROLIdents(): List<String> {
+        logger.debug("Getting ROL list")
+        return azureGateway.getGroupMembersNavIdents(roleUtils.getROLRoleId())
     }
 }

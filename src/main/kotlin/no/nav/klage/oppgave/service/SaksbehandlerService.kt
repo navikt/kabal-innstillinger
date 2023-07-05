@@ -216,8 +216,7 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
-            ).toList()
-                .sortedBy { it.navn }
+            ).sortedBy { it.navn }
         )
     }
 
@@ -226,7 +225,7 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
-            ).toList()
+            ).filter { it.navIdent != innloggetAnsattRepository.getInnloggetIdent() }
                 .sortedBy { it.navn }
         )
     }

@@ -9,7 +9,7 @@ val springMockkVersion = "4.0.2"
 val springDocVersion = "2.1.0"
 val testContainersVersion = "1.18.3"
 val ehcacheVersion = "3.10.8"
-val kodeverkVersion = "1.3.14"
+val kodeverkVersion = "1.5.5"
 
 plugins {
     val kotlinVersion = "1.8.22"
@@ -28,7 +28,6 @@ repositories {
     mavenCentral()
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     maven("https://packages.confluent.io/maven/")
-    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -53,7 +52,7 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
-    implementation("com.github.navikt:klage-kodeverk:$kodeverkVersion")
+    implementation("no.nav.klage:klage-kodeverk:$kodeverkVersion")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
 

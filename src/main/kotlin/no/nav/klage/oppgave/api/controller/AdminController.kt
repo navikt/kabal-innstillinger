@@ -39,6 +39,12 @@ class AdminController(
         saksbehandlerService.addMissingENFHjemler()
     }
 
+    @GetMapping("/logsaksbehandlerstatus", produces = ["application/json"])
+    fun logSaksbehandlerStatus() {
+        verifyIsAdmin()
+        saksbehandlerService.logAnsattStatusInNom()
+    }
+
     private fun verifyIsAdmin() {
         if (!roleUtils.isAdmin()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke admin")

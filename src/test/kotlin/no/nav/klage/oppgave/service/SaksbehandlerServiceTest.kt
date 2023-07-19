@@ -6,6 +6,7 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
+import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.clients.pdl.Beskyttelsesbehov
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.clients.pdl.Person
@@ -28,6 +29,7 @@ class SaksbehandlerServiceTest {
     private val saksbehandlerRepository: SaksbehandlerRepository = mockk()
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
+    private val nomClient: NomClient = mockk()
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val roleUtils: RoleUtils = mockk()
 
@@ -62,6 +64,7 @@ class SaksbehandlerServiceTest {
             tilgangService = tilgangService,
             saksbehandlerAccessRepository = saksbehandlerAccessRepository,
             roleUtils = roleUtils,
+            nomClient = nomClient,
         )
 
     val person = Person(

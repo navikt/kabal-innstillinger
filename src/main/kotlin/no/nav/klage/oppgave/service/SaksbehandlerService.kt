@@ -9,6 +9,8 @@ import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
+import no.nav.klage.oppgave.clients.nom.GetAnsattResponse
+import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
@@ -22,6 +24,7 @@ import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
+import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,11 +42,13 @@ class SaksbehandlerService(
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
     private val roleUtils: RoleUtils,
+    private val nomClient: NomClient,
 ) {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
+        private val secureLogger = getSecureLogger()
         private const val VIKAFOSSEN = "2103"
         const val SEPARATOR = ","
     }
@@ -249,7 +254,7 @@ class SaksbehandlerService(
             .filter {
                 try {
                     egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it)
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     logger.warn("Error when checking egenAnsattFilter for ident $it", e)
                     false
                 }
@@ -374,6 +379,20 @@ class SaksbehandlerService(
                 innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
             logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser} hjemler ${resultingInnstilling.hjemler}")
         }
+    }
+
+    fun logAnsattStatusInNom() {
+        val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
+        secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
+        secureLogger.debug(
+            allSaksbehandlerAccessEntries.map {
+                getAnsattInfoFromNom(it.saksbehandlerIdent).toString()
+            }.joinToString { ",\n" }
+        )
+    }
+
+    fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
+        return nomClient.getAnsatt(navIdent)
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {

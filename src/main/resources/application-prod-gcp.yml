@@ -8,3 +8,6 @@ PROXY_APP_CLIENT_ID: 981be1fb-1379-465f-bddc-7563197aed84
 
 PDL_BASE_URL: https://pdl-api.prod-fss-pub.nais.io/graphql
 PDL_SCOPE: prod-fss.pdl.pdl-api
+
+NOM_BASE_URL: https://nom-api.intern.nav.no/graphql
+NOM_SCOPE: prod-gcp.nom.nom-api

@@ -6,6 +6,7 @@ externalHosts:
   - host: pdl-api.prod-fss-pub.nais.io
   - host: norg2.prod-fss-pub.nais.io
   - host: ereg-services.prod-fss-pub.nais.io
+  - host: nom-api.intern.nav.no
 springProfile: prod-gcp
 tenant: nav.no
 db_tier: db-custom-4-15360

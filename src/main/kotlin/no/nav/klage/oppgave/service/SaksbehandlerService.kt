@@ -386,7 +386,7 @@ class SaksbehandlerService(
         secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
         secureLogger.debug(
             allSaksbehandlerAccessEntries.map {
-                getAnsattInfoFromNom(it.saksbehandlerIdent).toString()
+                getAnsattInfoFromNom(it.saksbehandlerIdent)
             }.joinToString { ",\n" }
         )
     }

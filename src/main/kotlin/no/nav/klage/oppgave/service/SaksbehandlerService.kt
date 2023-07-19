@@ -386,13 +386,17 @@ class SaksbehandlerService(
         secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
         secureLogger.debug(
             allSaksbehandlerAccessEntries.map {
-                getAnsattInfoFromNom(it.saksbehandlerIdent)
+                getAnsattInfoFromNom(it.saksbehandlerIdent).toString()
             }.joinToString { ",\n" }
         )
     }
 
     fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
-        return nomClient.getAnsatt(navIdent)
+        val ansatt = nomClient.getAnsatt(navIdent)
+        secureLogger.debug(
+            ansatt.toString()
+        )
+        return ansatt
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {

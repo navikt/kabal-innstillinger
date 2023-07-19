@@ -392,7 +392,11 @@ class SaksbehandlerService(
     }
 
     fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
-        return nomClient.getAnsatt(navIdent)
+        val ansatt = nomClient.getAnsatt(navIdent)
+        secureLogger.debug(
+            ansatt.toString()
+        )
+        return ansatt
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {

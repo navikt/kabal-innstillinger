@@ -10,32 +10,36 @@ import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.clients.pdl.Beskyttelsesbehov
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.clients.pdl.Person
+import no.nav.klage.oppgave.domain.saksbehandler.Enhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
-import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
 import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.util.TokenUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SaksbehandlerServiceTest {
-    private val innloggetAnsattRepository: InnloggetAnsattRepository = mockk()
     private val innstillingerRepository: InnstillingerRepository = mockk()
     private val azureGateway: AzureGateway = mockk()
     private val pdlFacade: PdlFacade = mockk()
-    private val saksbehandlerRepository: SaksbehandlerRepository = mockk()
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val nomClient: NomClient = mockk()
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val roleUtils: RoleUtils = mockk()
+    private val tokenUtil: TokenUtil = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
         fornavn = "fornavn1", etternavn = "etternavn1", sammensattNavn = "sammensattNavn1"
+    )
+
+    private val SAKSBEHANDLER_1_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
+        fornavn = "fornavn1", etternavn = "etternavn1", sammensattNavn = "sammensattNavn1", enhet = Enhet(enhetId = "", navn = "")
     )
 
     private val SAKSBEHANDLER_1 = Saksbehandler(
@@ -47,6 +51,10 @@ class SaksbehandlerServiceTest {
         fornavn = "fornavn2", etternavn = "etternavn2", sammensattNavn = "sammensattNavn2"
     )
 
+    private val SAKSBEHANDLER_2_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
+        fornavn = "fornavn2", etternavn = "etternavn2", sammensattNavn = "sammensattNavn2", enhet = Enhet(enhetId = "", navn = "")
+    )
+
     private val SAKSBEHANDLER_2 = Saksbehandler(
         navIdent = SAKSBEHANDLER_IDENT_2, navn = SAKSBEHANDLER_NAME_2.sammensattNavn
     )
@@ -55,16 +63,15 @@ class SaksbehandlerServiceTest {
 
     private val saksbehandlerService =
         SaksbehandlerService(
-            innloggetAnsattRepository = innloggetAnsattRepository,
             innstillingerRepository = innstillingerRepository,
             azureGateway = azureGateway,
             pdlFacade = pdlFacade,
-            saksbehandlerRepository = saksbehandlerRepository,
             egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
             saksbehandlerAccessRepository = saksbehandlerAccessRepository,
             roleUtils = roleUtils,
             nomClient = nomClient,
+            tokenUtil = tokenUtil,
         )
 
     val person = Person(
@@ -104,8 +111,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
-        every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns( SAKSBEHANDLER_1_PERSONLIG_INFO )
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns( SAKSBEHANDLER_2_PERSONLIG_INFO )
 
         val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
@@ -127,8 +134,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_NAME_1)
-        every { saksbehandlerRepository.getNameForSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_NAME_2)
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns( SAKSBEHANDLER_1_PERSONLIG_INFO )
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns( SAKSBEHANDLER_2_PERSONLIG_INFO )
 
         val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)

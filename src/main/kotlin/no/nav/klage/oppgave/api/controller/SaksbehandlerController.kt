@@ -7,8 +7,8 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
+import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.klage.oppgave.util.trimToNull
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Saksbehandler")
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
-    private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val saksbehandlerMapper: SaksbehandlerMapper,
+    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -35,9 +35,9 @@ class SaksbehandlerController(
         description = "Henter alle brukerdata om en saksbehandler"
     )
     @GetMapping("/me/brukerdata", produces = ["application/json"])
-    fun getBrukerdata(): SaksbehandlerView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
-        logger.debug("getBrukerdata is requested by $navIdent")
+    fun getBrukerdataForInnloggetSaksbehandler(): SaksbehandlerView {
+        val navIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::getBrukerdataForInnloggetSaksbehandler.name} is requested by $navIdent")
 
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }
@@ -47,9 +47,9 @@ class SaksbehandlerController(
         description = "Henter alle innstillinger for en saksbehandler"
     )
     @GetMapping("/me/innstillinger", produces = ["application/json"])
-    fun getInnstillinger(): SaksbehandlerView.InnstillingerView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
-        logger.debug("getBrukerdata is requested by $navIdent")
+    fun getInnstillingerForInnloggetSaksbehandler(): InnstillingerView {
+        val navIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::getInnstillingerForInnloggetSaksbehandler.name} is requested by $navIdent")
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent).saksbehandlerInnstillinger)
     }
 
@@ -59,9 +59,10 @@ class SaksbehandlerController(
     )
     @PutMapping("/me/innstillinger", produces = ["application/json"])
     fun setInnstillinger(
-        @RequestBody input: SaksbehandlerView.InnstillingerView
-    ): SaksbehandlerView.InnstillingerView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
+        @RequestBody input: InnstillingerView
+    ): InnstillingerView {
+        val navIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::setInnstillinger.name} is requested by $navIdent")
         return saksbehandlerMapper.mapToView(
             saksbehandlerService.storeInnstillingerButKeepSignature(
                 navIdent,
@@ -88,7 +89,7 @@ class SaksbehandlerController(
     )
     @GetMapping("/me/signature", produces = ["application/json"])
     fun getSignature(): Signature {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
+        val navIdent = tokenUtil.getCurrentIdent()
         return saksbehandlerService.getSignature(navIdent)
     }
 
@@ -100,7 +101,7 @@ class SaksbehandlerController(
     fun setShortName(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
+        val navIdent = tokenUtil.getCurrentIdent()
         saksbehandlerService.storeShortName(
             navIdent,
             input.value.trimToNull(),
@@ -117,7 +118,7 @@ class SaksbehandlerController(
     fun setLongName(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
+        val navIdent = tokenUtil.getCurrentIdent()
         saksbehandlerService.storeLongName(
             navIdent,
             input.value.trimToNull(),
@@ -134,7 +135,7 @@ class SaksbehandlerController(
     fun setJobTitle(
         @RequestBody input: StringInputView
     ): StringInputView {
-        val navIdent = innloggetAnsattRepository.getInnloggetIdent()
+        val navIdent = tokenUtil.getCurrentIdent()
         saksbehandlerService.storeJobTitle(
             navIdent,
             input.value.trimToNull(),
@@ -154,7 +155,7 @@ class SaksbehandlerController(
     fun getSaksbehandlereForYtelseOgFnr(
         @RequestBody input: SaksbehandlerSearchInput
     ): Saksbehandlere {
-        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logger.debug("getSaksbehandlereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getSaksbehandlere(
             ytelse = Ytelse.of(input.ytelseId),

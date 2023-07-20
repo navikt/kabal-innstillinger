@@ -4,6 +4,7 @@ import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
+import no.nav.klage.kodeverk.klageenhetTilYtelser
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -12,19 +13,12 @@ import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.nom.GetAnsattResponse
 import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
-import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
-import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
-import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
+import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
-import no.nav.klage.oppgave.repositories.SaksbehandlerRepository
-import no.nav.klage.oppgave.util.RoleUtils
-import no.nav.klage.oppgave.util.generateShortNameOrNull
-import no.nav.klage.oppgave.util.getLogger
-import no.nav.klage.oppgave.util.getSecureLogger
+import no.nav.klage.oppgave.util.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -33,28 +27,22 @@ import java.time.LocalDateTime
 @Service
 @Transactional
 class SaksbehandlerService(
-    private val innloggetAnsattRepository: InnloggetAnsattRepository,
     private val innstillingerRepository: InnstillingerRepository,
     private val azureGateway: AzureGateway,
     private val pdlFacade: PdlFacade,
-    private val saksbehandlerRepository: SaksbehandlerRepository,
     private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
     private val roleUtils: RoleUtils,
     private val nomClient: NomClient,
+    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
-        private const val VIKAFOSSEN = "2103"
         const val SEPARATOR = ","
-    }
-
-    fun findValgtEnhet(ident: String): EnhetMedLovligeYtelser {
-        return innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
     }
 
     private fun findSaksbehandlerInnstillinger(
@@ -183,23 +171,21 @@ class SaksbehandlerService(
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
-        val ansattEnhetForInnloggetSaksbehandler = innloggetAnsattRepository.getEnhetMedYtelserForSaksbehandler()
+        val enhetMedYtelserForSaksbehandler = getEnhetMedYtelserForSaksbehandler(navIdent = navIdent)
         val assignedYtelser = getSaksbehandlerAssignedYtelseIdList(navIdent)
 
         val saksbehandlerInnstillinger = findSaksbehandlerInnstillinger(
             ident = navIdent,
         )
 
-        val rollerForInnloggetSaksbehandler = azureGateway.getRollerForInnloggetSaksbehandler()
-        val enheterForInnloggetSaksbehandler = innloggetAnsattRepository.getEnheterMedYtelserForSaksbehandler()
-        val valgtEnhet = findValgtEnhet(innloggetAnsattRepository.getInnloggetIdent())
+        val rollerForSaksbehandler = azureGateway.getRollerForSaksbehandler(navIdent = navIdent)
+        val enheterMedYtelserForSaksbehandler = getEnheterMedYtelserForSaksbehandler(navIdent = navIdent)
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
-            roller = rollerForInnloggetSaksbehandler,
-            enheter = enheterForInnloggetSaksbehandler,
-            ansattEnhet = ansattEnhetForInnloggetSaksbehandler,
-            valgtEnhet = valgtEnhet,
+            roller = rollerForSaksbehandler,
+            enheter = enheterMedYtelserForSaksbehandler,
+            ansattEnhet = enhetMedYtelserForSaksbehandler,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
             tildelteYtelser = assignedYtelser
         )
@@ -230,7 +216,7 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
-            ).filter { it.navIdent != innloggetAnsattRepository.getInnloggetIdent() }
+            ).filter { it.navIdent != tokenUtil.getCurrentIdent() }
                 .sortedBy { it.navn }
         )
     }
@@ -278,9 +264,6 @@ class SaksbehandlerService(
             tilgangService.harSaksbehandlerTilgangTil(ident = ident, fnr = fnr)
         }
 
-    fun getNameForIdent(navIdent: String) =
-        saksbehandlerRepository.getNameForSaksbehandler(navIdent)
-
     fun storeShortName(navIdent: String, shortName: String?) {
         val innstillinger = getOrCreateInnstillinger(navIdent)
         innstillinger.shortName = shortName
@@ -311,7 +294,7 @@ class SaksbehandlerService(
     fun getSignature(navIdent: String): Signature {
         val innstillinger = innstillingerRepository.findBySaksbehandlerident(ident = navIdent)
 
-        val name = saksbehandlerRepository.getNameForSaksbehandler(navIdent)
+        val name = getNameForIdent(navIdent = navIdent)
 
         return Signature(
             longName = name.fornavn + " " + name.etternavn,
@@ -400,7 +383,7 @@ class SaksbehandlerService(
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
-        logger.debug("Getting saksbehandlere for ytelse $ytelse")
+        logger.debug("Getting saksbehandlere for ytelse {}", ytelse)
         val results = saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
         return results.map {
             it.saksbehandlerIdent
@@ -410,5 +393,37 @@ class SaksbehandlerService(
     private fun getROLIdents(): List<String> {
         logger.debug("Getting ROL list")
         return azureGateway.getGroupMembersNavIdents(roleUtils.getROLRoleId())
+    }
+
+    fun getNameForIdent(navIdent: String): SaksbehandlerName {
+        val saksbehandlerPersonligInfo = azureGateway.getDataOmSaksbehandler(navIdent)
+        return SaksbehandlerName(
+            fornavn = saksbehandlerPersonligInfo.fornavn,
+            etternavn = saksbehandlerPersonligInfo.etternavn,
+            sammensattNavn = saksbehandlerPersonligInfo.sammensattNavn,
+        )
+    }
+
+    private fun getEnhetMedYtelserForSaksbehandler(navIdent: String): EnhetMedLovligeYtelser =
+        azureGateway.getDataOmSaksbehandler(navIdent = navIdent).enhet.let {
+            EnhetMedLovligeYtelser(
+                enhet = it,
+                ytelser = getYtelserForEnhet(it)
+            )
+        }
+
+    private fun getYtelserForEnhet(enhet: Enhet): List<Ytelse> =
+        klageenhetTilYtelser.filter { it.key.navn == enhet.enhetId }.flatMap { it.value }
+
+    private fun getEnheterMedYtelserForSaksbehandler(navIdent: String): EnheterMedLovligeYtelser =
+        listOf(azureGateway.getDataOmSaksbehandler(navIdent = navIdent).enhet).berikMedYtelser()
+
+    private fun List<Enhet>.berikMedYtelser(): EnheterMedLovligeYtelser {
+        return EnheterMedLovligeYtelser(this.map {
+            EnhetMedLovligeYtelser(
+                enhet = it,
+                ytelser = getYtelserForEnhet(it)
+            )
+        })
     }
 }

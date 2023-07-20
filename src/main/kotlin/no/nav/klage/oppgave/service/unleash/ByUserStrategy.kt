@@ -1,11 +1,13 @@
 package no.nav.klage.oppgave.service.unleash
 
 import no.finn.unleash.strategy.Strategy
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
+import no.nav.klage.oppgave.util.TokenUtil
 import org.springframework.stereotype.Component
 
 @Component
-class ByUserStrategy(private val innloggetAnsattRepository: InnloggetAnsattRepository) : Strategy {
+class ByUserStrategy(
+    private val tokenUtil: TokenUtil,
+) : Strategy {
 
     companion object {
         const val PARAM = "user"
@@ -20,7 +22,7 @@ class ByUserStrategy(private val innloggetAnsattRepository: InnloggetAnsattRepos
         parameters?.get(PARAM)?.split(',')
 
     private fun isCurrentUserEnabled(ident: String): Boolean {
-        return ident == innloggetAnsattRepository.getInnloggetIdent()
+        return ident == tokenUtil.getCurrentIdent()
     }
 
 }

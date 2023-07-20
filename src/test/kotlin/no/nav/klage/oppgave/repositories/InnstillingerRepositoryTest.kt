@@ -1,10 +1,7 @@
 package no.nav.klage.oppgave.repositories
 
 
-import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
-import no.nav.klage.oppgave.domain.saksbehandler.Enhet
-import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -26,11 +23,6 @@ class InnstillingerRepositoryTest {
         @Container
         @JvmField
         val postgreSQLContainer: TestPostgresqlContainer = TestPostgresqlContainer.instance
-
-        val ansattEnhetForInnloggetSaksbehandler = EnhetMedLovligeYtelser(
-            enhet = Enhet("4291", "Nav Oslo"),
-            ytelser = listOf(Ytelse.OMS_OLP, Ytelse.SYK_SYK)
-        )
     }
 
     @Autowired

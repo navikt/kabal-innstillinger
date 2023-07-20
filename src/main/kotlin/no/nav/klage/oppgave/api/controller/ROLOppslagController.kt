@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.SearchROLInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerService
+import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.PostMapping
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "ROL")
 class ROLOppslagController(
     private val saksbehandlerService: SaksbehandlerService,
-    private val innloggetAnsattRepository: InnloggetAnsattRepository
+    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -38,11 +38,10 @@ class ROLOppslagController(
     fun getROLForFnr(
         @RequestBody input: SearchROLInput,
     ): Saksbehandlere {
-        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
-        logger.debug("getROLForFnr is requested by $innloggetSaksbehandlerNavIdent")
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::getROLForFnr.name} is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerService.getROLList(
             fnr = input.fnr
         )
     }
-
 }

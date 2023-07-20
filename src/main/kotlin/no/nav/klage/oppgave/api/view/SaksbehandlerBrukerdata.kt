@@ -6,14 +6,19 @@ data class SaksbehandlerView(
     val enheter: List<EnhetView>,
     val ansattEnhet: EnhetView,
     val tildelteYtelser: List<String>,
-) {
+)
 
-    data class InnstillingerView(
-        val hjemler: List<String>,
-        val ytelser: List<String>,
-        val typer: List<String>
-    )
-}
+data class InnstillingerView(
+    val hjemler: List<String>,
+    val ytelser: List<String>,
+    val typer: List<String>
+)
+
+data class EnhetView(
+    val id: String,
+    val navn: String,
+    val lovligeYtelser: List<String>
+)
 
 data class StringInputView(val value: String?)
 

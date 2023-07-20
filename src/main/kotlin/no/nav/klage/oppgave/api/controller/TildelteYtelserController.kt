@@ -8,9 +8,9 @@ import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
 import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Administer access")
 class TildelteYtelserController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
-    private val innloggetAnsattRepository: InnloggetAnsattRepository,
+    private val tokenUtil: TokenUtil,
     private val roleUtils: RoleUtils,
 ) {
 
@@ -39,6 +39,7 @@ class TildelteYtelserController(
     fun getSaksbehandlerAccess(
         @PathVariable navIdent: String,
     ): SaksbehandlerAccess {
+        logger.debug("${::getSaksbehandlerAccess.name} is requested for $navIdent")
         return saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = navIdent)
     }
 
@@ -50,8 +51,8 @@ class TildelteYtelserController(
     fun getSaksbehandlereForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
 
-        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
-        logger.debug("getSaksbehandlereForEnhet is requested by $innloggetSaksbehandlerNavIdent")
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::getSaksbehandlereForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerAccessService.getSaksbehandlere(enhet = enhet)
     }
 
@@ -61,8 +62,8 @@ class TildelteYtelserController(
     )
     @GetMapping("/enhet/{enhet}/tildelteytelser", produces = ["application/json"])
     fun getTildelteYtelserForEnhet(@PathVariable enhet: String): TildelteYtelserResponse {
-        val innloggetSaksbehandlerNavIdent = innloggetAnsattRepository.getInnloggetIdent()
-        logger.debug("getTildelteYtelserForEnhet is requested by $innloggetSaksbehandlerNavIdent")
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::getTildelteYtelserForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
         return saksbehandlerAccessService.getTildelteYtelserForEnhet(enhet = enhet)
     }
 
@@ -75,10 +76,12 @@ class TildelteYtelserController(
         @RequestBody input: YtelseInput
     ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logger.debug("${::setYtelserForSaksbehandlere.name} is requested by $innloggetSaksbehandlerNavIdent")
 
         return saksbehandlerAccessService.setYtelser(
             ytelseInput = input,
-            innloggetAnsattIdent = innloggetAnsattRepository.getInnloggetIdent()
+            innloggetAnsattIdent = tokenUtil.getCurrentIdent()
         )
     }
 

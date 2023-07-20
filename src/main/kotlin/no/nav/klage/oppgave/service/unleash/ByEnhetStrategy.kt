@@ -29,7 +29,7 @@ class ByEnhetStrategy(private val azureGateway: AzureGateway) : Strategy {
             unleashContext.userId.map {
                 val saksbehandlersEnheter: List<String> = getSaksbehandlersEnheter(unleashContext)
                 val enabledEnheter: List<String>? = getEnabledEnheter(parameters)
-                enabledEnheter?.intersect(saksbehandlersEnheter)?.isNotEmpty() ?: false
+                enabledEnheter?.intersect(saksbehandlersEnheter.toSet())?.isNotEmpty() ?: false
             }.orElse(false)
         } catch (ex: Exception) {
             logger.warn("Unable to retrieve saksbehandlers enheter", ex)

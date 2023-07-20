@@ -18,17 +18,6 @@ class AdminController(
     private val saksbehandlerService: SaksbehandlerService,
     private val roleUtils: RoleUtils,
 ) {
-
-    @Operation(
-        summary = "Fjerner ytelser i innstillinger som ikke er tillatt for saksbehandler.",
-        description = "Fjerner ytelser i innstillinger som ikke er tillatt for saksbehandler."
-    )
-    @PostMapping("/cleanupinnstillinger", produces = ["application/json"])
-    fun cleanupInnstillinger() {
-        verifyIsAdmin()
-        saksbehandlerService.cleanupInnstillinger()
-    }
-
     @Operation(
         summary = "Legger til FTRL 22-12 og FTRL 22-13 i innstillinger for saksbehandlere som har valgt ytelse ENF, dersom de ikke har disse fra før.",
         description = "Legger til FTRL 22-12 og FTRL 22-13 i innstillinger for saksbehandlere som har valgt ytelse ENF, dersom de ikke har disse fra før."

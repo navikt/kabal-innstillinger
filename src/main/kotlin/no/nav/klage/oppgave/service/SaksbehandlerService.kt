@@ -312,21 +312,6 @@ class SaksbehandlerService(
         } else emptyList()
     }
 
-    fun cleanupInnstillinger() {
-        val existingInnstillinger = innstillingerRepository.findAll()
-        existingInnstillinger.forEach { innstilling ->
-            logger.debug("Data before cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser}")
-            storeInnstillingerYtelser(
-                navIdent = innstilling.saksbehandlerident,
-                inputYtelseSet = innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
-                    .toSet()
-            )
-            val resultingInnstilling =
-                innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
-            logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser}")
-        }
-    }
-
     fun addMissingENFHjemler() {
         val existingInnstillinger = innstillingerRepository.findAll()
         existingInnstillinger.forEach { innstilling ->

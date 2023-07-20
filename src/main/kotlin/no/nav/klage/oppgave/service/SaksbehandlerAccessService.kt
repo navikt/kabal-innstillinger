@@ -4,7 +4,7 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
-import no.nav.klage.oppgave.repositories.EnhetRepository
+import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
@@ -19,9 +19,9 @@ import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess as
 @Transactional
 class SaksbehandlerAccessService(
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
-    private val enhetRepository: EnhetRepository,
     private val saksbehandlerService: SaksbehandlerService,
     private val roleUtils: RoleUtils,
+    private val azureGateway: AzureGateway,
 ) {
 
     companion object {
@@ -46,7 +46,7 @@ class SaksbehandlerAccessService(
     }
 
     fun getSaksbehandlere(enhet: String): SaksbehandlerAccessResponse {
-        return SaksbehandlerAccessResponse(accessRights = enhetRepository.getAnsatteIEnhet(enhet)
+        return SaksbehandlerAccessResponse(accessRights = getAnsatteIEnhet(enhet)
             .filter { roleUtils.isSaksbehandler(ident = it) }
             .map { ident ->
                 if (saksbehandlerAccessRepository.existsById(ident)) {
@@ -119,5 +119,9 @@ class SaksbehandlerAccessService(
             )
         }
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
+    }
+
+    private fun getAnsatteIEnhet(enhetId: String): List<String> {
+        return azureGateway.getEnhetensAnsattesNavIdents(enhetId)
     }
 }

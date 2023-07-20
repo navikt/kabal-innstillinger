@@ -5,7 +5,7 @@ import io.mockk.every
 import no.finn.unleash.Unleash
 import no.finn.unleash.UnleashContext
 import no.nav.klage.oppgave.api.controller.FeatureToggleController
-import no.nav.klage.oppgave.repositories.InnloggetAnsattRepository
+import no.nav.klage.oppgave.util.TokenUtil
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,11 +29,11 @@ class FeatureToggleControllerTest {
     lateinit var unleash: Unleash
 
     @MockkBean
-    lateinit var innloggetAnsattRepository: InnloggetAnsattRepository
+    lateinit var tokenUtil: TokenUtil
 
     @BeforeEach
     fun setup() {
-        every { innloggetAnsattRepository.getInnloggetIdent() } returns "H149390"
+        every { tokenUtil.getCurrentIdent() } returns "H149390"
         every { unleash.isEnabled(any(), any<UnleashContext>()) } returns true
     }
 

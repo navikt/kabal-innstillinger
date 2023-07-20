@@ -37,10 +37,7 @@ class TokenUtil(
         return response.accessToken
     }
 
-    fun getAccessTokenFrontendSent(): String =
-        tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD).tokenAsString
-
-    fun getIdent(): String =
+    fun getCurrentIdent(): String =
         tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
             .jwtTokenClaims?.get("NAVident")?.toString()
             ?: throw RuntimeException("Ident not found in token")
@@ -48,16 +45,4 @@ class TokenUtil(
     fun getRoleIdsFromToken(): List<String> =
         tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
             .jwtTokenClaims?.getAsList("groups").orEmpty().toList()
-
-    //Brukes ikke per nå:
-    fun erMaskinTilMaskinToken(): Boolean {
-        tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
-            .jwtTokenClaims?.allClaims?.forEach { securelogger.info("${it.key} - ${it.value}") }
-
-        return getClaim("sub") == getClaim("oid")
-    }
-
-    private fun getClaim(name: String) =
-        tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
-            .jwtTokenClaims?.getStringClaim(name)
 }

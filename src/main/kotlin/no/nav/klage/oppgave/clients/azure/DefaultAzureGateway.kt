@@ -19,7 +19,7 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
         private val securelogger = getSecureLogger()
     }
 
-    override fun getPersonligDataOmSaksbehandlerMedIdent(navIdent: String): SaksbehandlerPersonligInfo {
+    override fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerPersonligInfo {
         val data = try {
             microsoftGraphClient.getSaksbehandler(navIdent)
         } catch (e: Exception) {
@@ -49,12 +49,12 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
         )
     }
 
-    override fun getRollerForInnloggetSaksbehandler(): List<SaksbehandlerRolle> =
+    override fun getRollerForSaksbehandler(navIdent: String): List<SaksbehandlerRolle> =
         try {
-            microsoftGraphClient.getInnloggetSaksbehandlersGroups()
+            microsoftGraphClient.getSaksbehandlersGroups(navIdent = navIdent)
                 .map { SaksbehandlerRolle(id = it.id, navn = it.displayName ?: it.mailNickname ?: it.id) }
         } catch (e: Exception) {
-            logger.error("Failed to call getInnloggetSaksbehandlersGroups", e)
+            logger.error("Failed to call getSaksbehandlersGroups", e)
             throw e
         }
 

@@ -2,19 +2,9 @@ package no.nav.klage.oppgave.clients.pdl.graphql
 
 import java.time.LocalDate
 
-
-data class HentPersonerResponse(val data: HentPersonBolk?, val errors: List<PdlError>? = null)
-
 data class HentPersonResponse(val data: DataWrapper?, val errors: List<PdlError>? = null)
 
 data class DataWrapper(val hentPerson: PdlPerson?)
-
-data class HentPersonBolk(val hentPersonBolk: List<HentPersonBolkResult>?)
-
-data class HentPersonBolkResult(
-    val person: PdlPerson?,
-    val ident: String
-)
 
 data class PdlPerson(
     val adressebeskyttelse: List<Adressebeskyttelse>,

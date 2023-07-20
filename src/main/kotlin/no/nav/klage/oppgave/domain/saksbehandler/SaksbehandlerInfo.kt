@@ -7,7 +7,6 @@ data class SaksbehandlerInfo(
     val roller: List<SaksbehandlerRolle>,
     val enheter: EnheterMedLovligeYtelser,
     val ansattEnhet: EnhetMedLovligeYtelser,
-    val valgtEnhet: EnhetMedLovligeYtelser,
     val saksbehandlerInnstillinger: SaksbehandlerInnstillinger,
     val tildelteYtelser: List<Ytelse>,
 )

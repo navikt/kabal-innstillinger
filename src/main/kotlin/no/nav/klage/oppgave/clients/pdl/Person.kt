@@ -14,14 +14,6 @@ data class Person(
 
     fun harBeskyttelsesbehovStrengtFortrolig() =
         beskyttelsesbehov == Beskyttelsesbehov.STRENGT_FORTROLIG || beskyttelsesbehov == Beskyttelsesbehov.STRENGT_FORTROLIG_UTLAND
-
-    fun settSammenNavn(): String {
-        return if (mellomnavn != null) {
-            "$fornavn $mellomnavn $etternavn"
-        } else {
-            "$fornavn $etternavn"
-        }
-    }
 }
 
 data class Sivilstand(val type: SivilstandType, val foedselsnr: String)

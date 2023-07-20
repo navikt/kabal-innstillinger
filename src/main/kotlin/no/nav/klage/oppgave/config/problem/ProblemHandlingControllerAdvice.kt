@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.config.problem
 
-import no.nav.klage.oppgave.exceptions.*
+import no.nav.klage.oppgave.exceptions.EnhetNotFoundForSaksbehandlerException
+import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -19,93 +20,7 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler
-    fun handleOversendtKlageNotValidException(
-        ex: OversendtKlageNotValidException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.BAD_REQUEST, ex)
-
-    @ExceptionHandler
-    fun handleKlagebehandlingSamtidigEndretException(
-        ex: KlagebehandlingSamtidigEndretException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.CONFLICT, ex)
-
-    @ExceptionHandler
-    fun handleOversendtKlageReceivedBeforeException(
-        ex: OversendtKlageReceivedBeforeException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.CONFLICT, ex)
-
-    @ExceptionHandler
-    fun handleOppgaveNotFound(ex: OppgaveNotFoundException, request: NativeWebRequest): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleKlagebehandlingNotFound(
-        ex: KlagebehandlingNotFoundException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleVedtakNotFound(
-        ex: VedtakNotFoundException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleMeldingNotFound(
-        ex: MeldingNotFoundException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleSaksdokumentNotFound(
-        ex: SaksdokumentNotFoundException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleValidationException(
-        ex: ValidationException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.BAD_REQUEST, ex)
-
-    @ExceptionHandler
-    fun handleKlagebehandlingAvsluttetException(
-        ex: KlagebehandlingAvsluttetException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
-
-    @ExceptionHandler
     fun handleMissingTilgang(ex: MissingTilgangException, request: NativeWebRequest): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
-
-    @ExceptionHandler
-    fun handleNotMatchingUser(ex: NotMatchingUserException, request: NativeWebRequest): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
-
-    @ExceptionHandler
-    fun handleFeatureNotEnabled(ex: FeatureNotEnabledException, request: NativeWebRequest): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
-
-    @ExceptionHandler
-    fun handleNoSaksbehandlerRoleEnabled(
-        ex: NoSaksbehandlerRoleException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
-
-    @ExceptionHandler
-    fun handleNotOwnEnhet(ex: NotOwnEnhetException, request: NativeWebRequest): ProblemDetail =
         create(HttpStatus.FORBIDDEN, ex)
 
     @ExceptionHandler
@@ -114,41 +29,6 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         request: NativeWebRequest
     ): ProblemDetail =
         createProblemForWebClientResponseException(ex)
-
-    @ExceptionHandler
-    fun handleDuplicateOversendelse(
-        ex: DuplicateOversendelseException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.CONFLICT, ex)
-
-    @ExceptionHandler
-    fun handleKlagebehandlingManglerMedunderskriverException(
-        ex: KlagebehandlingManglerMedunderskriverException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.BAD_REQUEST, ex)
-
-    @ExceptionHandler
-    fun handleKlagebehandlingFinalizedException(
-        ex: KlagebehandlingFinalizedException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.BAD_REQUEST, ex)
-
-    @ExceptionHandler
-    fun handleResultatDokumentNotFoundException(
-        ex: ResultatDokumentNotFoundException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
-
-    @ExceptionHandler
-    fun handleSectionedValidationErrorWithDetailsException(
-        ex: SectionedValidationErrorWithDetailsException,
-        request: NativeWebRequest
-    ): ProblemDetail =
-        createSectionedValidationProblem(ex)
 
     @ExceptionHandler
     fun handleEnhetNotFoundForSaksbehandlerException(
@@ -167,19 +47,6 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         return ProblemDetail.forStatus(ex.statusCode).apply {
             title = ex.statusText
             detail = ex.responseBodyAsString
-        }
-    }
-
-    private fun createSectionedValidationProblem(ex: SectionedValidationErrorWithDetailsException): ProblemDetail {
-        logError(
-            httpStatus = HttpStatus.BAD_REQUEST,
-            errorMessage = ex.title,
-            exception = ex
-        )
-
-        return ProblemDetail.forStatus(HttpStatus.BAD_REQUEST).apply {
-            this.title = ex.title
-            this.setProperty("sections", ex.sections)
         }
     }
 
@@ -202,6 +69,7 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
             httpStatus.is5xxServerError -> {
                 secureLogger.error("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
             }
+
             else -> {
                 secureLogger.warn("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
             }

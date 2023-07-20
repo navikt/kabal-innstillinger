@@ -4,6 +4,7 @@ import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.EnhetView
+import no.nav.klage.oppgave.api.view.InnstillingerView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
@@ -25,13 +26,13 @@ class SaksbehandlerMapper(private val roleUtils: RoleUtils) {
         )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
-        SaksbehandlerView.InnstillingerView(
+        InnstillingerView(
             hjemler = saksbehandlerInnstillinger.hjemler.map { it.id },
             ytelser = saksbehandlerInnstillinger.ytelser.map { it.id },
             typer = saksbehandlerInnstillinger.typer.map { it.id }
         )
 
-    fun mapToDomain(innstillingerView: SaksbehandlerView.InnstillingerView) =
+    fun mapToDomain(innstillingerView: InnstillingerView) =
         SaksbehandlerInnstillinger(
             hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
             ytelser = innstillingerView.ytelser.map { Ytelse.of(it) },

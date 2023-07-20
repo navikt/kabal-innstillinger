@@ -41,7 +41,7 @@ class MicrosoftGraphClient(
 
             .retrieve()
             .bodyToMono<AzureUser>()
-            .block().let { secureLogger.debug("me: $it"); it }
+            .block().let { secureLogger.debug("me: {}", it); it }
             ?: throw RuntimeException("AzureAD data about authenticated user could not be fetched")
     }
 
@@ -50,22 +50,6 @@ class MicrosoftGraphClient(
     fun getSaksbehandler(navIdent: String): AzureUser {
         logger.debug("Fetching data about authenticated user from Microsoft Graph")
         return findUserByNavIdent(navIdent)
-    }
-
-    @Retryable
-    fun getInnloggetSaksbehandlersGroups(): List<AzureGroup> {
-        logger.debug("Fetching data about authenticated users groups from Microsoft Graph")
-
-        return microsoftGraphWebClient.get()
-            .uri { uriBuilder ->
-                uriBuilder
-                    .path("/me/memberOf")
-                    .build()
-            }.header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
-            .retrieve()
-            .bodyToMono<AzureGroupList>()
-            .block()?.value?.map { secureLogger.debug("AD Gruppe: $it"); it }
-            ?: throw RuntimeException("AzureAD data about authenticated users groups could not be fetched")
     }
 
     private fun findUserByNavIdent(navIdent: String): AzureUser {
@@ -83,7 +67,7 @@ class MicrosoftGraphClient(
             .header("ConsistencyLevel", "eventual")
             .retrieve()
             .bodyToMono<AzureUserList>().block()?.value?.firstOrNull()
-            ?.let { secureLogger.debug("Saksbehandler: $it"); it }
+            ?.let { secureLogger.debug("Saksbehandler: {}", it); it }
             ?: throw RuntimeException("AzureAD data about user by nav ident could not be fetched")
     }
 
@@ -101,7 +85,7 @@ class MicrosoftGraphClient(
             .retrieve()
             .bodyToMono<AzureOnPremisesSamAccountNameList>().block()?.value
             ?: throw RuntimeException("AzureAD data about group members nav idents could not be fetched")
-        return azureGroupMember.map { secureLogger.debug("Group member $it"); it }
+        return azureGroupMember.map { secureLogger.debug("Group member {}", it); it }
             .mapNotNull { it.onPremisesSamAccountName }
     }
 
@@ -146,7 +130,7 @@ class MicrosoftGraphClient(
             }
             .header("Authorization", "Bearer ${tokenUtil.getSaksbehandlerAccessTokenWithGraphScope()}")
             .retrieve()
-            .bodyToMono<AzureGroupList>().block()?.value?.map { secureLogger.debug("AD Gruppe by navident: $it"); it }
+            .bodyToMono<AzureGroupList>().block()?.value?.map { secureLogger.debug("AD Gruppe by navident: {}", it); it }
             ?: throw RuntimeException("AzureAD data about groups by user principal name could not be fetched")
         return aadAzureGroups
     }

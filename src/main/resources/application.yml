@@ -39,8 +39,6 @@ spring:
     init:
       platform: postgresql
 
-maxAttachmentSize: 8MB
-
 server:
   port: 7081
   error:
@@ -111,6 +109,5 @@ no.nav.security.jwt:
           client-auth-method: private_key_jwt
 
 MICROSOFT_GRAPH_URL: https://graph.microsoft.com/v1.0
-UNLEASH_URL: https://unleash.nais.io/api/
 
 EGENANSATT_KAFKA_TOPIC: nom.skjermede-personer-v1

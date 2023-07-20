@@ -18,16 +18,6 @@ class AdminController(
     private val saksbehandlerService: SaksbehandlerService,
     private val roleUtils: RoleUtils,
 ) {
-    @Operation(
-        summary = "Legger til FTRL 22-12 og FTRL 22-13 i innstillinger for saksbehandlere som har valgt ytelse ENF, dersom de ikke har disse fra før.",
-        description = "Legger til FTRL 22-12 og FTRL 22-13 i innstillinger for saksbehandlere som har valgt ytelse ENF, dersom de ikke har disse fra før."
-    )
-    @GetMapping("/completeenf", produces = ["application/json"])
-    fun completeENFHjemler() {
-        verifyIsAdmin()
-        saksbehandlerService.addMissingENFHjemler()
-    }
-
     @GetMapping("/logsaksbehandlerstatus", produces = ["application/json"])
     fun logSaksbehandlerStatus() {
         verifyIsAdmin()

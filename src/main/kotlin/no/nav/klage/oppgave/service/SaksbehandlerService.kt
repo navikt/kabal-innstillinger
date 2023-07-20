@@ -312,43 +312,6 @@ class SaksbehandlerService(
         } else emptyList()
     }
 
-    fun addMissingENFHjemler() {
-        val existingInnstillinger = innstillingerRepository.findAll()
-        existingInnstillinger.forEach { innstilling ->
-            logger.debug("Data before ENF cleanup: saksbehandlerident: ${innstilling.saksbehandlerident} ytelser: ${innstilling.ytelser} hjemler ${innstilling.hjemler}")
-            val existingYtelser = innstilling.ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) }
-            if (Ytelse.ENF_ENF in existingYtelser) {
-                val hjemmelSet = innstilling.hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) }
-                    .toMutableSet()
-
-                if (Hjemmel.FTRL_22_12 !in hjemmelSet || Hjemmel.FTRL_22_13 !in hjemmelSet) {
-                    hjemmelSet.addAll(setOf(Hjemmel.FTRL_22_12, Hjemmel.FTRL_22_13))
-                    val existingTypes =
-                        innstilling.typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) }
-
-                    logger.debug("Adding missing hjemler to saksbehandler ${innstilling.saksbehandlerident}")
-
-                    storeInnstillingerButKeepSignature(
-                        navIdent = innstilling.saksbehandlerident,
-                        newSaksbehandlerInnstillinger = SaksbehandlerInnstillinger(
-                            hjemler = hjemmelSet.toList(),
-                            ytelser = existingYtelser,
-                            typer = existingTypes,
-                            shortName = null,
-                            longName = null,
-                            jobTitle = null
-
-                        )
-                    )
-                }
-
-            }
-            val resultingInnstilling =
-                innstillingerRepository.findBySaksbehandlerident(innstilling.saksbehandlerident)!!
-            logger.debug("Data after cleanup: saksbehandlerident: ${resultingInnstilling.saksbehandlerident} ytelser: ${resultingInnstilling.ytelser} hjemler ${resultingInnstilling.hjemler}")
-        }
-    }
-
     fun logAnsattStatusInNom() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
         secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)

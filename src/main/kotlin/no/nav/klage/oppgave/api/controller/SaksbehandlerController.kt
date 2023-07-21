@@ -68,7 +68,7 @@ class SaksbehandlerController(
         val navIdent = tokenUtil.getCurrentIdent()
         logger.debug("${::setInnstillinger.name} is requested by $navIdent")
         return saksbehandlerMapper.mapToView(
-            innstillingerService.storeInnstillingerButKeepSignature(
+            saksbehandlerService.storeInnstillingerButKeepSignature(
                 navIdent,
                 saksbehandlerMapper.mapToDomain(input)
             )

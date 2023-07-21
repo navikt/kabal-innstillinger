@@ -16,7 +16,6 @@ import java.time.LocalDateTime
 @Transactional
 class InnstillingerService(
     private val innstillingerRepository: InnstillingerRepository,
-    private val saksbehandlerAccessService: SaksbehandlerAccessService
 ) {
 
     companion object {
@@ -36,17 +35,16 @@ class InnstillingerService(
 
     fun storeInnstillingerButKeepSignature(
         navIdent: String,
-        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
+        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger,
+        assignedYtelseList: List<Ytelse>,
     ): SaksbehandlerInnstillinger {
-        val assignedYtelseIdList = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(navIdent)
-
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
 
         return innstillingerRepository.save(
             Innstillinger(
                 saksbehandlerident = navIdent,
                 hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(SEPARATOR) { it.id },
-                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseIdList }
+                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseList }
                     .joinToString(SEPARATOR) { it.id },
                 typer = newSaksbehandlerInnstillinger.typer.joinToString(SEPARATOR) { it.id },
                 shortName = oldInnstillinger?.shortName,
@@ -60,8 +58,8 @@ class InnstillingerService(
     fun updateYtelseAndHjemmelInnstillinger(
         navIdent: String,
         inputYtelseSet: Set<Ytelse>,
+        assignedYtelseList: List<Ytelse>,
     ) {
-        val assignedYtelseList = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(navIdent)
         val filteredYtelseList = inputYtelseSet.filter { it in assignedYtelseList }
 
         if (!innstillingerRepository.existsById(navIdent)) {

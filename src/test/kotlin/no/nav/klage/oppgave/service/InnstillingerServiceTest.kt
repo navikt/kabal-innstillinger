@@ -20,7 +20,6 @@ class InnstillingerServiceTest {
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
     private val innstillingerService = InnstillingerService(
         innstillingerRepository = innstillingerRepository,
-        saksbehandlerAccessService = saksbehandlerAccessService
     )
 
     private val ident1 = "ident1"
@@ -77,49 +76,34 @@ class InnstillingerServiceTest {
 
         @Test
         fun `happy path`() {
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(ident1) }.returns(
-                listOf(
-                    ytelse1,
-                    ytelse2
-                )
-            )
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(null)
 
             assertEquals(
                 /* expected = */ saksbehandlerInnstillingerInput,
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1, ytelse2)
                 )
             )
         }
 
         @Test
         fun `illegal ytelser in input are ignored`() {
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(ident1) }.returns(
-                listOf(
-                    ytelse1,
-                )
-            )
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(null)
 
             assertEquals(
                 /* expected = */ listOf(ytelse1),
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1)
                 ).ytelser
             )
         }
 
         @Test
         fun `new names and title ignored`() {
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(ident1) }.returns(
-                listOf(
-                    ytelse1,
-                    ytelse2,
-                )
-            )
 
             val oldInnstillinger = Innstillinger(
                 saksbehandlerident = ident1,
@@ -140,7 +124,8 @@ class InnstillingerServiceTest {
                 /* expected = */ shortName,
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1, ytelse2)
                 ).shortName
             )
 
@@ -148,7 +133,8 @@ class InnstillingerServiceTest {
                 /* expected = */ longName,
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1, ytelse2)
                 ).longName
             )
 
@@ -156,7 +142,8 @@ class InnstillingerServiceTest {
                 /* expected = */ jobTitle,
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1, ytelse2)
                 ).jobTitle
             )
         }
@@ -166,16 +153,12 @@ class InnstillingerServiceTest {
     inner class UpdateYtelseAndHjemmelInnstillinger {
         @Test
         fun `new Innstillinger, saves all hjemler from ytelse, ignores illegal ytelse in input`() {
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(ident1) }.returns(
-                listOf(
-                    ytelse1,
-                )
-            )
             every { innstillingerRepository.existsById(ident1) }.returns(false)
 
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = ident1,
-                inputYtelseSet = setOf(ytelse1, ytelse2)
+                inputYtelseSet = setOf(ytelse1, ytelse2),
+                assignedYtelseList = listOf(ytelse1),
             )
 
             verify {
@@ -218,7 +201,7 @@ class InnstillingerServiceTest {
             every { mockInnstillinger.hjemler = any() } returnsArgument 0
             every { mockInnstillinger.modified = now } returnsArgument 0
 
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(ident1) }.returns(
+            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(ident1) }.returns(
                 listOf(
                     ytelse1,
                     ytelse2,
@@ -234,7 +217,9 @@ class InnstillingerServiceTest {
 
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = ident1,
-                inputYtelseSet = setOf(ytelse1, ytelse2)
+                inputYtelseSet = setOf(ytelse1, ytelse2),
+                assignedYtelseList = listOf(ytelse1, ytelse2),
+
             )
 
             verify {

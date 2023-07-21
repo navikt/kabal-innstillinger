@@ -35,7 +35,7 @@ class SaksbehandlerService(
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val enhetMedYtelserForSaksbehandler = getEnhetMedYtelserForSaksbehandler(navIdent = navIdent)
-        val assignedYtelser = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseIdList(navIdent)
+        val assignedYtelser = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(navIdent)
 
         val saksbehandlerInnstillinger = innstillingerService.findSaksbehandlerInnstillinger(
             ident = navIdent,
@@ -185,5 +185,13 @@ class SaksbehandlerService(
                 ytelser = getYtelserForEnhet(it)
             )
         })
+    }
+
+    fun storeInnstillingerButKeepSignature(navIdent: String, newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger): SaksbehandlerInnstillinger {
+        return innstillingerService.storeInnstillingerButKeepSignature(
+            navIdent = navIdent,
+            newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,
+            assignedYtelseList = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(navIdent)
+        )
     }
 }

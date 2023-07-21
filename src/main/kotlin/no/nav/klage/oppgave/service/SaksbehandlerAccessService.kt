@@ -4,6 +4,9 @@ import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
+import no.nav.klage.oppgave.clients.nom.GetAnsattResponse
+import no.nav.klage.oppgave.clients.nom.NomClient
+import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.RoleUtils
@@ -19,9 +22,10 @@ import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess as
 @Transactional
 class SaksbehandlerAccessService(
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
-    private val saksbehandlerService: SaksbehandlerService,
+    private val innstillingerService: InnstillingerService,
     private val roleUtils: RoleUtils,
     private val azureGateway: AzureGateway,
+    private val nomClient: NomClient,
 ) {
 
     companion object {
@@ -35,7 +39,7 @@ class SaksbehandlerAccessService(
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
             SaksbehandlerAccessView(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
-                saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerIdent).sammensattNavn,
+                saksbehandlerName = getSammensattNameForIdent(saksbehandlerIdent),
                 ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
                 created = saksbehandlerAccess.created,
                 accessRightsModified = saksbehandlerAccess.accessRightsModified,
@@ -45,7 +49,7 @@ class SaksbehandlerAccessService(
         }
     }
 
-    fun getSaksbehandlere(enhet: String): SaksbehandlerAccessResponse {
+    fun getSaksbehandlerAccessesInEnhet(enhet: String): SaksbehandlerAccessResponse {
         return SaksbehandlerAccessResponse(accessRights = getAnsatteIEnhet(enhet)
             .filter { roleUtils.isSaksbehandler(ident = it) }
             .map { ident ->
@@ -59,20 +63,20 @@ class SaksbehandlerAccessService(
 
     private fun getEmptySaksbehandlerAccess(saksbehandlerIdent: String) = SaksbehandlerAccessView(
         saksbehandlerIdent = saksbehandlerIdent,
-        saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerIdent).sammensattNavn,
+        saksbehandlerName = getSammensattNameForIdent(saksbehandlerIdent),
         ytelseIdList = emptyList(),
         created = null,
         accessRightsModified = null,
     )
 
     fun getTildelteYtelserForEnhet(enhet: String): TildelteYtelserResponse {
-        val saksbehandlereAccess = getSaksbehandlere(enhet)
+        val saksbehandlereAccess = getSaksbehandlerAccessesInEnhet(enhet)
         val ytelseIdUnion = saksbehandlereAccess.accessRights.flatMap { it.ytelseIdList }.toSet()
 
         return TildelteYtelserResponse(ytelseIdList = ytelseIdUnion.toList())
     }
 
-    fun setYtelser(
+    fun setYtelserForAnsatt(
         ytelseInput: YtelseInput,
         innloggetAnsattIdent: String
     ): SaksbehandlerAccessResponse {
@@ -105,14 +109,14 @@ class SaksbehandlerAccessService(
                 }
             }
 
-            saksbehandlerService.storeInnstillingerYtelser(
+            innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = accessRight.saksbehandlerIdent,
                 inputYtelseSet = ytelseSet
             )
 
             saksbehandlerAccessList += SaksbehandlerAccessView(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
-                saksbehandlerName = saksbehandlerService.getNameForIdent(saksbehandlerAccess.saksbehandlerIdent).sammensattNavn,
+                saksbehandlerName = getSammensattNameForIdent(saksbehandlerAccess.saksbehandlerIdent),
                 ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
                 created = saksbehandlerAccess.created,
                 accessRightsModified = saksbehandlerAccess.accessRightsModified,
@@ -121,7 +125,42 @@ class SaksbehandlerAccessService(
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
     }
 
+    fun getSaksbehandlerAssignedYtelseIdList(saksbehandlerIdent: String): List<Ytelse> {
+        return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
+            val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
+            saksbehandlerAccess.ytelser.toList()
+        } else emptyList()
+    }
+
+    fun logAnsattStatusInNom() {
+        val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
+        secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
+        secureLogger.debug(
+            allSaksbehandlerAccessEntries.map {
+                getAnsattInfoFromNom(it.saksbehandlerIdent).toString()
+            }.joinToString { ",\n" }
+        )
+    }
+
+    fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
+        val ansatt = nomClient.getAnsatt(navIdent)
+        secureLogger.debug(
+            ansatt.toString()
+        )
+        return ansatt
+    }
+
+    fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> {
+        return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
+    }
+
+
     private fun getAnsatteIEnhet(enhetId: String): List<String> {
         return azureGateway.getEnhetensAnsattesNavIdents(enhetId)
+    }
+
+    private fun getSammensattNameForIdent(navIdent: String): String {
+        val saksbehandlerPersonligInfo = azureGateway.getDataOmSaksbehandler(navIdent)
+        return saksbehandlerPersonligInfo.sammensattNavn
     }
 }

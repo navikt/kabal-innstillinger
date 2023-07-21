@@ -3,10 +3,13 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
-import no.nav.klage.oppgave.api.view.*
+import no.nav.klage.oppgave.api.view.InnstillingerView
+import no.nav.klage.oppgave.api.view.SaksbehandlerView
+import no.nav.klage.oppgave.api.view.Signature
+import no.nav.klage.oppgave.api.view.StringInputView
 import no.nav.klage.oppgave.config.SecurityConfiguration
+import no.nav.klage.oppgave.service.InnstillingerService
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Saksbehandler")
 class SaksbehandlerController(
     private val saksbehandlerService: SaksbehandlerService,
+    private val innstillingerService: InnstillingerService,
     private val saksbehandlerMapper: SaksbehandlerMapper,
     private val tokenUtil: TokenUtil,
 ) {
@@ -64,7 +68,7 @@ class SaksbehandlerController(
         val navIdent = tokenUtil.getCurrentIdent()
         logger.debug("${::setInnstillinger.name} is requested by $navIdent")
         return saksbehandlerMapper.mapToView(
-            saksbehandlerService.storeInnstillingerButKeepSignature(
+            innstillingerService.storeInnstillingerButKeepSignature(
                 navIdent,
                 saksbehandlerMapper.mapToDomain(input)
             )
@@ -102,7 +106,7 @@ class SaksbehandlerController(
         @RequestBody input: StringInputView
     ): StringInputView {
         val navIdent = tokenUtil.getCurrentIdent()
-        saksbehandlerService.storeShortName(
+        innstillingerService.storeShortName(
             navIdent,
             input.value.trimToNull(),
         )
@@ -119,7 +123,7 @@ class SaksbehandlerController(
         @RequestBody input: StringInputView
     ): StringInputView {
         val navIdent = tokenUtil.getCurrentIdent()
-        saksbehandlerService.storeLongName(
+        innstillingerService.storeLongName(
             navIdent,
             input.value.trimToNull(),
         )
@@ -136,31 +140,12 @@ class SaksbehandlerController(
         @RequestBody input: StringInputView
     ): StringInputView {
         val navIdent = tokenUtil.getCurrentIdent()
-        saksbehandlerService.storeJobTitle(
+        innstillingerService.storeJobTitle(
             navIdent,
             input.value.trimToNull(),
         )
 
         return input
-    }
-
-    @Operation(
-        summary = "Hent potensielle saksbehandlere for en gitt ytelse og person",
-        description = "Hent potensielle saksbehandlere for en gitt ytelse og person"
-    )
-    @PostMapping(
-        "/search/saksbehandlere",
-        produces = ["application/json"]
-    )
-    fun getSaksbehandlereForYtelseOgFnr(
-        @RequestBody input: SaksbehandlerSearchInput
-    ): Saksbehandlere {
-        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("getSaksbehandlereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
-        return saksbehandlerService.getSaksbehandlere(
-            ytelse = Ytelse.of(input.ytelseId),
-            fnr = input.fnr
-        )
     }
 }
 

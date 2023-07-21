@@ -32,5 +32,4 @@ class Norg2Client(private val norg2WebClient: WebClient) {
             throw RuntimeException(errorMessage, ex)
         }
     }
-
 }

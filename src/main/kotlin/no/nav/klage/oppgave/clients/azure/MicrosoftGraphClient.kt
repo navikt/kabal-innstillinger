@@ -134,6 +134,4 @@ class MicrosoftGraphClient(
             ?: throw RuntimeException("AzureAD data about groups by user principal name could not be fetched")
         return aadAzureGroups
     }
-
-
 }

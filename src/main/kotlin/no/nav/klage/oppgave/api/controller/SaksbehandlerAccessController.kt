@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
 @Tag(name = "Administer access")
-class TildelteYtelserController(
+class SaksbehandlerAccessController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val tokenUtil: TokenUtil,
     private val roleUtils: RoleUtils,
@@ -48,12 +48,11 @@ class TildelteYtelserController(
         description = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser"
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
-    fun getSaksbehandlereForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
+    fun getSaksbehandlerAccessesForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
-
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getSaksbehandlereForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
-        return saksbehandlerAccessService.getSaksbehandlere(enhet = enhet)
+        logger.debug("${::getSaksbehandlerAccessesForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
+        return saksbehandlerAccessService.getSaksbehandlerAccessesInEnhet(enhet = enhet)
     }
 
     @Operation(
@@ -79,9 +78,9 @@ class TildelteYtelserController(
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logger.debug("${::setYtelserForSaksbehandlere.name} is requested by $innloggetSaksbehandlerNavIdent")
 
-        return saksbehandlerAccessService.setYtelser(
+        return saksbehandlerAccessService.setYtelserForAnsatt(
             ytelseInput = input,
-            innloggetAnsattIdent = tokenUtil.getCurrentIdent()
+            innloggetAnsattIdent = innloggetSaksbehandlerNavIdent
         )
     }
 

@@ -179,28 +179,34 @@ class SaksbehandlerAccessService(
         secureLogger.debug("Starting scheduled cleanup process. Dryrun: {}", deleteExpiredDryRun)
         secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
 
-        allSaksbehandlerAccessEntries.forEach {
+        var report = ""
+
+        report += allSaksbehandlerAccessEntries.forEach {
             deleteInnstillingerAndAccessIfExpiredSaksbehandler(it.saksbehandlerIdent)
         }
+
+        secureLogger.debug("Report after cleanup: \n $report")
     }
 
 
-    private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(navIdent: String) {
+    private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(navIdent: String): String {
         val ansatt = nomClient.getAnsatt(navIdent)
-        if (ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true) {
-            secureLogger.debug("Sluttdato is in the past: {}", ansatt.toString())
-            deleteSaksbehandler(navIdent)
-            innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
+        return if (ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true) {
+            var output = "Sluttdato is in the past: $ansatt"
+            output += deleteSaksbehandler(navIdent)
+            output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
+            output
         } else {
-            secureLogger.debug("Still valid: {}", ansatt.toString())
+            "Still valid: $ansatt \n"
         }
     }
 
-    private fun deleteSaksbehandler(navIdent: String) {
-        secureLogger.debug("Deleting saksbehandlerAccess for saksbehandler with ident {}", navIdent)
+    private fun deleteSaksbehandler(navIdent: String): String {
+        var output = "Deleting saksbehandlerAccess for saksbehandler with ident $navIdent"
         if (!deleteExpiredDryRun) {
-            secureLogger.debug("Actually deleting saksbehandlerAccess for ident {}", navIdent)
+            output += "Actually deleting saksbehandlerAccess for ident $navIdent"
 //            saksbehandlerAccessRepository.deleteById(navIdent)
         }
+        return output + "\n"
     }
 }

@@ -178,11 +178,12 @@ class InnstillingerService(
         return inputYtelser.intersect(existingInnstillingerYtelser)
     }
 
-    fun deleteInnstillingerForSaksbehandler(navIdent: String) {
-        secureLogger.debug("Deleting innstillinger for saksbehandler {}", navIdent)
+    fun deleteInnstillingerForSaksbehandler(navIdent: String): String {
+        var output = "Deleting innstillinger for saksbehandler $navIdent"
         if (!deleteExpiredDryRun) {
-            secureLogger.debug("Actually deleting innstillinger for ident {}", navIdent)
+            output += "Actually deleting innstillinger for ident $navIdent"
 //        innstillingerRepository.deleteById(navIdent)
         }
+        return output + "\n"
     }
 }

@@ -173,7 +173,7 @@ class SaksbehandlerAccessService(
     }
 
     @Scheduled(cron = "\${SETTINGS_CLEANUP_CRON}", zone = "Europe/Oslo")
-    @SchedulerLock(name = "markOldDraftsAsDeleted")
+    @SchedulerLock(name = "deleteInnstillingerAndAccessForExpiredSaksbehandlers")
     fun deleteInnstillingerAndAccessForExpiredSaksbehandlers() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
         secureLogger.debug("Starting scheduled cleanup process. Dryrun: {}", deleteExpiredDryRun)

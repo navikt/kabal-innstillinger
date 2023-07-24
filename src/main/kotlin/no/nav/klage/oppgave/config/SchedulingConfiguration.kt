@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.scheduling.annotation.EnableScheduling
 import javax.sql.DataSource
 
 
 @Configuration
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
 @EnableAsync
+@EnableScheduling
 class SchedulingConfiguration {
 
     @Bean
@@ -20,7 +22,7 @@ class SchedulingConfiguration {
         return JdbcTemplateLockProvider(
             JdbcTemplateLockProvider.Configuration.builder()
                 .withJdbcTemplate(JdbcTemplate(dataSource))
-                .withTableName("shedlock")
+                .withTableName("innstillinger.shedlock")
                 .usingDbTime()
                 .build()
         )

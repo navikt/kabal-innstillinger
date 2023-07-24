@@ -9,4 +9,4 @@ NOM_BASE_URL: https://nom-api.intern.dev.nav.no/graphql
 NOM_SCOPE: dev-gcp.nom.nom-api
 
 DELETE_EXPIRED_DRY_RUN: true
-SETTINGS_CLEANUP_CRON: 0 0 11 * * MON
+SETTINGS_CLEANUP_CRON: 0 15 11 * * MON

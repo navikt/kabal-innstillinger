@@ -8,6 +8,7 @@ import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -23,6 +24,8 @@ class InnstillingerService(
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
         const val SEPARATOR = ","
+        @Value("\${DELETE_EXPIRED_DRY_RUN}")
+        private var deleteExpiredDryRun: Boolean = true
     }
 
     fun findSaksbehandlerInnstillinger(
@@ -173,5 +176,13 @@ class InnstillingerService(
 
     private fun getYtelserToKeep(inputYtelser: Set<Ytelse>, existingInnstillingerYtelser: Set<Ytelse>): Set<Ytelse> {
         return inputYtelser.intersect(existingInnstillingerYtelser)
+    }
+
+    fun deleteInnstillingerForSaksbehandler(navIdent: String) {
+        secureLogger.debug("Deleting innstillinger for saksbehandler {}", navIdent)
+        if (!deleteExpiredDryRun) {
+            secureLogger.debug("Actually deleting innstillinger for ident {}", navIdent)
+//        innstillingerRepository.deleteById(navIdent)
+        }
     }
 }

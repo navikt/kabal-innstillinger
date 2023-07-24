@@ -1,5 +1,6 @@
 package no.nav.klage.oppgave.service
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
@@ -12,8 +13,11 @@ import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess as SaksbehandlerAccessView
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess as SaksbehandlerAccessEntity
@@ -28,10 +32,13 @@ class SaksbehandlerAccessService(
     private val nomClient: NomClient,
 ) {
 
+
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
+        @Value("\${DELETE_EXPIRED_DRY_RUN}")
+        private var deleteExpiredDryRun: Boolean = true
     }
 
     fun getSaksbehandlerAccessView(saksbehandlerIdent: String): SaksbehandlerAccessView {
@@ -136,11 +143,11 @@ class SaksbehandlerAccessService(
     fun logAnsattStatusInNom() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
         secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
-        secureLogger.debug(
-            allSaksbehandlerAccessEntries.map {
-                getAnsattInfoFromNom(it.saksbehandlerIdent).toString()
-            }.joinToString { ",\n" }
-        )
+
+        allSaksbehandlerAccessEntries.forEach {
+            getAnsattInfoFromNom(it.saksbehandlerIdent)
+        }
+
     }
 
     fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
@@ -163,5 +170,37 @@ class SaksbehandlerAccessService(
     private fun getSammensattNameForIdent(navIdent: String): String {
         val saksbehandlerPersonligInfo = azureGateway.getDataOmSaksbehandler(navIdent)
         return saksbehandlerPersonligInfo.sammensattNavn
+    }
+
+    @Scheduled(cron = "\${SETTINGS_CLEANUP_CRON}", zone = "Europe/Oslo")
+    @SchedulerLock(name = "markOldDraftsAsDeleted")
+    fun deleteInnstillingerAndAccessForExpiredSaksbehandlers() {
+        val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
+        secureLogger.debug("Starting scheduled cleanup process. Dryrun: {}", deleteExpiredDryRun)
+        secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
+
+        allSaksbehandlerAccessEntries.forEach {
+            deleteInnstillingerAndAccessIfExpiredSaksbehandler(it.saksbehandlerIdent)
+        }
+    }
+
+
+    private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(navIdent: String) {
+        val ansatt = nomClient.getAnsatt(navIdent)
+        if (ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true) {
+            secureLogger.debug("Sluttdato is in the past: {}", ansatt.toString())
+            deleteSaksbehandler(navIdent)
+            innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
+        } else {
+            secureLogger.debug("Still valid: {}", ansatt.toString())
+        }
+    }
+
+    private fun deleteSaksbehandler(navIdent: String) {
+        secureLogger.debug("Deleting saksbehandlerAccess for saksbehandler with ident {}", navIdent)
+        if (!deleteExpiredDryRun) {
+            secureLogger.debug("Actually deleting saksbehandlerAccess for ident {}", navIdent)
+//            saksbehandlerAccessRepository.deleteById(navIdent)
+        }
     }
 }

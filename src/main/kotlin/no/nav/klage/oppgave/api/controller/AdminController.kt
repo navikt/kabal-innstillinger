@@ -23,6 +23,12 @@ class AdminController(
         saksbehandlerAccessService.logAnsattStatusInNom()
     }
 
+    @GetMapping("/deleteexpiredsaksbehandlersettings", produces = ["application/json"])
+    fun deleteExpiredSaksbehandlerSettings() {
+        verifyIsAdmin()
+        saksbehandlerAccessService.deleteInnstillingerAndAccessForExpiredSaksbehandlers()
+    }
+
     private fun verifyIsAdmin() {
         if (!roleUtils.isAdmin()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke admin")

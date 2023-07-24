@@ -24,8 +24,6 @@ class InnstillingerService(
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
         const val SEPARATOR = ","
-        @Value("\${DELETE_EXPIRED_DRY_RUN}")
-        private var deleteExpiredDryRun: Boolean = true
     }
 
     fun findSaksbehandlerInnstillinger(
@@ -179,11 +177,8 @@ class InnstillingerService(
     }
 
     fun deleteInnstillingerForSaksbehandler(navIdent: String): String {
-        var output = "Deleting innstillinger for saksbehandler $navIdent"
-        if (!deleteExpiredDryRun) {
-            output += "Actually deleting innstillinger for ident $navIdent"
-//        innstillingerRepository.deleteById(navIdent)
-        }
+        val output = "Deleting innstillinger for saksbehandler $navIdent"
+        innstillingerRepository.deleteById(navIdent)
         return output + "\n"
     }
 }

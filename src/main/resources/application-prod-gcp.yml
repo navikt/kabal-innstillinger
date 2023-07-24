@@ -8,5 +8,4 @@ PDL_SCOPE: prod-fss.pdl.pdl-api
 NOM_BASE_URL: https://nom-api.intern.nav.no/graphql
 NOM_SCOPE: prod-gcp.nom.nom-api
 
-DELETE_EXPIRED_DRY_RUN: true
-SETTINGS_CLEANUP_CRON: 0 0 12 * * MON
+SETTINGS_CLEANUP_CRON: 0 30 14 * * MON

@@ -181,7 +181,7 @@ class SaksbehandlerAccessService(
 
         var report = ""
 
-        report += allSaksbehandlerAccessEntries.forEach {
+        report += allSaksbehandlerAccessEntries.map {
             deleteInnstillingerAndAccessIfExpiredSaksbehandler(it.saksbehandlerIdent)
         }
 

@@ -190,6 +190,7 @@ class SaksbehandlerAccessService(
         if (ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true) {
             secureLogger.debug("Sluttdato is in the past: {}", ansatt.toString())
             deleteSaksbehandler(navIdent)
+            innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
         } else {
             secureLogger.debug("Still valid: {}", ansatt.toString())
         }
@@ -201,6 +202,5 @@ class SaksbehandlerAccessService(
             secureLogger.debug("Actually deleting saksbehandlerAccess for ident {}", navIdent)
 //            saksbehandlerAccessRepository.deleteById(navIdent)
         }
-        innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
     }
 }

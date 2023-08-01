@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.CommonLoggingErrorHandler
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import java.time.Duration
@@ -42,10 +43,7 @@ class AivenKafkaConfiguration(
         factory.consumerFactory = egenAnsattConsumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         factory.containerProperties.idleEventInterval = 3000L
-        factory.setErrorHandler { thrownException, data ->
-            logger.error("Could not deserialize record. See secure logs for details.")
-            secureLogger.error("Could not deserialize record: $data", thrownException)
-        }
+        factory.setCommonErrorHandler(CommonLoggingErrorHandler())
 
         //Retry consumer/listener even if authorization fails at first
         factory.setContainerCustomizer { container ->

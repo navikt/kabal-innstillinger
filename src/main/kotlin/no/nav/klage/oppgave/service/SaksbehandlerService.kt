@@ -79,8 +79,7 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
-            ).filter { it.navIdent != tokenUtil.getCurrentIdent() }
-                .sortedBy { it.navn }
+            ).sortedBy { it.navn }
         )
     }
 
@@ -187,7 +186,10 @@ class SaksbehandlerService(
         })
     }
 
-    fun storeInnstillingerButKeepSignature(navIdent: String, newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger): SaksbehandlerInnstillinger {
+    fun storeInnstillingerButKeepSignature(
+        navIdent: String,
+        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
+    ): SaksbehandlerInnstillinger {
         return innstillingerService.storeInnstillingerButKeepSignature(
             navIdent = navIdent,
             newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,

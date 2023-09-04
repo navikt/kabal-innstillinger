@@ -26,7 +26,7 @@ class SearchController(
     }
 
     @Operation(
-        summary = "Hent medunderskriver for en gitt fnr og ytelse",
+        summary = "Hent medunderskrivere for et gitt fnr og ytelse",
         description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
     )
     @PostMapping(
@@ -47,7 +47,7 @@ class SearchController(
 
     @Operation(
         summary = "Hent ROLs for en ansatt",
-        description = "Henter alle ROLs som kan brukes for en gitt ytelse og fnr."
+        description = "Henter alle ROLs som kan brukes for en gitt person."
     )
     @PostMapping(
         "/search/rol",

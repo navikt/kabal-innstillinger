@@ -94,6 +94,7 @@ class SaksbehandlerServiceTest {
     fun `getSaksbehandlere inneholder relevante saksbehandlere for ytelse og fnr`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
+        every { tilgangService.harSaksbehandlerTilgangTil(any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -117,6 +118,7 @@ class SaksbehandlerServiceTest {
     fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
+        every { tilgangService.harSaksbehandlerTilgangTil(any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(

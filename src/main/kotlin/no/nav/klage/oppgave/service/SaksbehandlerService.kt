@@ -60,6 +60,7 @@ class SaksbehandlerService(
             medunderskrivere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr!!,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                isSearchingMedunderskriver = true,
             ).filter { it.navIdent != ident }
                 .sortedBy { it.navn }
         )
@@ -79,22 +80,24 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlereForFnr(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
-            ).filter { it.navIdent != tokenUtil.getCurrentIdent() }
-                .sortedBy { it.navn }
+            ).sortedBy { it.navn }
         )
     }
 
-    private fun getPossibleSaksbehandlereForFnr(fnr: String, saksbehandlerIdentList: List<String>): Set<Saksbehandler> {
+    private fun getPossibleSaksbehandlereForFnr(
+        fnr: String,
+        saksbehandlerIdentList: List<String>,
+        isSearchingMedunderskriver: Boolean = false
+    ): Set<Saksbehandler> {
         val personInfo = pdlFacade.getPersonInfo(fnr)
         val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
         val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
-        val erEgenAnsatt = egenAnsattService.erEgenAnsatt(fnr)
 
-        if (harBeskyttelsesbehovStrengtFortrolig) {
+        if (isSearchingMedunderskriver && harBeskyttelsesbehovStrengtFortrolig) {
             //Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
-        if (harBeskyttelsesbehovFortrolig) {
+        if (isSearchingMedunderskriver && harBeskyttelsesbehovFortrolig) {
             //Kode 7 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
@@ -102,9 +105,9 @@ class SaksbehandlerService(
         return saksbehandlerIdentList
             .filter {
                 try {
-                    egenAnsattFilter(fnr = fnr, erEgenAnsatt = erEgenAnsatt, ident = it)
+                    tilgangService.harSaksbehandlerTilgangTil(ident = it, fnr = fnr)
                 } catch (e: Exception) {
-                    logger.warn("Error when checking egenAnsattFilter for ident $it", e)
+                    logger.warn("Error when checking harSaksbehandlerTilgangTil for ident $it", e)
                     false
                 }
             }
@@ -118,15 +121,6 @@ class SaksbehandlerService(
             }
             .toSet()
     }
-
-
-    private fun egenAnsattFilter(fnr: String, erEgenAnsatt: Boolean, ident: String) =
-        if (!erEgenAnsatt) {
-            true
-        } else {
-            tilgangService.harSaksbehandlerTilgangTil(ident = ident, fnr = fnr)
-        }
-
 
     fun getSignature(navIdent: String): Signature {
         val innstillinger = innstillingerService.findSaksbehandlerInnstillinger(ident = navIdent)
@@ -187,7 +181,10 @@ class SaksbehandlerService(
         })
     }
 
-    fun storeInnstillingerButKeepSignature(navIdent: String, newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger): SaksbehandlerInnstillinger {
+    fun storeInnstillingerButKeepSignature(
+        navIdent: String,
+        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
+    ): SaksbehandlerInnstillinger {
         return innstillingerService.storeInnstillingerButKeepSignature(
             navIdent = navIdent,
             newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,

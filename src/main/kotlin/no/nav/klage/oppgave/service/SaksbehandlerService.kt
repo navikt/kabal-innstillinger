@@ -125,7 +125,17 @@ class SaksbehandlerService(
     fun getSignature(navIdent: String): Signature {
         val innstillinger = innstillingerService.findSaksbehandlerInnstillinger(ident = navIdent)
 
-        val name = getNameForIdent(navIdent = navIdent)
+        val name = try {
+            getNameForIdent(navIdent = navIdent)
+        } catch (e: Exception) {
+            return Signature(
+                longName = "$navIdent - Ugyldig ident",
+                generatedShortName = "$navIdent - Ugyldig ident",
+                customLongName = "$navIdent - Ugyldig ident",
+                customShortName = "$navIdent - Ugyldig ident",
+                customJobTitle = null,
+            )
+        }
 
         return Signature(
             longName = name.fornavn + " " + name.etternavn,

@@ -20,11 +20,9 @@ class SaksbehandlerService(
     private val innstillingerService: InnstillingerService,
     private val azureGateway: AzureGateway,
     private val pdlFacade: PdlFacade,
-    private val egenAnsattService: EgenAnsattService,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val roleUtils: RoleUtils,
-    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -142,7 +140,7 @@ class SaksbehandlerService(
             generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
             customLongName = innstillinger.longName,
             customShortName = innstillinger.shortName,
-            customJobTitle = innstillinger.jobTitle,
+            customJobTitle = if (roleUtils.isROL()) "Rådgivende overlege" else innstillinger.jobTitle,
         )
     }
 

@@ -66,6 +66,8 @@ class RoleUtils(
 
     fun isAdmin() = tokenUtil.getRoleIdsFromToken().contains(kabalAdminRoleId)
 
+    fun isROL() = tokenUtil.getRoleIdsFromToken().contains(kabalROLRoleId)
+
     fun getROLRoleId(): String {
         return kabalROLRoleId
     }

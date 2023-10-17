@@ -61,11 +61,9 @@ class SaksbehandlerServiceTest {
             innstillingerService = innstillingerService,
             azureGateway = azureGateway,
             pdlFacade = pdlFacade,
-            egenAnsattService = egenAnsattService,
             tilgangService = tilgangService,
             saksbehandlerAccessService = saksbehandlerAccessService,
             roleUtils = roleUtils,
-            tokenUtil = tokenUtil,
         )
 
     private val person = Person(

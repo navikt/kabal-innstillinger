@@ -9,3 +9,8 @@ NOM_BASE_URL: https://nom-api.intern.dev.nav.no/graphql
 NOM_SCOPE: dev-gcp.nom.nom-api
 
 SETTINGS_CLEANUP_CRON: 0 0 12 * * MON
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 5

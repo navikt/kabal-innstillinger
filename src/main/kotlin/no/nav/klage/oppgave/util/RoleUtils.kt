@@ -1,5 +1,6 @@
 package no.nav.klage.oppgave.util
 
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerRolle
 import no.nav.klage.oppgave.gateway.AzureGateway
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -25,6 +26,10 @@ class RoleUtils(
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
+    }
+
+    fun roleListContainsROL(roleList: List<SaksbehandlerRolle>): Boolean {
+        return roleList.any { it.id == kabalROLRoleId }
     }
 
     fun getRoleNamesFromId(roleId: String): List<String> {

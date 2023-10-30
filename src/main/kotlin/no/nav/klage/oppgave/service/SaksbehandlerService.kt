@@ -6,7 +6,6 @@ import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
-import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.gateway.AzureGateway
@@ -140,8 +139,13 @@ class SaksbehandlerService(
             generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
             customLongName = innstillinger.longName,
             customShortName = innstillinger.shortName,
-            customJobTitle = if (roleUtils.isROL()) "Rådgivende overlege" else innstillinger.jobTitle,
+            customJobTitle = if (saksbehandlerIsROL(navIdent)) "Rådgivende overlege" else innstillinger.jobTitle,
         )
+    }
+
+    private fun saksbehandlerIsROL(navIdent: String): Boolean {
+        val roleList = azureGateway.getRollerForSaksbehandler(navIdent = navIdent)
+        return roleUtils.roleListContainsROL(roleList)
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {

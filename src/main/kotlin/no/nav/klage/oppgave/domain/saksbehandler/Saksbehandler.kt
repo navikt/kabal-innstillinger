@@ -6,6 +6,7 @@ import no.nav.klage.kodeverk.hjemmel.Hjemmel
 
 data class SaksbehandlerInfo(
     val navIdent: String,
+    val navn: String,
     val roller: List<SaksbehandlerRolle>,
     val enheter: EnheterMedLovligeYtelser,
     val ansattEnhet: EnhetMedLovligeYtelser,

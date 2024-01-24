@@ -10,15 +10,19 @@ import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
+import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.RoleUtils
 import org.springframework.stereotype.Component
 
 @Component
-class SaksbehandlerMapper(private val roleUtils: RoleUtils) {
+class SaksbehandlerMapper(
+    private val roleUtils: RoleUtils,
+) {
 
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
             navIdent = saksbehandlerInfo.navIdent,
+            navn = saksbehandlerInfo.navn,
             roller = saksbehandlerInfo.roller.flatMap { roleUtils.getRoleNamesFromId(it.id) },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),

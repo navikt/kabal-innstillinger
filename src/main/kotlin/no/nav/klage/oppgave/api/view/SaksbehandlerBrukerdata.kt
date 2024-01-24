@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.api.view
 
 data class SaksbehandlerView(
     val navIdent: String,
+    val navn: String,
     val roller: List<String>,
     val enheter: List<EnhetView>,
     val ansattEnhet: EnhetView,

@@ -38,12 +38,12 @@ class SaksbehandlerService(
             ident = navIdent,
         )
 
-        val rollerForSaksbehandler = azureGateway.getRollerForSaksbehandler(navIdent = navIdent)
         val enheterMedYtelserForSaksbehandler = getEnheterMedYtelserForSaksbehandler(navIdent = navIdent)
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
-            roller = rollerForSaksbehandler,
+            navn = azureGateway.getDataOmSaksbehandler(navIdent = navIdent).sammensattNavn,
+            roller = azureGateway.getRollerForSaksbehandler(navIdent = navIdent),
             enheter = enheterMedYtelserForSaksbehandler,
             ansattEnhet = enhetMedYtelserForSaksbehandler,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,

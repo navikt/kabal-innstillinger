@@ -31,7 +31,7 @@ class InnstillingerService(
     ): SaksbehandlerInnstillinger {
         return innstillingerRepository.findBySaksbehandlerident(ident)
             ?.toSaksbehandlerInnstillinger()
-            ?: SaksbehandlerInnstillinger()
+            ?: SaksbehandlerInnstillinger(anonymous = false)
     }
 
     fun storeInnstillingerButKeepSignature(
@@ -51,7 +51,8 @@ class InnstillingerService(
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
-                modified = LocalDateTime.now()
+                modified = LocalDateTime.now(),
+                anonymous = oldInnstillinger?.anonymous ?: false
             )
         ).toSaksbehandlerInnstillinger()
     }
@@ -79,7 +80,8 @@ class InnstillingerService(
                     shortName = null,
                     longName = null,
                     jobTitle = null,
-                    modified = LocalDateTime.now()
+                    modified = LocalDateTime.now(),
+                    anonymous = false,
                 )
             )
         } else {
@@ -128,12 +130,18 @@ class InnstillingerService(
         innstillinger.jobTitle = jobTitle
     }
 
+    fun storeAnonymous(navIdent: String, anonymous: Boolean) {
+        val innstillinger = getOrCreateInnstillinger(navIdent)
+        innstillinger.anonymous = anonymous
+    }
+
     private fun getOrCreateInnstillinger(navIdent: String): Innstillinger {
         var innstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
         if (innstillinger == null) {
             innstillinger = innstillingerRepository.save(
                 Innstillinger(
                     saksbehandlerident = navIdent,
+                    anonymous = false,
                 )
             )
         }

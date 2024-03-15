@@ -42,6 +42,7 @@ class InnstillingerServiceTest {
         shortName = null,
         longName = null,
         jobTitle = null,
+        anonymous = false,
     )
 
     private val SEPARATOR = ","
@@ -61,7 +62,8 @@ class InnstillingerServiceTest {
         every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(
             Innstillinger(
                 saksbehandlerident = ident1,
-                ytelser = "1"
+                ytelser = "1",
+                anonymous = false,
             )
         )
         every { innstillingerRepository.findBySaksbehandlerident(ident2) }.returns(null)
@@ -103,7 +105,7 @@ class InnstillingerServiceTest {
         }
 
         @Test
-        fun `new names and title ignored`() {
+        fun `signature input ignored`() {
 
             val oldInnstillinger = Innstillinger(
                 saksbehandlerident = ident1,
@@ -113,7 +115,8 @@ class InnstillingerServiceTest {
                 shortName = shortName,
                 longName = longName,
                 jobTitle = jobTitle,
-                modified = now
+                modified = now,
+                anonymous = true,
             )
 
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(
@@ -146,6 +149,15 @@ class InnstillingerServiceTest {
                     assignedYtelseList = listOf(ytelse1, ytelse2)
                 ).jobTitle
             )
+
+            assertEquals(
+                /* expected = */ true,
+                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
+                    navIdent = ident1,
+                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                ).anonymous
+            )
         }
     }
 
@@ -171,7 +183,8 @@ class InnstillingerServiceTest {
                         shortName = null,
                         longName = null,
                         jobTitle = null,
-                        modified = now
+                        modified = now,
+                        anonymous = false,
                     )
                 )
             }
@@ -194,6 +207,7 @@ class InnstillingerServiceTest {
                     longName = null,
                     jobTitle = null,
                     modified = now,
+                    anonymous = false,
                 ), recordPrivateCalls = true,
             )
 

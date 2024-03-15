@@ -21,6 +21,7 @@ data class SaksbehandlerInnstillinger(
     val shortName: String? = null,
     val longName: String? = null,
     val jobTitle: String? = null,
+    val anonymous: Boolean,
 )
 
 data class SaksbehandlerName(

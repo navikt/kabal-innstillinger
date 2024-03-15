@@ -42,6 +42,7 @@ class InnstillingerRepositoryTest {
             shortName = "shortName",
             longName = "longName",
             jobTitle = "myTitle",
+            anonymous = false,
         )
 
         innstillingerRepository.save(innstillinger)

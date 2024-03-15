@@ -32,7 +32,9 @@ class Innstillinger(
     @Column(name = "job_title")
     var jobTitle: String? = null,
     @Column(name = "modified")
-    var modified: LocalDateTime = LocalDateTime.now()
+    var modified: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "anonymous")
+    var anonymous: Boolean
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -50,6 +52,7 @@ class Innstillinger(
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,
+            anonymous = anonymous
         )
     }
 

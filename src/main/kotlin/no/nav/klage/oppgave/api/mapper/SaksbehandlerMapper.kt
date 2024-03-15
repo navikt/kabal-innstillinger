@@ -40,7 +40,9 @@ class SaksbehandlerMapper(
         SaksbehandlerInnstillinger(
             hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
             ytelser = innstillingerView.ytelser.map { Ytelse.of(it) },
-            typer = innstillingerView.typer.map { Type.of(it) }
+            typer = innstillingerView.typer.map { Type.of(it) },
+            //Placeholder, ignored later
+            anonymous = false
         )
 
     fun mapToView(enheterMedLovligeYtelser: EnheterMedLovligeYtelser) =

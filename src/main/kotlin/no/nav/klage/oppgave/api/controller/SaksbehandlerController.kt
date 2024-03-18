@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.oppgave.api.mapper.SaksbehandlerMapper
-import no.nav.klage.oppgave.api.view.InnstillingerView
-import no.nav.klage.oppgave.api.view.SaksbehandlerView
-import no.nav.klage.oppgave.api.view.Signature
-import no.nav.klage.oppgave.api.view.StringInputView
+import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.service.InnstillingerService
 import no.nav.klage.oppgave.service.SaksbehandlerService
@@ -143,6 +140,23 @@ class SaksbehandlerController(
         innstillingerService.storeJobTitle(
             navIdent,
             input.value.trimToNull(),
+        )
+
+        return input
+    }
+
+    @Operation(
+        summary = "Set anonymous toggle in signature for saksbehandler",
+        description = "Set anonymous toggle in signature for saksbehandler"
+    )
+    @PutMapping("/me/anonymous", produces = ["application/json"])
+    fun setAnonymous(
+        @RequestBody input: BooleanInputView
+    ): BooleanInputView {
+        val navIdent = tokenUtil.getCurrentIdent()
+        innstillingerService.storeAnonymous(
+            navIdent,
+            input.value,
         )
 
         return input

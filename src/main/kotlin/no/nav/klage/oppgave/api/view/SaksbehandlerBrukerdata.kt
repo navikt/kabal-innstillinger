@@ -23,10 +23,13 @@ data class EnhetView(
 
 data class StringInputView(val value: String?)
 
+data class BooleanInputView(val value: Boolean)
+
 data class Signature(
     val longName: String,
     val generatedShortName: String?,
     val customLongName: String?,
     val customShortName: String?,
     val customJobTitle: String?,
+    val anonymous: Boolean,
 )

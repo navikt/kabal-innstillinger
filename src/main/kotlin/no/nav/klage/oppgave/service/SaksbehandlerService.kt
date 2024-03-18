@@ -131,6 +131,7 @@ class SaksbehandlerService(
                 customLongName = "$navIdent - Ugyldig ident",
                 customShortName = "$navIdent - Ugyldig ident",
                 customJobTitle = null,
+                anonymous = false,
             )
         }
 
@@ -140,6 +141,7 @@ class SaksbehandlerService(
             customLongName = innstillinger.longName,
             customShortName = innstillinger.shortName,
             customJobTitle = if (saksbehandlerIsROL(navIdent)) "Rådgivende overlege" else innstillinger.jobTitle,
+            anonymous = innstillinger.anonymous,
         )
     }
 

@@ -20,29 +20,29 @@ class TokenUtil(
     }
 
     fun getSaksbehandlerAccessTokenWithGraphScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["azure-onbehalfof"]
+        val clientProperties = clientConfigurationProperties.registration["azure-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
+        return response.accessToken!!
     }
 
     fun getSaksbehandlerTokenWithPdlScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["pdl-onbehalfof"]
+        val clientProperties = clientConfigurationProperties.registration["pdl-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
+        return response.accessToken!!
     }
 
     fun getAppAccessTokenWithNomScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["nom-maskintilmaskin"]
+        val clientProperties = clientConfigurationProperties.registration["nom-maskintilmaskin"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken
+        return response.accessToken!!
     }
 
     fun getCurrentIdent(): String =
-        tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
-            .jwtTokenClaims?.get("NAVident")?.toString()
+        tokenValidationContextHolder.getTokenValidationContext().getJwtToken(SecurityConfiguration.ISSUER_AAD)
+            ?.jwtTokenClaims?.get("NAVident")?.toString()
             ?: throw RuntimeException("Ident not found in token")
 
     fun getRoleIdsFromToken(): List<String> =
-        tokenValidationContextHolder.tokenValidationContext.getJwtToken(SecurityConfiguration.ISSUER_AAD)
-            .jwtTokenClaims?.getAsList("groups").orEmpty().toList()
+        tokenValidationContextHolder.getTokenValidationContext().getJwtToken(SecurityConfiguration.ISSUER_AAD)
+            ?.jwtTokenClaims?.getAsList("groups").orEmpty().toList()
 }

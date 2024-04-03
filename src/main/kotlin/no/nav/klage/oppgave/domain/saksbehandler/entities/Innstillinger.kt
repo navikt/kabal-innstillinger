@@ -23,8 +23,6 @@ class Innstillinger(
     var hjemler: String = "",
     @Column(name = "ytelser")
     var ytelser: String = "",
-    @Column(name = "typer")
-    val typer: String = "",
     @Column(name = "short_name")
     var shortName: String? = null,
     @Column(name = "long_name")
@@ -48,7 +46,6 @@ class Innstillinger(
         return SaksbehandlerInnstillinger(
             hjemler = hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
             ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) },
-            typer = typer.split(SEPARATOR).filterNot { it.isBlank() }.map { Type.of(it) },
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,
@@ -72,7 +69,7 @@ class Innstillinger(
     }
 
     override fun toString(): String {
-        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', typer='$typer', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', modified=$modified)"
+        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', modified=$modified)"
     }
 
 }

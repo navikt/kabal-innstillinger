@@ -56,7 +56,7 @@ class SaksbehandlerController(
 
     @Operation(
         summary = "Setter innstillinger for en ansatt",
-        description = "Setter valgt tema, hjemmel og type som den ansatte jobber med"
+        description = "Setter valgte ytelser og hjemler som den ansatte jobber med"
     )
     @PutMapping("/me/innstillinger", produces = ["application/json"])
     fun setInnstillinger(

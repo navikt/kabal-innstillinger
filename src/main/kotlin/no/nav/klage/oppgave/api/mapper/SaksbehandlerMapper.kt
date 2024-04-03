@@ -26,13 +26,13 @@ class SaksbehandlerMapper(
             roller = saksbehandlerInfo.roller.flatMap { roleUtils.getRoleNamesFromId(it.id) },
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
-            tildelteYtelser = saksbehandlerInfo.tildelteYtelser.map { it.id }
+            tildelteYtelser = saksbehandlerInfo.tildelteYtelser.sortedBy { it.navn }.map { it.id }
         )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
         InnstillingerView(
             hjemler = saksbehandlerInnstillinger.hjemler.map { it.id },
-            ytelser = saksbehandlerInnstillinger.ytelser.map { it.id },
+            ytelser = saksbehandlerInnstillinger.ytelser.sortedBy { it.navn }.map { it.id },
             typer = saksbehandlerInnstillinger.typer.map { it.id }
         )
 
@@ -52,6 +52,6 @@ class SaksbehandlerMapper(
         EnhetView(
             id = enhetMedLovligeYtelser.enhet.enhetId,
             navn = enhetMedLovligeYtelser.enhet.navn,
-            lovligeYtelser = enhetMedLovligeYtelser.ytelser.map { ytelse -> ytelse.id }
+            lovligeYtelser = enhetMedLovligeYtelser.ytelser.sortedBy { it.navn }.map { ytelse -> ytelse.id }
         )
 }

@@ -33,14 +33,13 @@ class SaksbehandlerMapper(
         InnstillingerView(
             hjemler = saksbehandlerInnstillinger.hjemler.map { it.id },
             ytelser = saksbehandlerInnstillinger.ytelser.sortedBy { it.navn }.map { it.id },
-            typer = saksbehandlerInnstillinger.typer.map { it.id }
+            typer = emptyList()
         )
 
     fun mapToDomain(innstillingerView: InnstillingerView) =
         SaksbehandlerInnstillinger(
             hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
             ytelser = innstillingerView.ytelser.map { Ytelse.of(it) },
-            typer = innstillingerView.typer.map { Type.of(it) },
             //Placeholder, ignored later
             anonymous = false
         )

@@ -47,7 +47,6 @@ class InnstillingerService(
                 hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(SEPARATOR) { it.id },
                 ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseList }
                     .joinToString(SEPARATOR) { it.id },
-                typer = newSaksbehandlerInnstillinger.typer.joinToString(SEPARATOR) { it.id },
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
@@ -76,7 +75,6 @@ class InnstillingerService(
                         .joinToString(SEPARATOR) { it.id },
                     ytelser = filteredYtelseList
                         .joinToString(SEPARATOR) { it.id },
-                    typer = "",
                     shortName = null,
                     longName = null,
                     jobTitle = null,

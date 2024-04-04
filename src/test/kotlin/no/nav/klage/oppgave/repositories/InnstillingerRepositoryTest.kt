@@ -38,7 +38,6 @@ class InnstillingerRepositoryTest {
             saksbehandlerident = navIdent,
             hjemler = "1,12",
             ytelser = "3,4",
-            typer = "1",
             shortName = "shortName",
             longName = "longName",
             jobTitle = "myTitle",

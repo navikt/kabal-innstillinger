@@ -4,26 +4,15 @@ import no.nav.klage.oppgave.api.view.AbbreviationResponse
 import no.nav.klage.oppgave.domain.abbreviation.Abbreviation
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.AbbreviationRepository
-import no.nav.klage.oppgave.util.getLogger
-import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import kotlin.NoSuchElementException
 
 @Service
 @Transactional
-
 class AbbreviationService(
     private val abbreviationRepository: AbbreviationRepository
 ) {
-
-    companion object {
-        @Suppress("JAVA_CLASS_ON_COMPANION")
-        private val logger = getLogger(javaClass.enclosingClass)
-        private val secureLogger = getSecureLogger()
-    }
-
     fun getAbbreviationsForSaksbehandler(navIdent: String): List<AbbreviationResponse> {
         return abbreviationRepository.findByNavIdent(navIdent).map { it.toAbbreviationResponse() }
     }

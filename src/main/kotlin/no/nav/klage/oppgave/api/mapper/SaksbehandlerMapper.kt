@@ -1,6 +1,5 @@
 package no.nav.klage.oppgave.api.mapper
 
-import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.oppgave.api.view.EnhetView
@@ -10,7 +9,6 @@ import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
-import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.RoleUtils
 import org.springframework.stereotype.Component
 

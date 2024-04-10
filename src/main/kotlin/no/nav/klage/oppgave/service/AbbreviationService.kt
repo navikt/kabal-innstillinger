@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.service
 
 import no.nav.klage.oppgave.api.view.AbbreviationResponse
 import no.nav.klage.oppgave.domain.abbreviation.Abbreviation
+import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.AbbreviationRepository
 import org.springframework.stereotype.Service
@@ -18,6 +19,11 @@ class AbbreviationService(
     }
 
     fun createAbbreviationForSaksbehandler(short: String, long: String, navIdent: String): AbbreviationResponse {
+        val existingAbbreviationsForSaksbehandler = abbreviationRepository.findByNavIdent(navIdent)
+        if (existingAbbreviationsForSaksbehandler.any { it.short == short }) {
+            throw AbbreviationAlreadyExistsException("Bruker har allerede en forkortelse lagret med kortform $short")
+        }
+
         return abbreviationRepository.save(
             Abbreviation(
                 navIdent = navIdent,

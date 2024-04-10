@@ -21,7 +21,7 @@ class AbbreviationService(
     fun createAbbreviationForSaksbehandler(short: String, long: String, navIdent: String): AbbreviationResponse {
         val existingAbbreviationsForSaksbehandler = abbreviationRepository.findByNavIdent(navIdent)
         if (existingAbbreviationsForSaksbehandler.any { it.short == short }) {
-            throw AbbreviationAlreadyExistsException("Bruker har allerede en forkortelse lagret med kortform $short")
+            throw AbbreviationAlreadyExistsException("Forkortelsen $short fins allerede")
         }
 
         return abbreviationRepository.save(

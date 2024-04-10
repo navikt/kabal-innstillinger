@@ -1,5 +1,6 @@
 package no.nav.klage.oppgave.config.problem
 
+import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
 import no.nav.klage.oppgave.exceptions.EnhetNotFoundForSaksbehandlerException
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.util.getSecureLogger
@@ -36,6 +37,13 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         request: NativeWebRequest
     ): ProblemDetail =
         create(HttpStatus.INTERNAL_SERVER_ERROR, ex)
+
+    @ExceptionHandler
+    fun handleAbbreviationAlreadyExistsException(
+        ex: AbbreviationAlreadyExistsException,
+        request: NativeWebRequest
+    ): ProblemDetail =
+        create(HttpStatus.CONFLICT, ex)
 
     private fun createProblemForWebClientResponseException(ex: WebClientResponseException): ProblemDetail {
         logError(

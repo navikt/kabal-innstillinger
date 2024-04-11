@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.config.problem
 
 import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
 import no.nav.klage.oppgave.exceptions.EnhetNotFoundForSaksbehandlerException
+import no.nav.klage.oppgave.exceptions.IllegalInputException
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.http.HttpStatus
@@ -44,6 +45,13 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         request: NativeWebRequest
     ): ProblemDetail =
         create(HttpStatus.CONFLICT, ex)
+
+    @ExceptionHandler
+    fun handleIllegalInputException(
+        ex: IllegalInputException,
+        request: NativeWebRequest
+    ): ProblemDetail =
+        create(HttpStatus.BAD_REQUEST, ex)
 
     private fun createProblemForWebClientResponseException(ex: WebClientResponseException): ProblemDetail {
         logError(

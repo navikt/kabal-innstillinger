@@ -41,15 +41,15 @@ class AbbreviationService(
         validateShort(short = short)
         validateLong(long = long)
 
-        checkUniqueShortForSaksbehandler(
-            short = short,
-            navIdent = navIdent
-        )
-
         if (abbreviationRepository.existsById(abbreviationId)) {
             val abbreviation = abbreviationRepository.getReferenceById(abbreviationId)
             if (abbreviation.navIdent != navIdent) {
                 throw MissingTilgangException(msg = "Forkortelse er ikke opprettet av innlogget bruker")
+            }
+
+            val existingAbbreviationsForSaksbehandler = abbreviationRepository.findByNavIdent(navIdent)
+            if (existingAbbreviationsForSaksbehandler.any { it.short == short && it.id != abbreviation.id}) {
+                throw AbbreviationAlreadyExistsException("Forkortelsen $short fins allerede")
             }
 
             abbreviation.short = short

@@ -6,15 +6,15 @@ val logstashVersion = "7.4"
 val unleashVersion = "4.4.1"
 val springRetryVersion = "2.0.5"
 val springMockkVersion = "4.0.2"
-val springDocVersion = "2.4.0"
+val springDocVersion = "2.5.0"
 val testContainersVersion = "1.19.7"
 val ehcacheVersion = "3.10.8"
 val kodeverkVersion = "1.8.17"
-val shedlockVersion = "5.12.0"
+val shedlockVersion = "5.13.0"
 
 plugins {
-    val kotlinVersion = "1.9.23"
-    id("org.springframework.boot") version "3.2.4"
+    val kotlinVersion = "1.9.24"
+    id("org.springframework.boot") version "3.2.5"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion

@@ -50,7 +50,6 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
     implementation("no.nav.klage:klage-kodeverk:$kodeverkVersion")

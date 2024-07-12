@@ -46,8 +46,6 @@ server:
       enabled: false
   shutdown: graceful
 
-navCallIdName: Nav-Callid
-
 management:
   health:
     elasticsearch:
@@ -67,12 +65,7 @@ management:
       export:
         enabled: true
   tracing:
-    baggage:
-      remote-fields:
-        - ${navCallIdName}
-      correlation:
-        fields:
-          - ${navCallIdName}
+    enabled: false
 
 SERVICE_USER_USERNAME: srvklage-saksbeh
 

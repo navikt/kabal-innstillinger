@@ -21,6 +21,7 @@ class RoleUtils(
     @Value("\${KABAL_ADMIN_ROLE_ID}") private val kabalAdminRoleId: String,
     @Value("\${KABAL_ROL_ROLE_ID}") private val kabalROLRoleId: String,
     @Value("\${KABAL_KROL_ROLE_ID}") private val kabalKROLRoleId: String,
+    @Value("\${KABAL_SVARBREVINNSTILLINGER_ROLE_ID}") private val kabalSvarbrevInnstillingRoleId: String,
 ) {
 
     companion object {
@@ -52,6 +53,7 @@ class RoleUtils(
             kabalTilgangsstyringEgenEnhetRoleId -> listOf("KABAL_TILGANGSSTYRING_EGEN_ENHET")
             kabalROLRoleId -> listOf("KABAL_ROL")
             kabalKROLRoleId -> listOf("KABAL_KROL")
+            kabalSvarbrevInnstillingRoleId -> listOf("KABAL_SVARBREVINNSTILLINGER")
             else -> emptyList()
         }
     }

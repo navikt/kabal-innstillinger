@@ -9,7 +9,7 @@ val springMockkVersion = "4.0.2"
 val springDocVersion = "2.5.0"
 val testContainersVersion = "1.19.8"
 val ehcacheVersion = "3.10.8"
-val kodeverkVersion = "1.8.33"
+val kodeverkVersion = "1.8.35"
 val shedlockVersion = "5.13.0"
 
 plugins {
@@ -50,7 +50,6 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("ch.qos.logback:logback-classic")
 
     implementation("no.nav.klage:klage-kodeverk:$kodeverkVersion")

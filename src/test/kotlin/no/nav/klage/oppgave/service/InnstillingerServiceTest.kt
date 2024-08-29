@@ -29,8 +29,6 @@ class InnstillingerServiceTest {
     private val ytelse1 = Ytelse.HEL_HEL
     private val ytelse2 = Ytelse.BIL_BIL
     private val ytelse3 = Ytelse.SYK_SYK
-    private val type1 = Type.KLAGE
-    private val type2 = Type.ANKE
     private val shortName = "shortName"
     private val longName = "longName"
     private val jobTitle = "jobTitle"

@@ -103,7 +103,6 @@ spec:
   envFrom:
     - secret: srvklage-saksbeh
     - secret: pdl-apikey
-    - secret: norg2
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: {{springProfile}}

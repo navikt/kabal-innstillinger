@@ -26,7 +26,6 @@ class SaksbehandlerServiceTest {
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
     private val roleUtils: RoleUtils = mockk()
-    private val tokenUtil: TokenUtil = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mockkVersion = "1.13.13"
-val tokenValidationVersion = "5.0.5"
+val tokenValidationVersion = "5.0.11"
 val logstashVersion = "8.0"
 val unleashVersion = "4.4.1"
 val springRetryVersion = "2.0.10"
@@ -9,7 +9,7 @@ val springMockkVersion = "4.0.2"
 val springDocVersion = "2.6.0"
 val testContainersVersion = "1.20.3"
 val ehcacheVersion = "3.10.8"
-val kodeverkVersion = "1.8.56"
+val kodeverkVersion = "1.8.57"
 val shedlockVersion = "5.16.0"
 
 plugins {

@@ -22,19 +22,19 @@ class TokenUtil(
     fun getSaksbehandlerAccessTokenWithGraphScope(): String {
         val clientProperties = clientConfigurationProperties.registration["azure-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken!!
+        return response.access_token!!
     }
 
     fun getSaksbehandlerTokenWithPdlScope(): String {
         val clientProperties = clientConfigurationProperties.registration["pdl-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken!!
+        return response.access_token!!
     }
 
     fun getAppAccessTokenWithNomScope(): String {
         val clientProperties = clientConfigurationProperties.registration["nom-maskintilmaskin"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.accessToken!!
+        return response.access_token!!
     }
 
     fun getCurrentIdent(): String =

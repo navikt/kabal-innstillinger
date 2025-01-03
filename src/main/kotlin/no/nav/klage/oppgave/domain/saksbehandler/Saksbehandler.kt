@@ -1,7 +1,7 @@
 package no.nav.klage.oppgave.domain.saksbehandler
 
-import no.nav.klage.kodeverk.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.kodeverk.ytelse.Ytelse
 
 data class SaksbehandlerInfo(
     val navIdent: String,

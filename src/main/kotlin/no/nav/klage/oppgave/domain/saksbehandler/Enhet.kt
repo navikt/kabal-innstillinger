@@ -1,6 +1,6 @@
 package no.nav.klage.oppgave.domain.saksbehandler
 
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 
 data class EnheterMedLovligeYtelser(val enheter: List<EnhetMedLovligeYtelser>)
 

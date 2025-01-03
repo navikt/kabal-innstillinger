@@ -1,7 +1,7 @@
 package no.nav.klage.oppgave.domain.saksbehandler.entities
 
 import jakarta.persistence.*
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import java.time.LocalDateTime
 
 @Entity

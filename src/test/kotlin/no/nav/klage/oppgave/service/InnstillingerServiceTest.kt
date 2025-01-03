@@ -1,9 +1,9 @@
 package no.nav.klage.oppgave.service
 
 import io.mockk.*
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
-import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
+import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
@@ -172,7 +172,7 @@ class InnstillingerServiceTest {
                 innstillingerRepository.save(
                     Innstillinger(
                         saksbehandlerident = ident1,
-                        hjemler = ytelseTilHjemler[ytelse1]!!.joinToString(SEPARATOR) { it.id },
+                        hjemler = ytelseToHjemler[ytelse1]!!.joinToString(SEPARATOR) { it.id },
                         ytelser = listOf(ytelse1).joinToString(SEPARATOR) { it.id },
                         shortName = null,
                         longName = null,
@@ -186,8 +186,8 @@ class InnstillingerServiceTest {
 
         @Test
         fun `existing Innstillinger, saves all hjemler from new ytelse, keeps existing ytelse and hjemler, removes existing hjemler and ytelser no longer legal`() {
-            val existingYtelse2Hjemler = ytelseTilHjemler[ytelse2]!!.subList(0, 3)
-            val extraExistingHjemler = listOf(ytelseTilHjemler[ytelse3]!![0])
+            val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.subList(0, 3)
+            val extraExistingHjemler = listOf(ytelseToHjemler[ytelse3]!![0])
 
             val existingHjemler = existingYtelse2Hjemler + extraExistingHjemler
 
@@ -235,7 +235,7 @@ class InnstillingerServiceTest {
                         ytelse2,
                     ).joinToString(SEPARATOR) { it.id }
 
-                mockInnstillinger setProperty "hjemler" value (ytelseTilHjemler[ytelse1]!! + existingYtelse2Hjemler).toSet()
+                mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!! + existingYtelse2Hjemler).toSet()
                     .joinToString(SEPARATOR) { it.id }
             }
         }

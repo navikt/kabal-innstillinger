@@ -1,7 +1,7 @@
 package no.nav.klage.oppgave.service
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput

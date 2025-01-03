@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.service
 
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
-import no.nav.klage.kodeverk.hjemmel.ytelseTilHjemler
+import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
@@ -153,13 +153,13 @@ class InnstillingerService(
         val hjemmelSet = mutableSetOf<Hjemmel>()
 
         ytelserToAdd.forEach { ytelse ->
-            ytelseTilHjemler[ytelse]?.let { hjemmelSet.addAll(it) }
+            ytelseToHjemler[ytelse]?.let { hjemmelSet.addAll(it) }
         }
 
         if (ytelserToKeep != null && existingHjemler != null) {
             for (hjemmel in existingHjemler) {
                 for (ytelse in ytelserToKeep) {
-                    if (ytelseTilHjemler[ytelse]?.contains(hjemmel) == true) {
+                    if (ytelseToHjemler[ytelse]?.contains(hjemmel) == true) {
                         hjemmelSet.add(hjemmel)
                         break
                     }

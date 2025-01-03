@@ -1,7 +1,7 @@
 package no.nav.klage.oppgave.service
 
-import no.nav.klage.kodeverk.Ytelse
-import no.nav.klage.kodeverk.klageenhetTilYtelser
+import no.nav.klage.kodeverk.klageenhetToYtelser
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -181,7 +181,7 @@ class SaksbehandlerService(
         }
 
     private fun getYtelserForEnhet(enhet: Enhet): List<Ytelse> =
-        klageenhetTilYtelser.filter { it.key.navn == enhet.enhetId }.flatMap { it.value }
+        klageenhetToYtelser.filter { it.key.navn == enhet.enhetId }.flatMap { it.value }
 
     private fun getEnheterMedYtelserForSaksbehandler(navIdent: String): EnheterMedLovligeYtelser =
         listOf(azureGateway.getDataOmSaksbehandler(navIdent = navIdent).enhet).berikMedYtelser()

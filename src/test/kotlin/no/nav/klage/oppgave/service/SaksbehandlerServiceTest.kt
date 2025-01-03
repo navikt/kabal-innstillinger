@@ -2,7 +2,7 @@ package no.nav.klage.oppgave.service
 
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
 import no.nav.klage.oppgave.clients.pdl.Beskyttelsesbehov
@@ -14,7 +14,6 @@ import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.util.RoleUtils
-import no.nav.klage.oppgave.util.TokenUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -33,7 +32,10 @@ class SaksbehandlerServiceTest {
     )
 
     private val SAKSBEHANDLER_1_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
-        fornavn = "fornavn1", etternavn = "etternavn1", sammensattNavn = "sammensattNavn1", enhet = Enhet(enhetId = "", navn = "")
+        fornavn = "fornavn1",
+        etternavn = "etternavn1",
+        sammensattNavn = "sammensattNavn1",
+        enhet = Enhet(enhetId = "", navn = "")
     )
 
     private val SAKSBEHANDLER_1 = Saksbehandler(
@@ -46,7 +48,10 @@ class SaksbehandlerServiceTest {
     )
 
     private val SAKSBEHANDLER_2_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
-        fornavn = "fornavn2", etternavn = "etternavn2", sammensattNavn = "sammensattNavn2", enhet = Enhet(enhetId = "", navn = "")
+        fornavn = "fornavn2",
+        etternavn = "etternavn2",
+        sammensattNavn = "sammensattNavn2",
+        enhet = Enhet(enhetId = "", navn = "")
     )
 
     private val SAKSBEHANDLER_2 = Saksbehandler(
@@ -103,8 +108,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns( SAKSBEHANDLER_1_PERSONLIG_INFO )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns( SAKSBEHANDLER_2_PERSONLIG_INFO )
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
         val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
@@ -127,8 +132,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns( SAKSBEHANDLER_1_PERSONLIG_INFO )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns( SAKSBEHANDLER_2_PERSONLIG_INFO )
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
         val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)

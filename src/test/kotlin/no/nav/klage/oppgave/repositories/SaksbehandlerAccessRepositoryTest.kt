@@ -1,6 +1,6 @@
 package no.nav.klage.oppgave.repositories
 
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import org.assertj.core.api.Assertions.assertThat

@@ -2,7 +2,7 @@ package no.nav.klage.oppgave.domain.saksbehandler.entities
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
-import no.nav.klage.kodeverk.Ytelse
+import no.nav.klage.kodeverk.ytelse.Ytelse
 
 @Converter
 class YtelseConverter : AttributeConverter<Ytelse, String?> {

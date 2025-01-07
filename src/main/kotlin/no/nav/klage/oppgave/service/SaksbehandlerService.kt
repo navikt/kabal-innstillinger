@@ -140,7 +140,7 @@ class SaksbehandlerService(
             generatedShortName = generateShortNameOrNull(fornavn = name.fornavn, etternavn = name.etternavn),
             customLongName = innstillinger.longName,
             customShortName = innstillinger.shortName,
-            customJobTitle = if (saksbehandlerIsROL(navIdent)) "Rådgivende overlege" else innstillinger.jobTitle,
+            customJobTitle = if (saksbehandlerIsROL(navIdent)) "rådgivende overlege" else innstillinger.jobTitle,
             anonymous = innstillinger.anonymous,
         )
     }

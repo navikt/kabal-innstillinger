@@ -9,7 +9,7 @@ val springMockkVersion = "4.0.2"
 val springDocVersion = "2.8.3"
 val testContainersVersion = "1.20.4"
 val ehcacheVersion = "3.10.8"
-val kodeverkVersion = "1.9.16"
+val kodeverkVersion = "1.9.17"
 val shedlockVersion = "6.2.0"
 
 plugins {

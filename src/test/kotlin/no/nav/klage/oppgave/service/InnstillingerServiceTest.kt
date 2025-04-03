@@ -25,6 +25,8 @@ class InnstillingerServiceTest {
     private val ident2 = "ident2"
     private val hjemmel1 = Hjemmel.FTRL_8_1
     private val hjemmel2 = Hjemmel.FTRL_8_2
+    private val hjemmel3 = Hjemmel.FTRL_10_3
+    private val hjemmel4 = Hjemmel.FTRL_10_4
     private val ytelse1 = Ytelse.HEL_HEL
     private val ytelse2 = Ytelse.BIL_BIL
     private val ytelse3 = Ytelse.SYK_SYK
@@ -201,7 +203,8 @@ class InnstillingerServiceTest {
                     jobTitle = null,
                     modified = now,
                     anonymous = false,
-                ), recordPrivateCalls = true,
+                ),
+                recordPrivateCalls = true,
             )
 
             every { mockInnstillinger.ytelser = any() } returnsArgument 0
@@ -227,17 +230,99 @@ class InnstillingerServiceTest {
                 inputYtelseSet = setOf(ytelse1, ytelse2),
                 assignedYtelseList = listOf(ytelse1, ytelse2),
 
-            )
+                )
 
             verify {
                 mockInnstillinger setProperty "ytelser" value listOf(
-                        ytelse1,
-                        ytelse2,
-                    ).joinToString(SEPARATOR) { it.id }
+                    ytelse1,
+                    ytelse2,
+                ).joinToString(SEPARATOR) { it.id }
 
                 mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!! + existingYtelse2Hjemler).toSet()
                     .joinToString(SEPARATOR) { it.id }
             }
+        }
+    }
+
+    @Test
+    fun `add hjemler for ytelse`() {
+        val mockInnstillinger1 = spyk(
+            Innstillinger(
+                saksbehandlerident = ident1,
+                hjemler = listOf(hjemmel1).joinToString(SEPARATOR) { it.id },
+                ytelser = listOf(ytelse2, ytelse3).joinToString(SEPARATOR) { it.id },
+                shortName = null,
+                longName = null,
+                jobTitle = null,
+                modified = now,
+                anonymous = false,
+            ),
+            recordPrivateCalls = true,
+        )
+
+        val mockInnstillinger2 = spyk(
+            Innstillinger(
+                saksbehandlerident = ident1,
+                hjemler = listOf(hjemmel2).joinToString(SEPARATOR) { it.id },
+                ytelser = listOf(ytelse3).joinToString(SEPARATOR) { it.id },
+                shortName = null,
+                longName = null,
+                jobTitle = null,
+                modified = now,
+                anonymous = false,
+            ),
+            recordPrivateCalls = true,
+        )
+
+        every { innstillingerRepository.findAll() }.returns(
+            listOf(mockInnstillinger1, mockInnstillinger2)
+        )
+
+        innstillingerService.addHjemlerForYtelse(
+            ytelse = ytelse2,
+            hjemmelList = listOf(hjemmel3, hjemmel4)
+        )
+
+        verify {
+            mockInnstillinger1 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
+                .joinToString(SEPARATOR) { it.id }
+        }
+
+        //mockInnstillinger2 does not have ytelse in input, skipped in update.
+        verify (exactly = 0) {
+            mockInnstillinger2 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
+                .joinToString(SEPARATOR) { it.id }
+        }
+    }
+
+    @Test
+    fun `attempt at adding existing hjemler, no change`() {
+        val mockInnstillinger = spyk(
+            Innstillinger(
+                saksbehandlerident = ident1,
+                hjemler = listOf(hjemmel1, hjemmel3).joinToString(SEPARATOR) { it.id },
+                ytelser = listOf(ytelse2, ytelse3).joinToString(SEPARATOR) { it.id },
+                shortName = null,
+                longName = null,
+                jobTitle = null,
+                modified = now,
+                anonymous = false,
+            ),
+            recordPrivateCalls = true,
+        )
+
+        every { innstillingerRepository.findAll() }.returns(
+            listOf(mockInnstillinger)
+        )
+
+        innstillingerService.addHjemlerForYtelse(
+            ytelse = ytelse2,
+            hjemmelList = listOf(hjemmel3)
+        )
+
+        verify(exactly = 0) {
+            mockInnstillinger setProperty "hjemler" value setOf(hjemmel1, hjemmel3)
+                .joinToString(SEPARATOR) { it.id }
         }
     }
 }

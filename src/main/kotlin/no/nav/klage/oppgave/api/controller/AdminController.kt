@@ -38,7 +38,9 @@ class AdminController(
         @RequestBody ytelseAndHjemler: YtelseAndHjemler
     ) {
         verifyIsAdmin()
-        innstillingerService.addHjemlerForYtelse(ytelse = ytelseAndHjemler.ytelse, hjemmelList = ytelseAndHjemler.hjemmelList)
+        innstillingerService.addHjemlerForYtelse(
+            ytelse = Ytelse.of(ytelseAndHjemler.ytelseId),
+            hjemmelList = ytelseAndHjemler.hjemmelIdList.map { Hjemmel.of(it) })
     }
 
     private fun verifyIsAdmin() {
@@ -48,7 +50,7 @@ class AdminController(
     }
 
     data class YtelseAndHjemler(
-        val ytelse: Ytelse,
-        val hjemmelList: List<Hjemmel>,
+        val ytelseId: String,
+        val hjemmelIdList: List<String>,
     )
 }

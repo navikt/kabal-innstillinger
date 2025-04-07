@@ -207,7 +207,7 @@ class InnstillingerService(
                 val hjemlerToAdd = hjemmelList.filter { hjemmel ->
                     !existingHjemmelSet.contains(hjemmel)
                 }.toSet()
-                val newHjemmelSet = existingHjemmelSet.union(hjemlerToAdd)
+                val newHjemmelSet = existingHjemmelSet + hjemlerToAdd
 
                 if (newHjemmelSet != existingHjemmelSet) {
                     logger.debug(

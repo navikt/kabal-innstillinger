@@ -186,4 +186,42 @@ class InnstillingerService(
         innstillingerRepository.deleteById(navIdent)
         return output + "\n"
     }
+
+    //For admin endpoint, use when adding new hjemler to existing ytelse.
+    fun addHjemlerForYtelse(
+        ytelse: Ytelse,
+        hjemmelList: List<Hjemmel>,
+    ) {
+        val hjemlerForYtelse = ytelseToHjemler[ytelse]
+        if (hjemlerForYtelse == null) {
+            error("Mangler hjemmelliste for ytelse $ytelse")
+        } else if (!hjemlerForYtelse.containsAll(hjemmelList)) {
+            error("En eller flere av hjemlene er ikke lagt til for ytelsen $ytelse i kodeverket.")
+        }
+
+        val allInnstillinger = innstillingerRepository.findAll()
+        allInnstillinger.forEach { innstilling ->
+            val saksbehandlerInnstilling = innstilling.toSaksbehandlerInnstillinger()
+            if (saksbehandlerInnstilling.ytelser.contains(ytelse)) {
+                val existingHjemmelSet = saksbehandlerInnstilling.hjemler.toSet()
+                val hjemlerToAdd = hjemmelList.filter { hjemmel ->
+                    !existingHjemmelSet.contains(hjemmel)
+                }.toSet()
+                val newHjemmelSet = existingHjemmelSet + hjemlerToAdd
+
+                if (newHjemmelSet != existingHjemmelSet) {
+                    logger.debug(
+                        "Lagrer nytt hjemmelsett {} for saksbehandler {}",
+                        newHjemmelSet,
+                        innstilling.saksbehandlerident
+                    )
+                    innstilling.apply {
+                        hjemler = newHjemmelSet.joinToString(SEPARATOR) { it.id }
+                    }
+                } else {
+                    logger.debug("Ingen nye hjemler å lagre for saksbehandler {}", innstilling.saksbehandlerident)
+                }
+            }
+        }
+    }
 }

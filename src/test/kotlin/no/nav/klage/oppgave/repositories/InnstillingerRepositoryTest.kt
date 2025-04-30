@@ -1,6 +1,8 @@
 package no.nav.klage.oppgave.repositories
 
 
+import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.db.TestPostgresqlContainer
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import org.assertj.core.api.Assertions.assertThat
@@ -36,8 +38,8 @@ class InnstillingerRepositoryTest {
         val navIdent = "AB12345"
         val innstillinger = Innstillinger(
             saksbehandlerident = navIdent,
-            hjemler = "1,12",
-            ytelser = "3,4",
+            hjemler = setOf(Hjemmel.of("FVL_16"), Hjemmel.of("FS_TILL_ST_15_2")),
+            ytelser = setOf(Ytelse.of("3"), Ytelse.of("4")),
             shortName = "shortName",
             longName = "longName",
             jobTitle = "myTitle",

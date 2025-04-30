@@ -32,7 +32,7 @@ class SaksbehandlerService(
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
         val enhetMedYtelserForSaksbehandler = getEnhetMedYtelserForSaksbehandler(navIdent = navIdent)
-        val assignedYtelser = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(navIdent)
+        val assignedYtelser = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent)
 
         val saksbehandlerInnstillinger = innstillingerService.findSaksbehandlerInnstillinger(
             ident = navIdent,
@@ -202,7 +202,7 @@ class SaksbehandlerService(
         return innstillingerService.storeInnstillingerButKeepSignature(
             navIdent = navIdent,
             newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,
-            assignedYtelseList = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(navIdent)
+            assignedYtelseSet = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent)
         )
     }
 }

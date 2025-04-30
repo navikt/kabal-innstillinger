@@ -16,7 +16,7 @@ class Innstillinger(
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
-    @ElementCollection(targetClass = Hjemmel::class, fetch = FetchType.LAZY)
+    @ElementCollection(targetClass = Hjemmel::class, fetch = FetchType.EAGER)
     @CollectionTable(
         name = "innstillinger_hjemmel",
         schema = "innstillinger",
@@ -25,7 +25,7 @@ class Innstillinger(
     @Convert(converter = HjemmelConverter::class)
     @Column(name = "id")
     var hjemler: Set<Hjemmel> = emptySet(),
-    @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.LAZY)
+    @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.EAGER)
     @CollectionTable(
         name = "innstillinger_ytelse",
         schema = "innstillinger",

@@ -29,7 +29,7 @@ class AbbreviationController(
     @GetMapping(produces = ["application/json"])
     fun getAbbreviationsForInnloggetSaksbehandler(): List<AbbreviationResponse> {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getAbbreviationsForInnloggetSaksbehandler.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::getAbbreviationsForInnloggetSaksbehandler.name)
         return abbreviationService.getAbbreviationsForSaksbehandler(navIdent = navIdent)
     }
 
@@ -38,7 +38,7 @@ class AbbreviationController(
         @RequestBody input: AbbreviationInput
     ): AbbreviationResponse {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::createAbbreviationForInnloggetSaksbehandler.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::createAbbreviationForInnloggetSaksbehandler.name)
         return abbreviationService.createAbbreviationForSaksbehandler(
             short = input.short,
             long = input.long,
@@ -52,7 +52,7 @@ class AbbreviationController(
         @PathVariable abbreviationId: UUID
     ): AbbreviationResponse {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::updateAbbreviation.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::updateAbbreviation.name)
         return abbreviationService.updateAbbreviation(
             abbreviationId = abbreviationId,
             short = input.short,
@@ -66,10 +66,14 @@ class AbbreviationController(
         @PathVariable abbreviationId: UUID
     ) {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::deleteAbbreviation.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::deleteAbbreviation.name)
         abbreviationService.deleteAbbreviation(
             abbreviationId = abbreviationId,
             navIdent = navIdent
         )
+    }
+
+    private fun logMethodCall(navIdent: String, methodName: String) {
+        logger.debug("$methodName is requested by $navIdent")
     }
 }

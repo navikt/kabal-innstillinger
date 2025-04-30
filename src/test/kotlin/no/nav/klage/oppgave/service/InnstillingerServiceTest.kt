@@ -42,8 +42,6 @@ class InnstillingerServiceTest {
         jobTitle = null,
         anonymous = false,
     )
-
-    private val SEPARATOR = ","
     private val now = LocalDateTime.now()
 
     @BeforeEach

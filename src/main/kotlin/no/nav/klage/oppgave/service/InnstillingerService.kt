@@ -22,7 +22,6 @@ class InnstillingerService(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
-        const val SEPARATOR = ","
     }
 
     fun findSaksbehandlerInnstillinger(

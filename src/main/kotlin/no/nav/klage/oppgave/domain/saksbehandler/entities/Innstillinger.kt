@@ -49,8 +49,6 @@ class Innstillinger(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
-
-        const val SEPARATOR = ","
     }
 
     fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
@@ -70,9 +68,7 @@ class Innstillinger(
 
         other as Innstillinger
 
-        if (saksbehandlerident != other.saksbehandlerident) return false
-
-        return true
+        return saksbehandlerident == other.saksbehandlerident
     }
 
     override fun hashCode(): Int {

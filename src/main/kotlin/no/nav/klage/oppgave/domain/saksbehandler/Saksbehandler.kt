@@ -14,8 +14,8 @@ data class SaksbehandlerInfo(
 )
 
 data class SaksbehandlerInnstillinger(
-    val hjemler: Set<Hjemmel> = mutableSetOf(),
-    val ytelser: Set<Ytelse> = mutableSetOf(),
+    val hjemler: Set<Hjemmel> = emptySet(),
+    val ytelser: Set<Ytelse> = emptySet(),
     val shortName: String? = null,
     val longName: String? = null,
     val jobTitle: String? = null,

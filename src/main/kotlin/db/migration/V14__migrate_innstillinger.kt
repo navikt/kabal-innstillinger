@@ -33,13 +33,13 @@ class V14__migrate_innstillinger : BaseJavaMigration() {
                         val hjemler = rows.getString(2).split(",").filterNot { it.isBlank() }.map { Hjemmel.of(it) }
                         val ytelser = rows.getString(3).split(",").filterNot { it.isBlank() }.map { Ytelse.of(it) }
                         hjemler.forEach { hjemmel ->
-                            preparedHjemmelStatement.setString(1, saksbehandlerIdent)
-                            preparedHjemmelStatement.setString(2, hjemmel.id)
+                            preparedHjemmelStatement.setString(1, hjemmel.id)
+                            preparedHjemmelStatement.setString(2, saksbehandlerIdent)
                             preparedHjemmelStatement.executeUpdate()
                         }
                         ytelser.forEach { ytelse ->
-                            preparedYtelseStatement.setString(1, saksbehandlerIdent)
-                            preparedYtelseStatement.setString(2, ytelse.id)
+                            preparedYtelseStatement.setString(1, ytelse.id)
+                            preparedYtelseStatement.setString(2, saksbehandlerIdent)
                             preparedYtelseStatement.executeUpdate()
                         }
                     }

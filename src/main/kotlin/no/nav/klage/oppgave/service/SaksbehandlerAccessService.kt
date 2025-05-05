@@ -134,7 +134,7 @@ class SaksbehandlerAccessService(
         return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
             saksbehandlerAccess.ytelser
-        } else mutableSetOf()
+        } else emptySet()
     }
 
     fun logAnsattStatusInNom() {

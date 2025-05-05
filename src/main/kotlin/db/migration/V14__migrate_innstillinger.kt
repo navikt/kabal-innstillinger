@@ -19,7 +19,7 @@ class V14__migrate_innstillinger : BaseJavaMigration() {
                     VALUES(?, ?)
             """.trimIndent()
         )
-        //TODO: Lag indeks i nye tabeller
+
         context.connection.createStatement().use { select ->
             select.executeQuery(
                 """

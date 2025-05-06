@@ -22,7 +22,6 @@ class InnstillingerService(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
-        const val SEPARATOR = ","
     }
 
     fun findSaksbehandlerInnstillinger(
@@ -36,16 +35,15 @@ class InnstillingerService(
     fun storeInnstillingerButKeepSignature(
         navIdent: String,
         newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger,
-        assignedYtelseList: List<Ytelse>,
+        assignedYtelseSet: Set<Ytelse>,
     ): SaksbehandlerInnstillinger {
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
 
         return innstillingerRepository.save(
             Innstillinger(
                 saksbehandlerident = navIdent,
-                hjemler = newSaksbehandlerInnstillinger.hjemler.joinToString(SEPARATOR) { it.id },
-                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseList }
-                    .joinToString(SEPARATOR) { it.id },
+                hjemler = newSaksbehandlerInnstillinger.hjemler,
+                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseSet }.toSet(),
                 shortName = oldInnstillinger?.shortName,
                 longName = oldInnstillinger?.longName,
                 jobTitle = oldInnstillinger?.jobTitle,
@@ -58,22 +56,20 @@ class InnstillingerService(
     fun updateYtelseAndHjemmelInnstillinger(
         navIdent: String,
         inputYtelseSet: Set<Ytelse>,
-        assignedYtelseList: List<Ytelse>,
+        assignedYtelseSet: Set<Ytelse>,
     ) {
-        val filteredYtelseList = inputYtelseSet.filter { it in assignedYtelseList }
+        val filteredYtelseSet = inputYtelseSet.filter { it in assignedYtelseSet }.toSet()
 
         if (!innstillingerRepository.existsById(navIdent)) {
             val hjemmelSet = getUpdatedHjemmelSet(
-                ytelserToAdd = filteredYtelseList.toSet()
+                ytelserToAdd = filteredYtelseSet,
             )
 
             innstillingerRepository.save(
                 Innstillinger(
                     saksbehandlerident = navIdent,
-                    hjemler = hjemmelSet
-                        .joinToString(SEPARATOR) { it.id },
-                    ytelser = filteredYtelseList
-                        .joinToString(SEPARATOR) { it.id },
+                    hjemler = hjemmelSet,
+                    ytelser = filteredYtelseSet,
                     shortName = null,
                     longName = null,
                     jobTitle = null,
@@ -103,10 +99,8 @@ class InnstillingerService(
             )
 
             innstillingerRepository.getReferenceById(navIdent).apply {
-                ytelser = filteredYtelseList
-                    .joinToString(SEPARATOR) { it.id }
+                ytelser = filteredYtelseSet
                 hjemler = hjemmelSet
-                    .joinToString(SEPARATOR) { it.id }
                 modified = LocalDateTime.now()
             }
         }
@@ -216,7 +210,7 @@ class InnstillingerService(
                         innstilling.saksbehandlerident
                     )
                     innstilling.apply {
-                        hjemler = newHjemmelSet.joinToString(SEPARATOR) { it.id }
+                        hjemler = newHjemmelSet
                     }
                 } else {
                     logger.debug("Ingen nye hjemler å lagre for saksbehandler {}", innstilling.saksbehandlerident)

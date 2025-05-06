@@ -29,15 +29,14 @@ class SaksbehandlerMapper(
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
         InnstillingerView(
-            hjemler = saksbehandlerInnstillinger.hjemler.map { it.id },
-            ytelser = saksbehandlerInnstillinger.ytelser.sortedBy { it.navn }.map { it.id },
-            typer = emptyList()
+            hjemler = saksbehandlerInnstillinger.hjemler.map { it.id }.toSet(),
+            ytelser = saksbehandlerInnstillinger.ytelser.sortedBy { it.navn }.map { it.id }.toSet(),
         )
 
     fun mapToDomain(innstillingerView: InnstillingerView) =
         SaksbehandlerInnstillinger(
-            hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) },
-            ytelser = innstillingerView.ytelser.map { Ytelse.of(it) },
+            hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) }.toSet(),
+            ytelser = innstillingerView.ytelser.map { Ytelse.of(it) }.toSet(),
             //Placeholder, ignored later
             anonymous = false
         )

@@ -8,7 +8,6 @@ import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getSecureLogger
 import org.springframework.stereotype.Service
-import no.nav.klage.kodeverk.Enhet as KodeverkEnhet
 
 @Service
 class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient) : AzureGateway {
@@ -80,7 +79,7 @@ class DefaultAzureGateway(private val microsoftGraphClient: MicrosoftGraphClient
 
     override fun getEnhetensAnsattesNavIdents(enhetNr: String): List<String> {
         try {
-           return microsoftGraphClient.getEnhetensAnsattesNavIdents(enhetNr)
+            return microsoftGraphClient.getEnhetensAnsattesNavIdents(enhetNr)
         } catch (e: Exception) {
             logger.error("Failed to call getEnhetensAnsattesNavIdents", e)
             throw e

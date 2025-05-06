@@ -38,8 +38,7 @@ class SaksbehandlerController(
     @GetMapping("/me/brukerdata", produces = ["application/json"])
     fun getBrukerdataForInnloggetSaksbehandler(): SaksbehandlerView {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getBrukerdataForInnloggetSaksbehandler.name} is requested by $navIdent")
-
+        logMethodCall(navIdent = navIdent, methodName = ::getBrukerdataForInnloggetSaksbehandler.name)
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent))
     }
 
@@ -50,7 +49,7 @@ class SaksbehandlerController(
     @GetMapping("/me/innstillinger", produces = ["application/json"])
     fun getInnstillingerForInnloggetSaksbehandler(): InnstillingerView {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getInnstillingerForInnloggetSaksbehandler.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::getInnstillingerForInnloggetSaksbehandler.name)
         return saksbehandlerMapper.mapToView(saksbehandlerService.getDataOmSaksbehandler(navIdent).saksbehandlerInnstillinger)
     }
 
@@ -63,7 +62,7 @@ class SaksbehandlerController(
         @RequestBody input: InnstillingerView
     ): InnstillingerView {
         val navIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::setInnstillinger.name} is requested by $navIdent")
+        logMethodCall(navIdent = navIdent, methodName = ::setInnstillinger.name)
         return saksbehandlerMapper.mapToView(
             saksbehandlerService.storeInnstillingerButKeepSignature(
                 navIdent,
@@ -160,6 +159,10 @@ class SaksbehandlerController(
         )
 
         return input
+    }
+
+    private fun logMethodCall(navIdent: String, methodName: String) {
+        logger.debug("$methodName is requested by $navIdent")
     }
 }
 

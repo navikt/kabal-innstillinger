@@ -1,10 +1,8 @@
 package no.nav.klage.oppgave.domain.saksbehandler.entities
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
+import no.nav.klage.kodeverk.hjemmel.HjemmelConverter
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.util.getLogger
@@ -18,10 +16,24 @@ class Innstillinger(
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
-    @Column(name = "hjemler")
-    var hjemler: String = "",
-    @Column(name = "ytelser")
-    var ytelser: String = "",
+    @ElementCollection(targetClass = Hjemmel::class, fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "innstillinger_hjemmel",
+        schema = "innstillinger",
+        joinColumns = [JoinColumn(name = "innstillinger_saksbehandlerident", referencedColumnName = "saksbehandlerident", nullable = false)]
+    )
+    @Convert(converter = HjemmelConverter::class)
+    @Column(name = "id")
+    var hjemler: Set<Hjemmel> = emptySet(),
+    @ElementCollection(targetClass = Ytelse::class, fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "innstillinger_ytelse",
+        schema = "innstillinger",
+        joinColumns = [JoinColumn(name = "innstillinger_saksbehandlerident", referencedColumnName = "saksbehandlerident", nullable = false)]
+    )
+    @Convert(converter = YtelseConverter::class)
+    @Column(name = "id")
+    var ytelser: Set<Ytelse> = emptySet(),
     @Column(name = "short_name")
     var shortName: String? = null,
     @Column(name = "long_name")
@@ -37,14 +49,12 @@ class Innstillinger(
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val secureLogger = getSecureLogger()
-
-        const val SEPARATOR = ","
     }
 
     fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
         return SaksbehandlerInnstillinger(
-            hjemler = hjemler.split(SEPARATOR).filterNot { it.isBlank() }.map { Hjemmel.of(it) },
-            ytelser = ytelser.split(SEPARATOR).filterNot { it.isBlank() }.map { Ytelse.of(it) },
+            hjemler = hjemler,
+            ytelser = ytelser,
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,
@@ -58,9 +68,7 @@ class Innstillinger(
 
         other as Innstillinger
 
-        if (saksbehandlerident != other.saksbehandlerident) return false
-
-        return true
+        return saksbehandlerident == other.saksbehandlerident
     }
 
     override fun hashCode(): Int {
@@ -68,7 +76,6 @@ class Innstillinger(
     }
 
     override fun toString(): String {
-        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler='$hjemler', ytelser='$ytelser', shortName='$shortName', longName='$longName', jobTitle='$jobTitle', modified=$modified)"
+        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler=$hjemler, ytelser=$ytelser, shortName=$shortName, longName=$longName, jobTitle=$jobTitle, modified=$modified, anonymous=$anonymous)"
     }
-
 }

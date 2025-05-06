@@ -10,12 +10,12 @@ data class SaksbehandlerInfo(
     val enheter: EnheterMedLovligeYtelser,
     val ansattEnhet: EnhetMedLovligeYtelser,
     val saksbehandlerInnstillinger: SaksbehandlerInnstillinger,
-    val tildelteYtelser: List<Ytelse>,
+    val tildelteYtelser: Set<Ytelse>,
 )
 
 data class SaksbehandlerInnstillinger(
-    val hjemler: List<Hjemmel> = emptyList(),
-    val ytelser: List<Ytelse> = emptyList(),
+    val hjemler: Set<Hjemmel> = emptySet(),
+    val ytelser: Set<Ytelse> = emptySet(),
     val shortName: String? = null,
     val longName: String? = null,
     val jobTitle: String? = null,

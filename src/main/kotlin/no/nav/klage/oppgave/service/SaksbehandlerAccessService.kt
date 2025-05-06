@@ -116,7 +116,7 @@ class SaksbehandlerAccessService(
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = accessRight.saksbehandlerIdent,
                 inputYtelseSet = ytelseSet,
-                assignedYtelseList = ytelseSet.toList()
+                assignedYtelseSet = ytelseSet
             )
 
             saksbehandlerAccessList += SaksbehandlerAccessView(
@@ -130,11 +130,11 @@ class SaksbehandlerAccessService(
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
     }
 
-    fun getSaksbehandlerAssignedYtelseList(saksbehandlerIdent: String): List<Ytelse> {
+    fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> {
         return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
-            saksbehandlerAccess.ytelser.toList()
-        } else emptyList()
+            saksbehandlerAccess.ytelser
+        } else emptySet()
     }
 
     fun logAnsattStatusInNom() {

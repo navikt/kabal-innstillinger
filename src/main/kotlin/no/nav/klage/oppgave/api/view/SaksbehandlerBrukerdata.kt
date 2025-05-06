@@ -10,10 +10,8 @@ data class SaksbehandlerView(
 )
 
 data class InnstillingerView(
-    val hjemler: List<String>,
-    val ytelser: List<String>,
-    //not in use anymore
-    val typer: List<String>
+    val hjemler: Set<String>,
+    val ytelser: Set<String>,
 )
 
 data class EnhetView(

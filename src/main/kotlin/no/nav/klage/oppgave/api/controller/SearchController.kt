@@ -37,7 +37,7 @@ class SearchController(
         @RequestBody input: SearchMedunderskrivereInput
     ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getMedunderskrivereForYtelseOgFnr.name} is requested by $innloggetSaksbehandlerNavIdent")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForYtelseOgFnr.name)
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,
             ytelse = Ytelse.of(input.ytelseId),
@@ -57,7 +57,7 @@ class SearchController(
         @RequestBody input: SearchROLInput,
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getROLForFnr.name} is requested by $innloggetSaksbehandlerNavIdent")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLForFnr.name)
         return saksbehandlerService.getROLList(
             fnr = input.fnr
         )
@@ -75,10 +75,14 @@ class SearchController(
         @RequestBody input: SearchSaksbehandlerInput
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("getSaksbehandlereForYtelseOgFnr is requested by $innloggetSaksbehandlerNavIdent")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForYtelseOgFnr.name)
         return saksbehandlerService.getSaksbehandlere(
             ytelse = Ytelse.of(input.ytelseId),
             fnr = input.fnr
         )
+    }
+
+    private fun logMethodCall(navIdent: String, methodName: String) {
+        logger.debug("$methodName is requested by $navIdent")
     }
 }

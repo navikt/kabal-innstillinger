@@ -51,7 +51,7 @@ class SaksbehandlerAccessController(
     fun getSaksbehandlerAccessesForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getSaksbehandlerAccessesForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlerAccessesForEnhet.name)
         return saksbehandlerAccessService.getSaksbehandlerAccessesInEnhet(enhet = enhet)
     }
 
@@ -62,7 +62,7 @@ class SaksbehandlerAccessController(
     @GetMapping("/enhet/{enhet}/tildelteytelser", produces = ["application/json"])
     fun getTildelteYtelserForEnhet(@PathVariable enhet: String): TildelteYtelserResponse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::getTildelteYtelserForEnhet.name} is requested by $innloggetSaksbehandlerNavIdent")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getTildelteYtelserForEnhet.name)
         return saksbehandlerAccessService.getTildelteYtelserForEnhet(enhet = enhet)
     }
 
@@ -76,8 +76,7 @@ class SaksbehandlerAccessController(
     ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logger.debug("${::setYtelserForSaksbehandlere.name} is requested by $innloggetSaksbehandlerNavIdent")
-
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setYtelserForSaksbehandlere.name)
         return saksbehandlerAccessService.setYtelserForAnsatt(
             ytelseInput = input,
             innloggetAnsattIdent = innloggetSaksbehandlerNavIdent
@@ -88,5 +87,9 @@ class SaksbehandlerAccessController(
         if (!roleUtils.isKabalTilgangsstyringEgenEnhet()) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")
         }
+    }
+
+    private fun logMethodCall(navIdent: String, methodName: String) {
+        logger.debug("$methodName is requested by $navIdent")
     }
 }

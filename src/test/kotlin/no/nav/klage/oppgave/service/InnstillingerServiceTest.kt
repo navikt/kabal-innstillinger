@@ -35,15 +35,13 @@ class InnstillingerServiceTest {
     private val jobTitle = "jobTitle"
 
     private val saksbehandlerInnstillingerInput = SaksbehandlerInnstillinger(
-        hjemler = listOf(hjemmel1, hjemmel2),
-        ytelser = listOf(ytelse1, ytelse2),
+        hjemler = setOf(hjemmel1, hjemmel2),
+        ytelser = setOf(ytelse1, ytelse2),
         shortName = null,
         longName = null,
         jobTitle = null,
         anonymous = false,
     )
-
-    private val SEPARATOR = ","
     private val now = LocalDateTime.now()
 
     @BeforeEach
@@ -60,7 +58,7 @@ class InnstillingerServiceTest {
         every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(
             Innstillinger(
                 saksbehandlerident = ident1,
-                ytelser = "1",
+                ytelser = setOf(Ytelse.of("1")),
                 anonymous = false,
             )
         )
@@ -83,7 +81,7 @@ class InnstillingerServiceTest {
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                    assignedYtelseSet = setOf(ytelse1, ytelse2)
                 )
             )
         }
@@ -93,12 +91,12 @@ class InnstillingerServiceTest {
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(null)
 
             assertEquals(
-                /* expected = */ listOf(ytelse1),
+                /* expected = */ listOf(ytelse1).map { it.id },
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1)
-                ).ytelser
+                    assignedYtelseSet = setOf(ytelse1)
+                ).ytelser.map { it.id }
             )
         }
 
@@ -107,8 +105,8 @@ class InnstillingerServiceTest {
 
             val oldInnstillinger = Innstillinger(
                 saksbehandlerident = ident1,
-                hjemler = listOf(hjemmel1, hjemmel2).joinToString(SEPARATOR) { it.id },
-                ytelser = listOf(ytelse1, ytelse2).joinToString(SEPARATOR) { it.id },
+                hjemler = setOf(hjemmel1, hjemmel2),
+                ytelser = setOf(ytelse1, ytelse2),
                 shortName = shortName,
                 longName = longName,
                 jobTitle = jobTitle,
@@ -125,7 +123,7 @@ class InnstillingerServiceTest {
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                    assignedYtelseSet = setOf(ytelse1, ytelse2)
                 ).shortName
             )
 
@@ -134,7 +132,7 @@ class InnstillingerServiceTest {
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                    assignedYtelseSet = setOf(ytelse1, ytelse2)
                 ).longName
             )
 
@@ -143,7 +141,7 @@ class InnstillingerServiceTest {
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                    assignedYtelseSet = setOf(ytelse1, ytelse2)
                 ).jobTitle
             )
 
@@ -152,7 +150,7 @@ class InnstillingerServiceTest {
                 /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseList = listOf(ytelse1, ytelse2)
+                    assignedYtelseSet = setOf(ytelse1, ytelse2)
                 ).anonymous
             )
         }
@@ -167,15 +165,15 @@ class InnstillingerServiceTest {
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = ident1,
                 inputYtelseSet = setOf(ytelse1, ytelse2),
-                assignedYtelseList = listOf(ytelse1),
+                assignedYtelseSet = setOf(ytelse1),
             )
 
             verify {
                 innstillingerRepository.save(
                     Innstillinger(
                         saksbehandlerident = ident1,
-                        hjemler = ytelseToHjemler[ytelse1]!!.joinToString(SEPARATOR) { it.id },
-                        ytelser = listOf(ytelse1).joinToString(SEPARATOR) { it.id },
+                        hjemler = ytelseToHjemler[ytelse1]!!.toSet(),
+                        ytelser = setOf(ytelse1),
                         shortName = null,
                         longName = null,
                         jobTitle = null,
@@ -189,15 +187,15 @@ class InnstillingerServiceTest {
         @Test
         fun `existing Innstillinger, saves all hjemler from new ytelse, keeps existing ytelse and hjemler, removes existing hjemler and ytelser no longer legal`() {
             val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.subList(0, 3)
-            val extraExistingHjemler = listOf(ytelseToHjemler[ytelse3]!![0])
+            val extraExistingHjemler = setOf(ytelseToHjemler[ytelse3]!![0])
 
             val existingHjemler = existingYtelse2Hjemler + extraExistingHjemler
 
             val mockInnstillinger = spyk(
                 Innstillinger(
                     saksbehandlerident = ident1,
-                    hjemler = existingHjemler.joinToString(SEPARATOR) { it.id },
-                    ytelser = listOf(ytelse2, ytelse3).joinToString(SEPARATOR) { it.id },
+                    hjemler = existingHjemler.toSet(),
+                    ytelser = setOf(ytelse2, ytelse3),
                     shortName = null,
                     longName = null,
                     jobTitle = null,
@@ -211,8 +209,8 @@ class InnstillingerServiceTest {
             every { mockInnstillinger.hjemler = any() } returnsArgument 0
             every { mockInnstillinger.modified = now } returnsArgument 0
 
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseList(ident1) }.returns(
-                listOf(
+            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(ident1) }.returns(
+                setOf(
                     ytelse1,
                     ytelse2,
                 )
@@ -228,18 +226,17 @@ class InnstillingerServiceTest {
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = ident1,
                 inputYtelseSet = setOf(ytelse1, ytelse2),
-                assignedYtelseList = listOf(ytelse1, ytelse2),
+                assignedYtelseSet = setOf(ytelse1, ytelse2),
 
                 )
 
             verify {
-                mockInnstillinger setProperty "ytelser" value listOf(
+                mockInnstillinger setProperty "ytelser" value setOf(
                     ytelse1,
                     ytelse2,
-                ).joinToString(SEPARATOR) { it.id }
+                )
 
                 mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!! + existingYtelse2Hjemler).toSet()
-                    .joinToString(SEPARATOR) { it.id }
             }
         }
     }
@@ -249,8 +246,8 @@ class InnstillingerServiceTest {
         val mockInnstillinger1 = spyk(
             Innstillinger(
                 saksbehandlerident = ident1,
-                hjemler = listOf(hjemmel1).joinToString(SEPARATOR) { it.id },
-                ytelser = listOf(ytelse2, ytelse3).joinToString(SEPARATOR) { it.id },
+                hjemler = setOf(hjemmel1),
+                ytelser = setOf(ytelse2, ytelse3),
                 shortName = null,
                 longName = null,
                 jobTitle = null,
@@ -263,8 +260,8 @@ class InnstillingerServiceTest {
         val mockInnstillinger2 = spyk(
             Innstillinger(
                 saksbehandlerident = ident1,
-                hjemler = listOf(hjemmel2).joinToString(SEPARATOR) { it.id },
-                ytelser = listOf(ytelse3).joinToString(SEPARATOR) { it.id },
+                hjemler = setOf(hjemmel2),
+                ytelser = setOf(ytelse3),
                 shortName = null,
                 longName = null,
                 jobTitle = null,
@@ -285,13 +282,11 @@ class InnstillingerServiceTest {
 
         verify {
             mockInnstillinger1 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
-                .joinToString(SEPARATOR) { it.id }
         }
 
         //mockInnstillinger2 does not have ytelse in input, skipped in update.
         verify (exactly = 0) {
             mockInnstillinger2 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
-                .joinToString(SEPARATOR) { it.id }
         }
     }
 
@@ -300,8 +295,8 @@ class InnstillingerServiceTest {
         val mockInnstillinger = spyk(
             Innstillinger(
                 saksbehandlerident = ident1,
-                hjemler = listOf(hjemmel1, hjemmel3).joinToString(SEPARATOR) { it.id },
-                ytelser = listOf(ytelse2, ytelse3).joinToString(SEPARATOR) { it.id },
+                hjemler = setOf(hjemmel1, hjemmel3),
+                ytelser = setOf(ytelse2, ytelse3),
                 shortName = null,
                 longName = null,
                 jobTitle = null,
@@ -322,7 +317,6 @@ class InnstillingerServiceTest {
 
         verify(exactly = 0) {
             mockInnstillinger setProperty "hjemler" value setOf(hjemmel1, hjemmel3)
-                .joinToString(SEPARATOR) { it.id }
         }
     }
 }

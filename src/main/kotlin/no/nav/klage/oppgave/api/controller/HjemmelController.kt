@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
 @Tag(name = "Search")
-class YtelseController(private val innstillingerService: InnstillingerService) {
+class HjemmelController(private val innstillingerService: InnstillingerService) {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")

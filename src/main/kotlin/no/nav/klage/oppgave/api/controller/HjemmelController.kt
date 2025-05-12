@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
-@Tag(name = "Search")
+@Tag(name = "Hjemler")
 class HjemmelController(private val innstillingerService: InnstillingerService) {
 
     companion object {

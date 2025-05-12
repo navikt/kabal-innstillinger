@@ -34,7 +34,7 @@ class HjemmelController(private val innstillingerService: InnstillingerService) 
     fun getHjemlerForYtelse(
         @Parameter(name = "Id på etterspurt ytelse.")
         @PathVariable ytelseId: String,
-    ): Set<Hjemmel> {
+    ): Set<String> {
         return innstillingerService.getAllRegisteredHjemlerForYtelse(Ytelse.of(ytelseId))
     }
 }

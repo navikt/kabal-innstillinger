@@ -32,7 +32,7 @@ class HjemmelController(private val innstillingerService: InnstillingerService) 
     )
     @GetMapping("/hjemler/{ytelseId}")
     fun getHjemlerForYtelse(
-        @Parameter(name = "Id på etterspurt ytelse.")
+        @Parameter(name = "ytelseId", description = "Id på etterspurt ytelse.")
         @PathVariable ytelseId: String,
     ): Set<String> {
         return innstillingerService.getAllRegisteredHjemlerForYtelse(Ytelse.of(ytelseId))

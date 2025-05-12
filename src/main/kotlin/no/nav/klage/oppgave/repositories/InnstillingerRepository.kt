@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface InnstillingerRepository : JpaRepository<Innstillinger, String> {
     fun findBySaksbehandlerident(ident: String): Innstillinger?
+
+    fun findByYtelserContaining(ytelseId: String): List<Innstillinger>
 }

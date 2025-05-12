@@ -1,8 +1,8 @@
 package no.nav.klage.oppgave.service
 
-import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
+import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
@@ -217,5 +217,10 @@ class InnstillingerService(
                 }
             }
         }
+    }
+
+    fun getAllRegisteredHjemlerForYtelse(ytelse: Ytelse): Set<Hjemmel> {
+        val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelseId = ytelse.id)
+        return relevantInnstillinger.flatMap { it.hjemler }.toSet()
     }
 }

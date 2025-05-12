@@ -222,7 +222,6 @@ class InnstillingerService(
     fun getAllRegisteredHjemlerForYtelse(ytelse: Ytelse): Set<String> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
         val hjemmelSet = relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
-        logger.debug("Returnerer hjemler for ytelse $ytelse: $hjemmelSet")
         return hjemmelSet
     }
 }

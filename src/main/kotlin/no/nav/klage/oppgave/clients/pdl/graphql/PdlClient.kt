@@ -2,7 +2,7 @@ package no.nav.klage.oppgave.clients.pdl.graphql
 
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
-import no.nav.klage.oppgave.util.getSecureLogger
+import no.nav.klage.oppgave.util.getTeamLogger
 import no.nav.klage.oppgave.util.logErrorResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
@@ -21,7 +21,7 @@ class PdlClient(
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
-        private val secureLogger = getSecureLogger()
+        private val teamLogger = getTeamLogger()
     }
 
     fun <T> runWithTiming(block: () -> T): T {
@@ -44,13 +44,13 @@ class PdlClient(
                     .bodyValue(hentPersonQuery(fnr))
                     .retrieve()
                     .onStatus(HttpStatusCode::isError) { response ->
-                        logErrorResponse(response, ::getPersonInfo.name, secureLogger)
+                        logErrorResponse(response, ::getPersonInfo.name, teamLogger)
                     }
                     .bodyToMono<HentPersonResponse>()
                     .block() ?: throw RuntimeException("Person not found")
             } catch (e: Exception) {
-                secureLogger.error("Could not get personinfo for fnr $fnr", e)
-                throw e
+                teamLogger.error("Could not get personinfo for fnr $fnr", e)
+                throw RuntimeException("Could not get personinfo. See more in team-logs.")
             }
         }
     }

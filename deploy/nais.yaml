@@ -77,8 +77,6 @@ spec:
   prometheus:
     enabled: true
     path: /internal/prometheus
-  secureLogs:
-    enabled: true
   accessPolicy:
     inbound:
       rules:
@@ -88,6 +86,9 @@ spec:
         - application: kabin
         - application: kabin-api
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
       {{#each externalHosts}}
         - host: {{host}}

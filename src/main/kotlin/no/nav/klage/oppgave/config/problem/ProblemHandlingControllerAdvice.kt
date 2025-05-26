@@ -4,7 +4,8 @@ import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
 import no.nav.klage.oppgave.exceptions.EnhetNotFoundForSaksbehandlerException
 import no.nav.klage.oppgave.exceptions.IllegalInputException
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
-import no.nav.klage.oppgave.util.getSecureLogger
+import no.nav.klage.oppgave.util.getLogger
+import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -18,7 +19,8 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
 
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
-        private val secureLogger = getSecureLogger()
+        private val ourLogger = getLogger(javaClass.enclosingClass)
+        private val teamLogger = getTeamLogger()
     }
 
     @ExceptionHandler
@@ -28,28 +30,24 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
     @ExceptionHandler
     fun handleResponseHttpStatusException(
         ex: WebClientResponseException,
-        request: NativeWebRequest
     ): ProblemDetail =
         createProblemForWebClientResponseException(ex)
 
     @ExceptionHandler
     fun handleEnhetNotFoundForSaksbehandlerException(
         ex: EnhetNotFoundForSaksbehandlerException,
-        request: NativeWebRequest
     ): ProblemDetail =
         create(HttpStatus.INTERNAL_SERVER_ERROR, ex)
 
     @ExceptionHandler
     fun handleAbbreviationAlreadyExistsException(
         ex: AbbreviationAlreadyExistsException,
-        request: NativeWebRequest
     ): ProblemDetail =
         create(HttpStatus.CONFLICT, ex)
 
     @ExceptionHandler
     fun handleIllegalInputException(
         ex: IllegalInputException,
-        request: NativeWebRequest
     ): ProblemDetail =
         create(HttpStatus.BAD_REQUEST, ex)
 
@@ -83,11 +81,13 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
     private fun logError(httpStatus: HttpStatus, errorMessage: String, exception: Exception) {
         when {
             httpStatus.is5xxServerError -> {
-                secureLogger.error("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
+                ourLogger.error("Exception thrown to client: ${exception.javaClass.name}. See team-logs for more details.")
+                teamLogger.error("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
             }
 
             else -> {
-                secureLogger.warn("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
+                ourLogger.warn("Exception thrown to client: ${exception.javaClass.name}. See team-logs for more details.")
+                teamLogger.warn("Exception thrown to client: ${httpStatus.reasonPhrase}, $errorMessage", exception)
             }
         }
     }

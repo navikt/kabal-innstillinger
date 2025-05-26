@@ -12,7 +12,7 @@ import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.getLogger
-import no.nav.klage.oppgave.util.getSecureLogger
+import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,11 +31,10 @@ class SaksbehandlerAccessService(
     private val nomClient: NomClient,
 ) {
 
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
-        private val secureLogger = getSecureLogger()
+        private val teamLogger = getTeamLogger()
     }
 
     fun getSaksbehandlerAccessView(saksbehandlerIdent: String): SaksbehandlerAccessView {
@@ -139,7 +138,7 @@ class SaksbehandlerAccessService(
 
     fun logAnsattStatusInNom() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
-        secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
+        logger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
 
         allSaksbehandlerAccessEntries.forEach {
             getAnsattInfoFromNom(it.saksbehandlerIdent)
@@ -148,17 +147,12 @@ class SaksbehandlerAccessService(
     }
 
     fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
-        val ansatt = nomClient.getAnsatt(navIdent)
-        secureLogger.debug(
-            ansatt.toString()
-        )
-        return ansatt
+        return nomClient.getAnsatt(navIdent)
     }
 
     fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> {
         return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
     }
-
 
     private fun getAnsatteIEnhet(enhetId: String): List<String> {
         return azureGateway.getEnhetensAnsattesNavIdents(enhetId)
@@ -173,8 +167,9 @@ class SaksbehandlerAccessService(
     @SchedulerLock(name = "deleteInnstillingerAndAccessForExpiredSaksbehandlers")
     fun deleteInnstillingerAndAccessForExpiredSaksbehandlers() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
-        secureLogger.debug("Starting scheduled cleanup process.")
-        secureLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
+        logger.debug("Starting scheduled cleanup process. See more details in team-logs.")
+        teamLogger.debug("Starting scheduled cleanup process.")
+        teamLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
 
         var report = ""
 
@@ -182,7 +177,7 @@ class SaksbehandlerAccessService(
             deleteInnstillingerAndAccessIfExpiredSaksbehandler(it.saksbehandlerIdent)
         }
 
-        secureLogger.debug("Report after cleanup: \n $report")
+        teamLogger.debug("Report after cleanup: \n $report")
     }
 
 

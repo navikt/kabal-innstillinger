@@ -12,7 +12,6 @@ import no.nav.klage.oppgave.service.SaksbehandlerAccessService
 import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
-import no.nav.klage.oppgave.util.getSecureLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.*
 
@@ -28,7 +27,6 @@ class SaksbehandlerAccessController(
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
-        private val secureLogger = getSecureLogger()
     }
 
     @Operation(

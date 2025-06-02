@@ -7,10 +7,10 @@ val unleashVersion = "4.4.1"
 val springRetryVersion = "2.0.12"
 val springMockkVersion = "4.0.2"
 val springDocVersion = "2.8.8"
-val testContainersVersion = "1.21.0"
+val testContainersVersion = "1.21.1"
 val ehcacheVersion = "3.10.8"
-val kodeverkVersion = "1.10.11"
-val shedlockVersion = "6.7.0"
+val kodeverkVersion = "1.10.13"
+val shedlockVersion = "6.8.0"
 
 plugins {
     val kotlinVersion = "2.1.21"

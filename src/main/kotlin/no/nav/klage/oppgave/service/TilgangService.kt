@@ -44,7 +44,7 @@ class TilgangService(
             logger.debug("erStrengtFortrolig")
             //Merk at vi ikke sjekker egenAnsatt her, strengt fortrolig trumfer det
             if (!kanBehandleStrengtFortrolig.invoke()) {
-                logger.warn("Access denied to strengt fortrolig.")
+                logger.debug("Access denied to strengt fortrolig.")
                 return false
             }
         }
@@ -52,7 +52,7 @@ class TilgangService(
             logger.debug("erFortrolig")
             //Merk at vi ikke sjekker egenAnsatt her, fortrolig trumfer det
             if (!kanBehandleFortrolig.invoke()) {
-                logger.warn("Access denied to fortrolig.")
+                logger.debug("Access denied to fortrolig.")
                 return false
             }
         }
@@ -60,7 +60,7 @@ class TilgangService(
             logger.debug("erEgenAnsatt")
             //Er kun egenAnsatt, har ikke et beskyttelsesbehov i tillegg
             if (!kanBehandleEgenAnsatt.invoke()) {
-                logger.warn("Access denied to egen ansatt.")
+                logger.debug("Access denied to egen ansatt.")
                 return false
             }
         }

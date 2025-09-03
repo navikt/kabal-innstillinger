@@ -85,6 +85,7 @@ spec:
         - application: kabal-search
         - application: kabin
         - application: kabin-api
+        - application: kaptein
     outbound:
       rules:
         - application: logging

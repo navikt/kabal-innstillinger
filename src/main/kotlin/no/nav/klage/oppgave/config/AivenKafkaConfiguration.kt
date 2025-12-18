@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -17,6 +18,7 @@ import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import java.time.Duration
 
+@EnableKafka
 @Configuration
 class AivenKafkaConfiguration(
     @Value("\${KAFKA_BROKERS}")
@@ -38,7 +40,7 @@ class AivenKafkaConfiguration(
     @Bean
     fun egenAnsattKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.consumerFactory = egenAnsattConsumerFactory()
+        factory.setConsumerFactory(egenAnsattConsumerFactory())
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         factory.containerProperties.idleEventInterval = 3000L
         factory.setCommonErrorHandler(CommonLoggingErrorHandler())
@@ -69,7 +71,7 @@ class AivenKafkaConfiguration(
     }
 
     @Bean
-    fun egenAnsattFinder(): PartitionFinder<String, String> {
+    fun egenAnsattFinder(): PartitionFinder {
         return PartitionFinder(egenAnsattConsumerFactory())
     }
 
@@ -92,7 +94,7 @@ class AivenKafkaConfiguration(
 
 }
 
-class PartitionFinder<K, V>(private val consumerFactory: ConsumerFactory<K, V>) {
+class PartitionFinder(private val consumerFactory: ConsumerFactory<String, String>) {
     fun partitions(topic: String): Array<String> {
         consumerFactory.createConsumer().use { consumer ->
             return consumer.partitionsFor(topic)

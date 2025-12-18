@@ -3,30 +3,18 @@ package no.nav.klage.oppgave.repositories
 
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.ytelse.Ytelse
-import no.nav.klage.oppgave.db.TestPostgresqlContainer
+import no.nav.klage.oppgave.db.PostgresIntegrationTestBase
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 
 @ActiveProfiles("local")
 @DataJpaTest
-@Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class InnstillingerRepositoryTest {
-
-    companion object {
-        @Container
-        @JvmField
-        val postgreSQLContainer: TestPostgresqlContainer = TestPostgresqlContainer.instance
-    }
-
+class InnstillingerRepositoryTest: PostgresIntegrationTestBase() {
     @Autowired
     lateinit var testEntityManager: TestEntityManager
 
@@ -52,5 +40,4 @@ class InnstillingerRepositoryTest {
 
         assertThat(innstillingerRepository.findById(navIdent).get()).isEqualTo(innstillinger)
     }
-
 }

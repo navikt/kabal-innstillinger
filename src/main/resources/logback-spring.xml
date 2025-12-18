@@ -52,7 +52,7 @@
                 level="warning"/>
 
         <logger name="io.micrometer.influx" level="debug"/>
-
+        <logger name="org.hibernate.orm.connections.pooling" level="warn"/>
     </springProfile>
 
     <logger name="no.nav.klage" level="debug"/>

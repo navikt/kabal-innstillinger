@@ -45,26 +45,26 @@ spec:
     pool: {{kafka_pool}}
   port: 7081
   startup:
-    failureThreshold: 20
-    initialDelay: 30
+    failureThreshold: 10
+    initialDelay: 20
     path: /internal/health
-    periodSeconds: 10
+    periodSeconds: 5
     timeout: 2
   liveness:
     path: /internal/health
-    initialDelay: 20
-    timeout: 1
+    timeout: 3
     periodSeconds: 5
-    failureThreshold: 10
+    failureThreshold: 3
   readiness:
     path: /internal/health
-    initialDelay: 20
-    timeout: 1
+    timeout: 3
+    periodSeconds: 5
+    failureThreshold: 3
   resources:
     limits:
-      memory: 5000Mi
+      memory: 2048Mi
     requests:
-      cpu: 100m
+      cpu: 30m
       memory: 1024Mi
   ingresses:
   {{#each ingresses as |ingress|}}

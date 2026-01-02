@@ -6,7 +6,7 @@ externalHosts:
   - host: pdl-api.dev-fss-pub.nais.io
   - host: ereg-services-q2.dev-fss-pub.nais.io
   - host: nom-api.intern.dev.nav.no
-springProfile: dev-gcp
+springProfile: dev
 tenant: trygdeetaten.no
 db_tier: db-f1-micro
 db_size: 10

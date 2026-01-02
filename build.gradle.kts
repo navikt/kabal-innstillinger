@@ -5,7 +5,6 @@ val mockkVersion = "1.14.7"
 val tokenValidationVersion = "6.0.0"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
-val springRetryVersion = "2.0.12"
 val springMockkVersion = "5.0.1"
 val springDocVersion = "3.0.0"
 val testContainersVersion = "2.0.3"
@@ -15,7 +14,7 @@ val shedlockVersion = "7.2.2"
 
 plugins {
     val kotlinVersion = "2.3.0"
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "4.0.1"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -63,7 +62,6 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
     implementation("no.nav.security:token-client-spring:$tokenValidationVersion")
 
-    implementation("org.springframework.retry:spring-retry:$springRetryVersion")
     implementation("no.finn.unleash:unleash-client-java:$unleashVersion")
 
     implementation("net.javacrumbs.shedlock:shedlock-spring:$shedlockVersion")

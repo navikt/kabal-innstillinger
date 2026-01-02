@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-@Profile("dev-gcp")
+@Profile("dev")
 @RestController
 class DevOnlyAdminController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService

@@ -55,7 +55,7 @@ class CacheWithJCacheConfiguration(private val environment: Environment) : JCach
             .setStatisticsEnabled(true)
 
     private fun duration() =
-        if (environment.activeProfiles.contains("prod-gcp")) {
+        if (environment.activeProfiles.contains("prod")) {
             480L
         } else {
             10L

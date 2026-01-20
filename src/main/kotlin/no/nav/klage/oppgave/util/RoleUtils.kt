@@ -9,19 +9,20 @@ import org.springframework.stereotype.Component
 class RoleUtils(
     private val tokenUtil: TokenUtil,
     private val azureGateway: AzureGateway,
-    @Value("\${KABAL_OPPGAVESTYRING_ALLE_ENHETER_ROLE_ID}") private val kabalOppgavestyringAlleEnheterRoleId: String,
-    @Value("\${KABAL_MALTEKSTREDIGERING_ROLE_ID}") private val kabalMaltekstredigeringRoleId: String,
-    @Value("\${KABAL_SAKSBEHANDLING_ROLE_ID}") private val kabalSaksbehandlingRoleId: String,
-    @Value("\${KABAL_FAGTEKSTREDIGERING_ROLE_ID}") private val kabalFagtekstredigeringRoleId: String,
-    @Value("\${KABAL_INNSYN_EGEN_ENHET_ROLE_ID}") private val kabalInnsynEgenEnhetRoleId: String,
-    @Value("\${KABAL_TILGANGSSTYRING_EGEN_ENHET_ROLE_ID}") private val kabalTilgangsstyringEgenEnhetRoleId: String,
-    @Value("\${FORTROLIG_ROLE_ID}") private val fortroligRoleId: String,
-    @Value("\${STRENGT_FORTROLIG_ROLE_ID}") private val strengtFortroligRoleId: String,
-    @Value("\${EGEN_ANSATT_ROLE_ID}") private val egenAnsattRoleId: String,
-    @Value("\${KABAL_ADMIN_ROLE_ID}") private val kabalAdminRoleId: String,
-    @Value("\${KABAL_ROL_ROLE_ID}") private val kabalROLRoleId: String,
-    @Value("\${KABAL_KROL_ROLE_ID}") private val kabalKROLRoleId: String,
-    @Value("\${KABAL_SVARBREVINNSTILLINGER_ROLE_ID}") private val kabalSvarbrevInnstillingRoleId: String,
+    @Value($$"${KABAL_OPPGAVESTYRING_ALLE_ENHETER_ROLE_ID}") private val kabalOppgavestyringAlleEnheterRoleId: String,
+    @Value($$"${KABAL_MALTEKSTREDIGERING_ROLE_ID}") private val kabalMaltekstredigeringRoleId: String,
+    @Value($$"${KABAL_SAKSBEHANDLING_ROLE_ID}") private val kabalSaksbehandlingRoleId: String,
+    @Value($$"${KABAL_FAGTEKSTREDIGERING_ROLE_ID}") private val kabalFagtekstredigeringRoleId: String,
+    @Value($$"${KABAL_INNSYN_EGEN_ENHET_ROLE_ID}") private val kabalInnsynEgenEnhetRoleId: String,
+    @Value($$"${KABAL_TILGANGSSTYRING_EGEN_ENHET_ROLE_ID}") private val kabalTilgangsstyringEgenEnhetRoleId: String,
+    @Value($$"${FORTROLIG_ROLE_ID}") private val fortroligRoleId: String,
+    @Value($$"${STRENGT_FORTROLIG_ROLE_ID}") private val strengtFortroligRoleId: String,
+    @Value($$"${EGEN_ANSATT_ROLE_ID}") private val egenAnsattRoleId: String,
+    @Value($$"${KABAL_ADMIN_ROLE_ID}") private val kabalAdminRoleId: String,
+    @Value($$"${KABAL_ROL_ROLE_ID}") private val kabalROLRoleId: String,
+    @Value($$"${KABAL_KROL_ROLE_ID}") private val kabalKROLRoleId: String,
+    @Value($$"${KABAL_SVARBREVINNSTILLINGER_ROLE_ID}") private val kabalSvarbrevInnstillingRoleId: String,
+    @Value($$"${ALLE_I_NAV_KLAGEINSTANS_ROLE_ID}") private val alleINavKlageinstansRoleId: String,
 ) {
 
     companion object {
@@ -54,6 +55,7 @@ class RoleUtils(
             kabalROLRoleId -> listOf("KABAL_ROL")
             kabalKROLRoleId -> listOf("KABAL_KROL")
             kabalSvarbrevInnstillingRoleId -> listOf("KABAL_SVARBREVINNSTILLINGER")
+            alleINavKlageinstansRoleId -> listOf("ALLE_I_KA")
             else -> emptyList()
         }
     }

@@ -11,7 +11,7 @@ tenant: trygdeetaten.no
 db_tier: db-f1-micro
 db_size: 10
 db_ha: false
-db_type: POSTGRES_16
+db_type: POSTGRES_17
 kafka_pool: nav-dev
 
 adRoles:

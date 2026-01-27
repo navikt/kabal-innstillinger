@@ -172,7 +172,7 @@ class InnstillingerServiceTest {
                 innstillingerRepository.save(
                     Innstillinger(
                         saksbehandlerident = ident1,
-                        hjemler = ytelseToHjemler[ytelse1]!!.toSet(),
+                        hjemler = ytelseToHjemler[ytelse1]!!.map { it.hjemmel }.toSet(),
                         ytelser = setOf(ytelse1),
                         shortName = null,
                         longName = null,
@@ -186,8 +186,8 @@ class InnstillingerServiceTest {
 
         @Test
         fun `existing Innstillinger, saves all hjemler from new ytelse, keeps existing ytelse and hjemler, removes existing hjemler and ytelser no longer legal`() {
-            val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.subList(0, 3)
-            val extraExistingHjemler = setOf(ytelseToHjemler[ytelse3]!![0])
+            val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.map { it.hjemmel }.subList(0, 3)
+            val extraExistingHjemler = setOf(ytelseToHjemler[ytelse3]!!.map { it.hjemmel }[0])
 
             val existingHjemler = existingYtelse2Hjemler + extraExistingHjemler
 
@@ -236,7 +236,7 @@ class InnstillingerServiceTest {
                     ytelse2,
                 )
 
-                mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!! + existingYtelse2Hjemler).toSet()
+                mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!!.map { it.hjemmel } + existingYtelse2Hjemler).toSet()
             }
         }
     }

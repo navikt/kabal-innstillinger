@@ -151,7 +151,7 @@ class InnstillingerService(
         if (ytelserToKeep != null && existingHjemler != null) {
             for (hjemmel in existingHjemler) {
                 for (ytelse in ytelserToKeep) {
-                    if (ytelseToHjemler[ytelse]?.map { it.hjemmel }?.contains(hjemmel) == true) {
+                    if (ytelseToHjemler[ytelse]?.any { it.hjemmel == hjemmel } ?: false) {
                         hjemmelSet.add(hjemmel)
                         break
                     }

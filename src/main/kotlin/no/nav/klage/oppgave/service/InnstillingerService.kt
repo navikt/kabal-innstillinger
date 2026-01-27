@@ -145,13 +145,13 @@ class InnstillingerService(
         val hjemmelSet = mutableSetOf<Hjemmel>()
 
         ytelserToAdd.forEach { ytelse ->
-            ytelseToHjemler[ytelse]?.let { hjemmelSet.addAll(it) }
+            ytelseToHjemler[ytelse]?.map { it.hjemmel }?.let { hjemmelSet.addAll(it) }
         }
 
         if (ytelserToKeep != null && existingHjemler != null) {
             for (hjemmel in existingHjemler) {
                 for (ytelse in ytelserToKeep) {
-                    if (ytelseToHjemler[ytelse]?.contains(hjemmel) == true) {
+                    if (ytelseToHjemler[ytelse]?.any { it.hjemmel == hjemmel } ?: false) {
                         hjemmelSet.add(hjemmel)
                         break
                     }
@@ -187,7 +187,7 @@ class InnstillingerService(
         val hjemlerForYtelse = ytelseToHjemler[ytelse]
         if (hjemlerForYtelse == null) {
             error("Mangler hjemmelliste for ytelse $ytelse")
-        } else if (!hjemlerForYtelse.containsAll(hjemmelList)) {
+        } else if (!hjemlerForYtelse.map { it.hjemmel }.containsAll(hjemmelList)) {
             error("En eller flere av hjemlene er ikke lagt til for ytelsen $ytelse i kodeverket.")
         }
 

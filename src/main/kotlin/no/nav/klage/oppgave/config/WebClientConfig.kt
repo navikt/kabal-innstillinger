@@ -27,10 +27,14 @@ class WebClientConfig {
     }
 
     @Bean
-    fun webClientBuilder(httpClient: HttpClient): WebClient.Builder {
-        val connector = ReactorClientHttpConnector(httpClient)
+    fun webClientBuilder(reactorNettyHttpClient: HttpClient): WebClient.Builder {
+        val connector = ReactorClientHttpConnector(reactorNettyHttpClient)
         return WebClient.builder()
+            .codecs { configurer ->
+                configurer
+                    .defaultCodecs()
+                    .maxInMemorySize(8 * 1024 * 1024)
+            }
             .clientConnector(connector)
     }
-
 }

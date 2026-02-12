@@ -36,6 +36,18 @@ class TokenUtil(
         return response.access_token!!
     }
 
+    fun getSaksbehandlerAccessTokenWithKlageLookupScope(): String {
+        val clientProperties = clientConfigurationProperties.registration["klage-lookup-onbehalfof"]!!
+        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+        return response.access_token!!
+    }
+
+    fun getAppAccessTokenWithKlageLookupScope(): String {
+        val clientProperties = clientConfigurationProperties.registration["klage-lookup-maskintilmaskin"]!!
+        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+        return response.access_token!!
+    }
+
     fun getCurrentIdent(): String =
         tokenValidationContextHolder.getTokenValidationContext().getJwtToken(SecurityConfiguration.ISSUER_AAD)
             ?.jwtTokenClaims?.get("NAVident")?.toString()

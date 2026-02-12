@@ -66,4 +66,9 @@ class TilgangService(
         }
         return true
     }
+
+    data class Access(
+        val access: Boolean,
+        val reason: String,
+    )
 }

@@ -50,11 +50,16 @@ class SaksbehandlerService(
         )
     }
 
-    fun getMedunderskrivere(ident: String, ytelse: Ytelse, fnr: String?): MedunderskrivereForYtelse {
+    fun getMedunderskrivere(
+        ident: String,
+        ytelse: Ytelse,
+        fnr: String,
+        sakId: String?,
+    ): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
-            medunderskrivere = getPossibleSaksbehandlereForFnr(
-                fnr = fnr!!,
+            medunderskrivere = getPossibleSaksbehandlereForSak(
+                fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
                 isSearchingMedunderskriver = true,
             ).filter { it.navIdent != ident }
@@ -62,25 +67,25 @@ class SaksbehandlerService(
         )
     }
 
-    fun getSaksbehandlere(ytelse: Ytelse, fnr: String): Saksbehandlere {
+    fun getSaksbehandlere(ytelse: Ytelse, fnr: String, sakId: String?): Saksbehandlere {
         return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlereForFnr(
+            saksbehandlere = getPossibleSaksbehandlereForSak(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
             ).sortedBy { it.navn }
         )
     }
 
-    fun getROLList(fnr: String): Saksbehandlere {
+    fun getROLList(fnr: String, ytelse: Ytelse?, sakId: String?): Saksbehandlere {
         return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlereForFnr(
+            saksbehandlere = getPossibleSaksbehandlereForSak(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
             ).sortedBy { it.navn }
         )
     }
 
-    private fun getPossibleSaksbehandlereForFnr(
+    private fun getPossibleSaksbehandlereForSak(
         fnr: String,
         saksbehandlerIdentList: List<String>,
         isSearchingMedunderskriver: Boolean = false

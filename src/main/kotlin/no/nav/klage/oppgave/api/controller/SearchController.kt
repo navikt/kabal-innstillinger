@@ -26,8 +26,8 @@ class SearchController(
     }
 
     @Operation(
-        summary = "Hent medunderskrivere for et gitt fnr og ytelse",
-        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
+        summary = "Hent medunderskrivere for en gitt sak",
+        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt sak."
     )
     @PostMapping(
         "/search/medunderskrivere",
@@ -38,16 +38,21 @@ class SearchController(
     ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForYtelseOgFnr.name)
+
+        val fnr = input.sak?.fnr ?: input.fnr
+        val ytelseId = input.sak?.ytelseId ?: input.ytelseId
+
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,
-            ytelse = Ytelse.of(input.ytelseId),
-            fnr = input.fnr
+            ytelse = Ytelse.of(ytelseId),
+            fnr = fnr,
+            sakId = input.sak?.sakId,
         )
     }
 
     @Operation(
-        summary = "Hent ROLs for en ansatt",
-        description = "Henter alle ROLs som kan brukes for en gitt person."
+        summary = "Hent mulige ROLs for en gitt sak",
+        description = "Henter alle ROLs som kan brukes for en gitt sak."
     )
     @PostMapping(
         "/search/rol",
@@ -58,14 +63,19 @@ class SearchController(
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLForFnr.name)
+
+        val fnr = input.sak?.fnr ?: input.fnr
+
         return saksbehandlerService.getROLList(
-            fnr = input.fnr
+            fnr = fnr,
+            ytelse = input.sak?.let { Ytelse.of(it.ytelseId) },
+            sakId = input.sak?.sakId,
         )
     }
 
     @Operation(
-        summary = "Hent potensielle saksbehandlere for en gitt ytelse og person",
-        description = "Hent potensielle saksbehandlere for en gitt ytelse og person"
+        summary = "Hent potensielle saksbehandlere for en gitt sak",
+        description = "Hent potensielle saksbehandlere for en gitt sak"
     )
     @PostMapping(
         "/search/saksbehandlere",
@@ -76,9 +86,14 @@ class SearchController(
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForYtelseOgFnr.name)
+
+        val fnr = input.sak?.fnr ?: input.fnr
+        val ytelseId = input.sak?.ytelseId ?: input.ytelseId
+
         return saksbehandlerService.getSaksbehandlere(
-            ytelse = Ytelse.of(input.ytelseId),
-            fnr = input.fnr
+            ytelse = Ytelse.of(ytelseId),
+            fnr = fnr,
+            sakId = input.sak?.sakId,
         )
     }
 

@@ -100,7 +100,7 @@ class SearchControllerTest {
     fun getROLForFnr() {
         every {
             saksbehandlerService.getROLList(
-                fnr = any()
+                fnr = any(),
             )
         } returns saksbehandlere
 
@@ -117,7 +117,7 @@ class SearchControllerTest {
         every {
             saksbehandlerService.getSaksbehandlere(
                 ytelse = any(),
-                fnr = any()
+                fnr = any(),
             )
         } returns saksbehandlere
 

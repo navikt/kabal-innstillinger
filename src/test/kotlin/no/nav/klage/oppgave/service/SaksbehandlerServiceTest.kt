@@ -111,7 +111,7 @@ class SaksbehandlerServiceTest {
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
-        val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR)
+        val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR,)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_2)
     }

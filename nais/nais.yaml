@@ -72,8 +72,8 @@ spec:
   {{/each}}
   replicas:
     min: 2
-    max: 2
-    cpuThresholdPercentage: 80
+    max: 3
+    cpuThresholdPercentage: 90
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -88,6 +88,7 @@ spec:
         - application: kaptein
     outbound:
       rules:
+        - application: klage-lookup
         - application: logging
           namespace: nais-system
       external:

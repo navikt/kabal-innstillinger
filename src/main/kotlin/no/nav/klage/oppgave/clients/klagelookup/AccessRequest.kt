@@ -5,7 +5,7 @@ import no.nav.klage.kodeverk.ytelse.Ytelse
 
 data class AccessRequest(
     val brukerId: String,
-    val navIdent: String?,
+    val navIdent: String,
     val sak: Sak?,
 ) {
     data class Sak(

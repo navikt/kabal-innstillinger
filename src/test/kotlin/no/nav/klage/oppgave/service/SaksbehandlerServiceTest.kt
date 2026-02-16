@@ -96,7 +96,7 @@ class SaksbehandlerServiceTest {
     fun `getSaksbehandlere inneholder relevante saksbehandlere for ytelse og fnr`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
-        every { tilgangService.harSaksbehandlerTilgangTil(any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -111,7 +111,7 @@ class SaksbehandlerServiceTest {
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
-        val result = saksbehandlerService.getSaksbehandlere(Ytelse.AAP_AAP, FNR,)
+        val result = saksbehandlerService.getSaksbehandlere(fnr = FNR, ytelse = Ytelse.AAP_AAP, sakId = "abc", fagsystem = null)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_2)
     }
@@ -120,7 +120,7 @@ class SaksbehandlerServiceTest {
     fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
         every { pdlFacade.getPersonInfo(any()) }.returns(person)
         every { egenAnsattService.erEgenAnsatt(any()) }.returns(false)
-        every { tilgangService.harSaksbehandlerTilgangTil(any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -135,7 +135,13 @@ class SaksbehandlerServiceTest {
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
-        val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
+        val result = saksbehandlerService.getMedunderskrivere(
+            ident = SAKSBEHANDLER_IDENT_1,
+            ytelse = Ytelse.AAP_AAP,
+            fnr = FNR,
+            sakId = "abc",
+            fagsystem = null,
+        )
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)
         assertThat(result.medunderskrivere).contains(SAKSBEHANDLER_2)
     }
@@ -149,7 +155,13 @@ class SaksbehandlerServiceTest {
             emptyList()
         )
 
-        val result = saksbehandlerService.getMedunderskrivere(SAKSBEHANDLER_IDENT_1, Ytelse.AAP_AAP, FNR)
+        val result = saksbehandlerService.getMedunderskrivere(
+            ident = SAKSBEHANDLER_IDENT_1,
+            ytelse = Ytelse.AAP_AAP,
+            fnr = FNR,
+            sakId = "abc",
+            fagsystem = null,
+        )
         assertThat(result.medunderskrivere).isEmpty()
     }
 }

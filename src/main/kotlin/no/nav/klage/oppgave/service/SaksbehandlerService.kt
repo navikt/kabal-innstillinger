@@ -1,5 +1,6 @@
 package no.nav.klage.oppgave.service
 
+import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.klageenhetToYtelser
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
@@ -9,7 +10,9 @@ import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.util.*
+import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.util.generateShortNameOrNull
+import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -55,6 +58,7 @@ class SaksbehandlerService(
         ytelse: Ytelse,
         fnr: String,
         sakId: String?,
+        fagsystem: Fagsystem?,
     ): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
@@ -62,25 +66,44 @@ class SaksbehandlerService(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
                 isSearchingMedunderskriver = true,
+                sakId = sakId,
+                ytelse = ytelse,
+                fagsystem = fagsystem,
             ).filter { it.navIdent != ident }
                 .sortedBy { it.navn }
         )
     }
 
-    fun getSaksbehandlere(ytelse: Ytelse, fnr: String, sakId: String?): Saksbehandlere {
+    fun getSaksbehandlere(
+        fnr: String,
+        ytelse: Ytelse,
+        sakId: String?,
+        fagsystem: Fagsystem?
+    ): Saksbehandlere {
         return Saksbehandlere(
             saksbehandlere = getPossibleSaksbehandlereForSak(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                sakId = sakId,
+                ytelse = ytelse,
+                fagsystem = fagsystem,
             ).sortedBy { it.navn }
         )
     }
 
-    fun getROLList(fnr: String, ytelse: Ytelse?, sakId: String?): Saksbehandlere {
+    fun getROLList(
+        fnr: String,
+        ytelse: Ytelse?,
+        sakId: String?,
+        fagsystem: Fagsystem?,
+    ): Saksbehandlere {
         return Saksbehandlere(
             saksbehandlere = getPossibleSaksbehandlereForSak(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
+                sakId = sakId,
+                ytelse = ytelse,
+                fagsystem = fagsystem,
             ).sortedBy { it.navn }
         )
     }
@@ -88,8 +111,12 @@ class SaksbehandlerService(
     private fun getPossibleSaksbehandlereForSak(
         fnr: String,
         saksbehandlerIdentList: List<String>,
-        isSearchingMedunderskriver: Boolean = false
+        isSearchingMedunderskriver: Boolean = false,
+        ytelse: Ytelse?,
+        sakId: String?,
+        fagsystem: Fagsystem?,
     ): Set<Saksbehandler> {
+        //TODO: also move pdlFacade to klage-lookup
         val personInfo = pdlFacade.getPersonInfo(fnr)
         val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
         val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
@@ -105,12 +132,13 @@ class SaksbehandlerService(
 
         return saksbehandlerIdentList
             .filter {
-                try {
-                    tilgangService.harSaksbehandlerTilgangTil(ident = it, fnr = fnr)
-                } catch (e: Exception) {
-                    logger.warn("Error when checking harSaksbehandlerTilgangTil for ident $it", e)
-                    false
-                }
+                tilgangService.hasSaksbehandlerAccessToSak(
+                    fnr = fnr,
+                    navIdent = it,
+                    sakId = sakId,
+                    ytelse = ytelse,
+                    fagsystem = fagsystem,
+                )
             }
             .mapNotNull {
                 try {

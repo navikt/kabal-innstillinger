@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.api.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
@@ -47,6 +48,7 @@ class SearchController(
             ytelse = Ytelse.of(ytelseId),
             fnr = fnr,
             sakId = input.sak?.sakId,
+            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 
@@ -70,6 +72,7 @@ class SearchController(
             fnr = fnr,
             ytelse = input.sak?.let { Ytelse.of(it.ytelseId) },
             sakId = input.sak?.sakId,
+            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 
@@ -94,6 +97,7 @@ class SearchController(
             ytelse = Ytelse.of(ytelseId),
             fnr = fnr,
             sakId = input.sak?.sakId,
+            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 

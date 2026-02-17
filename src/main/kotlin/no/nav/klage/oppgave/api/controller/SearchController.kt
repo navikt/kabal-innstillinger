@@ -40,8 +40,8 @@ class SearchController(
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForYtelseOgFnr.name)
 
-        val fnr = input.sak?.fnr ?: input.fnr
-        val ytelseId = input.sak?.ytelseId ?: input.ytelseId
+        val fnr = input.sak?.fnr ?: input.fnr ?: throw IllegalArgumentException("fnr must be provided either in sak or directly in input")
+        val ytelseId = input.sak?.ytelseId ?: input.ytelseId ?: throw IllegalArgumentException("ytelseId must be provided either in sak or directly in input")
 
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,
@@ -66,13 +66,11 @@ class SearchController(
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLForFnr.name)
 
-        val fnr = input.sak?.fnr ?: input.fnr
-
         return saksbehandlerService.getROLList(
-            fnr = fnr,
-            ytelse = input.sak?.let { Ytelse.of(it.ytelseId) },
-            sakId = input.sak?.sakId,
-            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
+            fnr = input.fnr,
+            ytelse = input.ytelseId?.let { Ytelse.of(it) },
+            sakId = input.sakId,
+            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 
@@ -90,14 +88,11 @@ class SearchController(
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForYtelseOgFnr.name)
 
-        val fnr = input.sak?.fnr ?: input.fnr
-        val ytelseId = input.sak?.ytelseId ?: input.ytelseId
-
         return saksbehandlerService.getSaksbehandlere(
-            ytelse = Ytelse.of(ytelseId),
-            fnr = fnr,
-            sakId = input.sak?.sakId,
-            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
+            ytelse = Ytelse.of(input.ytelseId),
+            fnr = input.fnr,
+            sakId = input.sakId,
+            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 

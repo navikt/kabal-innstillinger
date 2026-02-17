@@ -54,13 +54,16 @@ class SearchControllerTest {
 
     private val searchROLInput = SearchROLInput(
         fnr = fnr,
-        sak = null,
+        sakId = sakId,
+        ytelseId = ytelseId,
+        fagsystemId = null,
     )
 
     private val searchSaksbehandlerInput = SearchSaksbehandlerInput(
         ytelseId = ytelseId,
         fnr = fnr,
-        sak = null,
+        sakId = null,
+        fagsystemId = null,
     )
 
     private val medunderskrivereForYtelse = MedunderskrivereForYtelse(

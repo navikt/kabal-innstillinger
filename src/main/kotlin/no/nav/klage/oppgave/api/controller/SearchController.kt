@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.api.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.config.SecurityConfiguration
@@ -26,8 +27,8 @@ class SearchController(
     }
 
     @Operation(
-        summary = "Hent medunderskrivere for et gitt fnr og ytelse",
-        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt ytelse og fnr."
+        summary = "Hent medunderskrivere for en gitt sak",
+        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt sak."
     )
     @PostMapping(
         "/search/medunderskrivere",
@@ -38,16 +39,22 @@ class SearchController(
     ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForYtelseOgFnr.name)
+
+        val fnr = input.sak?.fnr ?: input.fnr ?: throw IllegalArgumentException("fnr must be provided either in sak or directly in input")
+        val ytelseId = input.sak?.ytelseId ?: input.ytelseId ?: throw IllegalArgumentException("ytelseId must be provided either in sak or directly in input")
+
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,
-            ytelse = Ytelse.of(input.ytelseId),
-            fnr = input.fnr
+            ytelse = Ytelse.of(ytelseId),
+            fnr = fnr,
+            sakId = input.sak?.sakId,
+            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 
     @Operation(
-        summary = "Hent ROLs for en ansatt",
-        description = "Henter alle ROLs som kan brukes for en gitt person."
+        summary = "Hent mulige ROLs for en gitt sak",
+        description = "Henter alle ROLs som kan brukes for en gitt sak."
     )
     @PostMapping(
         "/search/rol",
@@ -58,14 +65,18 @@ class SearchController(
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLForFnr.name)
+
         return saksbehandlerService.getROLList(
-            fnr = input.fnr
+            fnr = input.fnr,
+            ytelse = input.ytelseId?.let { Ytelse.of(it) },
+            sakId = input.sakId,
+            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 
     @Operation(
-        summary = "Hent potensielle saksbehandlere for en gitt ytelse og person",
-        description = "Hent potensielle saksbehandlere for en gitt ytelse og person"
+        summary = "Hent potensielle saksbehandlere for en gitt sak",
+        description = "Hent potensielle saksbehandlere for en gitt sak"
     )
     @PostMapping(
         "/search/saksbehandlere",
@@ -76,9 +87,12 @@ class SearchController(
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForYtelseOgFnr.name)
+
         return saksbehandlerService.getSaksbehandlere(
             ytelse = Ytelse.of(input.ytelseId),
-            fnr = input.fnr
+            fnr = input.fnr,
+            sakId = input.sakId,
+            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
         )
     }
 

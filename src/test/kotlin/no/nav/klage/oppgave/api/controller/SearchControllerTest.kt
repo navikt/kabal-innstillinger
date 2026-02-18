@@ -42,21 +42,28 @@ class SearchControllerTest {
     private val navn = "navn"
     private val fnr = "12312312312"
     private val enhet = "enhet"
+    private val sakId = "sakId"
 
     private val searchMedunderskrivereInput = SearchMedunderskrivereInput(
         ytelseId = ytelseId,
         fnr = fnr,
         enhet = enhet,
         navIdent = navIdent,
+        sak = null,
     )
 
     private val searchROLInput = SearchROLInput(
         fnr = fnr,
+        sakId = sakId,
+        ytelseId = ytelseId,
+        fagsystemId = null,
     )
 
     private val searchSaksbehandlerInput = SearchSaksbehandlerInput(
         ytelseId = ytelseId,
         fnr = fnr,
+        sakId = null,
+        fagsystemId = null,
     )
 
     private val medunderskrivereForYtelse = MedunderskrivereForYtelse(
@@ -84,7 +91,9 @@ class SearchControllerTest {
             saksbehandlerService.getMedunderskrivere(
                 ident = any(),
                 ytelse = any(),
-                fnr = any()
+                fnr = any(),
+                sakId = any(),
+                fagsystem = any(),
             )
         } returns medunderskrivereForYtelse
 
@@ -100,7 +109,10 @@ class SearchControllerTest {
     fun getROLForFnr() {
         every {
             saksbehandlerService.getROLList(
-                fnr = any()
+                fnr = any(),
+                ytelse = any(),
+                sakId = any(),
+                fagsystem = any(),
             )
         } returns saksbehandlere
 
@@ -117,7 +129,9 @@ class SearchControllerTest {
         every {
             saksbehandlerService.getSaksbehandlere(
                 ytelse = any(),
-                fnr = any()
+                fnr = any(),
+                sakId = any(),
+                fagsystem = any(),
             )
         } returns saksbehandlere
 

@@ -57,8 +57,8 @@ class SaksbehandlerService(
         ident: String,
         ytelse: Ytelse,
         fnr: String,
-        sakId: String?,
-        fagsystem: Fagsystem?,
+        sakId: String,
+        fagsystem: Fagsystem,
     ): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
@@ -77,8 +77,8 @@ class SaksbehandlerService(
     fun getSaksbehandlere(
         fnr: String,
         ytelse: Ytelse,
-        sakId: String?,
-        fagsystem: Fagsystem?
+        sakId: String,
+        fagsystem: Fagsystem,
     ): Saksbehandlere {
         return Saksbehandlere(
             saksbehandlere = getPossibleSaksbehandlereForSak(
@@ -93,9 +93,9 @@ class SaksbehandlerService(
 
     fun getROLList(
         fnr: String,
-        ytelse: Ytelse?,
-        sakId: String?,
-        fagsystem: Fagsystem?,
+        ytelse: Ytelse,
+        sakId: String,
+        fagsystem: Fagsystem,
     ): Saksbehandlere {
         return Saksbehandlere(
             saksbehandlere = getPossibleSaksbehandlereForSak(
@@ -112,9 +112,9 @@ class SaksbehandlerService(
         fnr: String,
         saksbehandlerIdentList: List<String>,
         isSearchingMedunderskriver: Boolean = false,
-        ytelse: Ytelse?,
-        sakId: String?,
-        fagsystem: Fagsystem?,
+        ytelse: Ytelse,
+        sakId: String,
+        fagsystem: Fagsystem,
     ): Set<Saksbehandler> {
         //TODO: also move pdlFacade to klage-lookup
         val personInfo = pdlFacade.getPersonInfo(fnr)

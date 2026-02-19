@@ -12,3 +12,8 @@ data class SakInput(
     val ytelseId: String,
     val fagsystemId: String,
 )
+
+data class SearchSaksbehandlereForBrukerInput(
+    val fnr: String,
+    val ytelseId: String,
+)

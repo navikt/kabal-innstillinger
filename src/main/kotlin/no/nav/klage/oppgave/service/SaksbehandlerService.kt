@@ -62,7 +62,7 @@ class SaksbehandlerService(
     ): MedunderskrivereForYtelse {
         return MedunderskrivereForYtelse(
             ytelse = ytelse.id,
-            medunderskrivere = getPossibleSaksbehandlereForSak(
+            medunderskrivere = getPossibleSaksbehandlere(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
                 isSearchingMedunderskriver = true,
@@ -81,12 +81,27 @@ class SaksbehandlerService(
         fagsystem: Fagsystem,
     ): Saksbehandlere {
         return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlereForSak(
+            saksbehandlere = getPossibleSaksbehandlere(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
+            ).sortedBy { it.navn }
+        )
+    }
+
+    fun getSaksbehandlereForBruker(
+        fnr: String,
+        ytelse: Ytelse,
+    ): Saksbehandlere {
+        return Saksbehandlere(
+            saksbehandlere = getPossibleSaksbehandlere(
+                fnr = fnr,
+                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                ytelse = ytelse,
+                sakId = null,
+                fagsystem = null,
             ).sortedBy { it.navn }
         )
     }
@@ -98,7 +113,7 @@ class SaksbehandlerService(
         fagsystem: Fagsystem,
     ): Saksbehandlere {
         return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlereForSak(
+            saksbehandlere = getPossibleSaksbehandlere(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
                 sakId = sakId,
@@ -108,13 +123,13 @@ class SaksbehandlerService(
         )
     }
 
-    private fun getPossibleSaksbehandlereForSak(
+    private fun getPossibleSaksbehandlere(
         fnr: String,
         saksbehandlerIdentList: List<String>,
         isSearchingMedunderskriver: Boolean = false,
         ytelse: Ytelse,
-        sakId: String,
-        fagsystem: Fagsystem,
+        sakId: String?,
+        fagsystem: Fagsystem?,
     ): Set<Saksbehandler> {
         //TODO: also move pdlFacade to klage-lookup
         val personInfo = pdlFacade.getPersonInfo(fnr)

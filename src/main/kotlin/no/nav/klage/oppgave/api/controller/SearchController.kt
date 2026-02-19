@@ -93,6 +93,26 @@ class SearchController(
         )
     }
 
+    @Operation(
+        summary = "Hent potensielle saksbehandlere for en gitt bruker",
+        description = "Hent potensielle saksbehandlere for en gitt bruker"
+    )
+    @PostMapping(
+        "/search/saksbehandlere-for-bruker",
+        produces = ["application/json"]
+    )
+    fun getSaksbehandlereForBruker(
+        @RequestBody input: SearchSaksbehandlereForBrukerInput
+    ): Saksbehandlere {
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForBruker.name)
+
+        return saksbehandlerService.getSaksbehandlereForBruker(
+            ytelse = Ytelse.of(input.ytelseId),
+            fnr = input.fnr,
+        )
+    }
+
     private fun logMethodCall(navIdent: String, methodName: String) {
         logger.debug("$methodName is requested by $navIdent")
     }

@@ -30,19 +30,21 @@ class KlageLookupClient(
         /** fnr, dnr or aktorId */
         brukerId: String,
         navIdent: String,
-        sakId: String,
         ytelse: Ytelse,
-        fagsystem: Fagsystem,
+        sakId: String?,
+        fagsystem: Fagsystem?,
     ): TilgangService.Access {
         return runWithTimingAndLogging {
             val accessRequest = AccessRequest(
                 brukerId = brukerId,
                 navIdent = navIdent,
-                sak = AccessRequest.Sak(
-                    sakId = sakId,
-                    ytelse = ytelse,
-                    fagsystem = fagsystem,
-                )
+                sak = if (sakId != null && fagsystem != null) {
+                    AccessRequest.Sak(
+                        sakId = sakId,
+                        ytelse = ytelse,
+                        fagsystem = fagsystem,
+                    )
+                } else null,
             )
 
             klageLookupWebClient.post()

@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.api.controller
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.*
 import no.nav.klage.oppgave.service.SaksbehandlerService
@@ -43,27 +44,31 @@ class SearchControllerTest {
     private val fnr = "12312312312"
     private val enhet = "enhet"
     private val sakId = "sakId"
+    private val fagsystemId = Fagsystem.FS36.id
 
     private val searchMedunderskrivereInput = SearchMedunderskrivereInput(
-        ytelseId = ytelseId,
-        fnr = fnr,
         enhet = enhet,
         navIdent = navIdent,
-        sak = null,
+        sak = SakInput(
+            fnr = fnr,
+            sakId = sakId,
+            ytelseId = ytelseId,
+            fagsystemId = fagsystemId,
+        ),
     )
 
-    private val searchROLInput = SearchROLInput(
+    private val searchROLInput = SakInput(
         fnr = fnr,
         sakId = sakId,
         ytelseId = ytelseId,
-        fagsystemId = null,
+        fagsystemId = fagsystemId,
     )
 
-    private val searchSaksbehandlerInput = SearchSaksbehandlerInput(
-        ytelseId = ytelseId,
+    private val searchSaksbehandlerInput = SakInput(
         fnr = fnr,
-        sakId = null,
-        fagsystemId = null,
+        sakId = sakId,
+        ytelseId = ytelseId,
+        fagsystemId = fagsystemId,
     )
 
     private val medunderskrivereForYtelse = MedunderskrivereForYtelse(
@@ -86,7 +91,7 @@ class SearchControllerTest {
     )
 
     @Test
-    fun getMedunderskrivereForYtelseOgFnr() {
+    fun getMedunderskrivereForSak() {
         every {
             saksbehandlerService.getMedunderskrivere(
                 ident = any(),
@@ -106,7 +111,7 @@ class SearchControllerTest {
     }
 
     @Test
-    fun getROLForFnr() {
+    fun getROLsForSak() {
         every {
             saksbehandlerService.getROLList(
                 fnr = any(),
@@ -125,7 +130,7 @@ class SearchControllerTest {
     }
 
     @Test
-    fun getSaksbehandlereForYtelseOgFnr() {
+    fun getSaksbehandlereForSak() {
         every {
             saksbehandlerService.getSaksbehandlere(
                 ytelse = any(),

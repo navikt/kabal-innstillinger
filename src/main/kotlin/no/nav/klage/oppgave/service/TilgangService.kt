@@ -23,9 +23,9 @@ class TilgangService(
     fun hasSaksbehandlerAccessToSak(
         navIdent: String,
         fnr: String,
-        ytelse: Ytelse?,
-        sakId: String?,
-        fagsystem: Fagsystem?,
+        ytelse: Ytelse,
+        sakId: String,
+        fagsystem: Fagsystem,
     ): Boolean {
         return getSaksbehandlerAccessToSak(
             navIdent = navIdent,
@@ -39,9 +39,9 @@ class TilgangService(
     private fun getSaksbehandlerAccessToSak(
         navIdent: String,
         fnr: String,
-        ytelse: Ytelse?,
-        sakId: String?,
-        fagsystem: Fagsystem?,
+        ytelse: Ytelse,
+        sakId: String,
+        fagsystem: Fagsystem,
     ): Access {
         return klageLookupClient.getAccess(
             brukerId = fnr,

@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.service
 
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
@@ -111,7 +112,12 @@ class SaksbehandlerServiceTest {
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
-        val result = saksbehandlerService.getSaksbehandlere(fnr = FNR, ytelse = Ytelse.AAP_AAP, sakId = "abc", fagsystem = null)
+        val result = saksbehandlerService.getSaksbehandlere(
+            fnr = FNR,
+            ytelse = Ytelse.AAP_AAP,
+            sakId = "abc",
+            fagsystem = Fagsystem.FS36
+        )
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_2)
     }
@@ -128,8 +134,7 @@ class SaksbehandlerServiceTest {
                 ),
                 SaksbehandlerAccess(
                     saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
-
-                    )
+                )
             )
         )
         every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
@@ -140,7 +145,7 @@ class SaksbehandlerServiceTest {
             ytelse = Ytelse.AAP_AAP,
             fnr = FNR,
             sakId = "abc",
-            fagsystem = null,
+            fagsystem = Fagsystem.FS36,
         )
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)
         assertThat(result.medunderskrivere).contains(SAKSBEHANDLER_2)
@@ -160,7 +165,7 @@ class SaksbehandlerServiceTest {
             ytelse = Ytelse.AAP_AAP,
             fnr = FNR,
             sakId = "abc",
-            fagsystem = null,
+            fagsystem = Fagsystem.FS36,
         )
         assertThat(result.medunderskrivere).isEmpty()
     }

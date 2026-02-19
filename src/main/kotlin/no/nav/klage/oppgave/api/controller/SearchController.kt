@@ -34,21 +34,18 @@ class SearchController(
         "/search/medunderskrivere",
         produces = ["application/json"]
     )
-    fun getMedunderskrivereForYtelseOgFnr(
+    fun getMedunderskrivereForSak(
         @RequestBody input: SearchMedunderskrivereInput
     ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForYtelseOgFnr.name)
-
-        val fnr = input.sak?.fnr ?: input.fnr ?: throw IllegalArgumentException("fnr must be provided either in sak or directly in input")
-        val ytelseId = input.sak?.ytelseId ?: input.ytelseId ?: throw IllegalArgumentException("ytelseId must be provided either in sak or directly in input")
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForSak.name)
 
         return saksbehandlerService.getMedunderskrivere(
             ident = input.navIdent,
-            ytelse = Ytelse.of(ytelseId),
-            fnr = fnr,
-            sakId = input.sak?.sakId,
-            fagsystem = input.sak?.fagsystemId?.let { Fagsystem.of(it) },
+            ytelse = Ytelse.of(input.sak.ytelseId),
+            fnr = input.sak.fnr,
+            sakId = input.sak.sakId,
+            fagsystem = Fagsystem.of(input.sak.fagsystemId),
         )
     }
 
@@ -60,17 +57,17 @@ class SearchController(
         "/search/rol",
         produces = ["application/json"]
     )
-    fun getROLForFnr(
-        @RequestBody input: SearchROLInput,
+    fun getROLsForSak(
+        @RequestBody input: SakInput,
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLForFnr.name)
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLsForSak.name)
 
         return saksbehandlerService.getROLList(
             fnr = input.fnr,
-            ytelse = input.ytelseId?.let { Ytelse.of(it) },
+            ytelse = Ytelse.of(input.ytelseId),
             sakId = input.sakId,
-            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
+            fagsystem = Fagsystem.of(input.fagsystemId),
         )
     }
 
@@ -82,17 +79,17 @@ class SearchController(
         "/search/saksbehandlere",
         produces = ["application/json"]
     )
-    fun getSaksbehandlereForYtelseOgFnr(
-        @RequestBody input: SearchSaksbehandlerInput
+    fun getSaksbehandlereForSak(
+        @RequestBody input: SakInput
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForYtelseOgFnr.name)
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForSak.name)
 
         return saksbehandlerService.getSaksbehandlere(
             ytelse = Ytelse.of(input.ytelseId),
             fnr = input.fnr,
             sakId = input.sakId,
-            fagsystem = input.fagsystemId?.let { Fagsystem.of(it) },
+            fagsystem = Fagsystem.of(input.fagsystemId),
         )
     }
 

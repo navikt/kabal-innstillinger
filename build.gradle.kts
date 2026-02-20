@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mockkVersion = "1.14.9"
-val tokenValidationVersion = "6.0.2"
+val tokenValidationVersion = "6.0.3"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
 val springMockkVersion = "5.0.1"
@@ -14,7 +14,7 @@ val shedlockVersion = "7.6.0"
 
 plugins {
     val kotlinVersion = "2.3.10"
-    id("org.springframework.boot") version "4.0.2"
+    id("org.springframework.boot") version "4.0.3"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion

@@ -15,4 +15,8 @@ class EgenAnsattService {
     fun oppdaterEgenAnsatt(foedselsnr: String, egenAnsatt: EgenAnsatt) {
         egenAnsattMap[foedselsnr] = egenAnsatt
     }
+
+    fun removeEgenAnsatt(foedselsnr: String) {
+        egenAnsattMap.remove(foedselsnr)
+    }
 }

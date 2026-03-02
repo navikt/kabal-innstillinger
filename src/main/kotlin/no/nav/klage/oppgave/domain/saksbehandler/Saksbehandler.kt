@@ -29,10 +29,11 @@ data class SaksbehandlerName(
 )
 
 data class SaksbehandlerPersonligInfo(
+    val navIdent: String,
     val fornavn: String,
     val etternavn: String,
     val sammensattNavn: String,
-    val enhet: Enhet,
+    val enhet: SaksbehandlerEnhet,
 )
 
 data class SaksbehandlerRolle(

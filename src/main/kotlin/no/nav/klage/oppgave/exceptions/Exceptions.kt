@@ -7,3 +7,7 @@ class EnhetNotFoundForSaksbehandlerException(msg: String) : RuntimeException(msg
 class AbbreviationAlreadyExistsException(msg: String) : RuntimeException(msg)
 
 class IllegalInputException(msg: String) : RuntimeException(msg)
+
+class UserNotFoundException(msg: String) : RuntimeException(msg)
+
+class GroupNotFoundException(msg: String) : RuntimeException(msg)

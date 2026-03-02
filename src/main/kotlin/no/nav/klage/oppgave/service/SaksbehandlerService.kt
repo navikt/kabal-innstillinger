@@ -1,5 +1,6 @@
 package no.nav.klage.oppgave.service
 
+import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.klageenhetToYtelser
 import no.nav.klage.kodeverk.ytelse.Ytelse
@@ -7,6 +8,7 @@ import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.gateway.AzureGateway
@@ -25,6 +27,7 @@ class SaksbehandlerService(
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val roleUtils: RoleUtils,
+    private val klageLookupGateway: KlageLookupGateway,
 ) {
 
     companion object {
@@ -193,8 +196,8 @@ class SaksbehandlerService(
     }
 
     private fun saksbehandlerIsROL(navIdent: String): Boolean {
-        val roleList = azureGateway.getRollerForSaksbehandler(navIdent = navIdent)
-        return roleUtils.roleListContainsROL(roleList)
+        val roleList = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent)
+        return roleList.groups.contains(AzureGroup.KABAL_ROL)
     }
 
     private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
@@ -207,7 +210,7 @@ class SaksbehandlerService(
 
     private fun getROLIdents(): List<String> {
         logger.debug("Getting ROL list")
-        return azureGateway.getGroupMembersNavIdents(roleUtils.getROLRoleId())
+        return klageLookupGateway.getUsersInGroup(AzureGroup.KABAL_ROL).map { it.navIdent }
     }
 
     private fun getNameForIdent(navIdent: String): SaksbehandlerName {
@@ -220,10 +223,14 @@ class SaksbehandlerService(
     }
 
     private fun getEnhetMedYtelserForSaksbehandler(navIdent: String): EnhetMedLovligeYtelser =
-        azureGateway.getDataOmSaksbehandler(navIdent = navIdent).enhet.let {
+        klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).enhet.let { saksbehandlerEnhet ->
+            val enhet = Enhet(
+                enhetId = saksbehandlerEnhet.enhetId,
+                navn = saksbehandlerEnhet.navn
+            )
             EnhetMedLovligeYtelser(
-                enhet = it,
-                ytelser = getYtelserForEnhet(it)
+                enhet = enhet,
+                ytelser = getYtelserForEnhet(enhet = enhet)
             )
         }
 

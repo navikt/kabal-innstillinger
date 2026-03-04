@@ -2,17 +2,17 @@ package no.nav.klage.oppgave.api.controller
 
 
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.ytelse.Ytelse
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
-import no.nav.klage.oppgave.service.AdminService
 import no.nav.klage.oppgave.service.InnstillingerService
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
-import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/admin")
 class AdminController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
-    private val roleUtils: RoleUtils,
+    private val klageLookupGateway: KlageLookupGateway,
     private val innstillingerService: InnstillingerService,
-    private val adminService: AdminService,
+    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -35,15 +35,6 @@ class AdminController(
     fun logSaksbehandlerStatus() {
         verifyIsAdmin()
         saksbehandlerAccessService.logAnsattStatusInNom()
-    }
-
-    @GetMapping("/admin/evictcaches")
-    @ResponseStatus(HttpStatus.OK)
-    fun evictCaches() {
-        verifyIsAdmin()
-        logger.debug("Evicting all caches")
-        adminService.evictAllCaches()
-        logger.debug("Evicted all caches")
     }
 
     @GetMapping("/deleteexpiredsaksbehandlersettings", produces = ["application/json"])
@@ -63,7 +54,7 @@ class AdminController(
     }
 
     private fun verifyIsAdmin() {
-        if (!roleUtils.isAdmin()) {
+        if (!klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any { it == AzureGroup.KABAL_ADMIN }) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke admin")
         }
     }

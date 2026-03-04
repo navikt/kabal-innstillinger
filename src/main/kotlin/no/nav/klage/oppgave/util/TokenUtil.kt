@@ -18,12 +18,6 @@ class TokenUtil(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun getSaksbehandlerAccessTokenWithGraphScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["azure-onbehalfof"]!!
-        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.access_token!!
-    }
-
     fun getSaksbehandlerTokenWithPdlScope(): String {
         val clientProperties = clientConfigurationProperties.registration["pdl-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
@@ -32,6 +26,12 @@ class TokenUtil(
 
     fun getAppAccessTokenWithNomScope(): String {
         val clientProperties = clientConfigurationProperties.registration["nom-maskintilmaskin"]!!
+        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
+        return response.access_token!!
+    }
+
+    fun getOnBehalfOfTokenWithKlageLookupScope(): String {
+        val clientProperties = clientConfigurationProperties.registration["klage-lookup-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
         return response.access_token!!
     }
@@ -46,10 +46,6 @@ class TokenUtil(
         tokenValidationContextHolder.getTokenValidationContext().getJwtToken(SecurityConfiguration.ISSUER_AAD)
             ?.jwtTokenClaims?.get("NAVident")?.toString()
             ?: throw RuntimeException("Ident not found in token")
-
-    fun getRoleIdsFromToken(): List<String> =
-        tokenValidationContextHolder.getTokenValidationContext().getJwtToken(SecurityConfiguration.ISSUER_AAD)
-            ?.jwtTokenClaims?.getAsList("groups").orEmpty().toList()
 
     fun getCurrentTokenType(): TokenType {
         val validationContext = runCatching { tokenValidationContextHolder.getTokenValidationContext() }.getOrNull()

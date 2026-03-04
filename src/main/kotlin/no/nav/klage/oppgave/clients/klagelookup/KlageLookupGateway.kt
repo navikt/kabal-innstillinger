@@ -23,25 +23,31 @@ class KlageLookupGateway(
 
     fun getUserInfoForCurrentUser(): SaksbehandlerPersonligInfo {
         logger.debug("Getting user info for current user from KlageLookup")
-        val data = klageLookupClient.getUserInfo(navIdent = tokenUtil.getIdent(), systemContext = false)
+        val data = klageLookupClient.getUserInfo(navIdent = tokenUtil.getCurrentIdent())
         return data.toSaksbehandlerPersonligInfo()
     }
 
     fun getUserInfoForGivenNavIdent(navIdent: String): SaksbehandlerPersonligInfo {
         logger.debug("Getting user info for $navIdent from KlageLookup")
-        val data = klageLookupClient.getUserInfo(navIdent = navIdent, systemContext = systemContext)
+        val data = klageLookupClient.getUserInfo(navIdent = navIdent)
         return data.toSaksbehandlerPersonligInfo()
     }
 
     fun getGroupsForGivenNavIdent(navIdent: String): SaksbehandlerGroups {
         logger.debug("Getting group memberships for $navIdent from KlageLookup")
-        val data = klageLookupClient.getUserGroups(navIdent = navIdent, systemContext = systemContext)
+        val data = klageLookupClient.getUserGroups(navIdent = navIdent)
         return data.toSaksbehandlerGroups()
     }
 
     fun getUsersInGroup(azureGroup: AzureGroup): List<UserResponse> {
         logger.debug("Getting users in group $azureGroup from KlageLookup")
         val data = klageLookupClient.getUsersInGroup(azureGroup = azureGroup)
+        return data.users
+    }
+
+    fun getUsersInEnhet(enhetsnummer: String): List<UserResponse> {
+        logger.debug("Getting users in enhet $enhetsnummer from KlageLookup")
+        val data = klageLookupClient.getUsersInEnhet(enhetsnummer = enhetsnummer)
         return data.users
     }
 

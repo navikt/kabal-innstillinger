@@ -36,8 +36,8 @@ class TilgangService(
         navIdent: String,
         fnr: String,
         ytelse: Ytelse,
-        sakId: String,
-        fagsystem: Fagsystem,
+        sakId: String?,
+        fagsystem: Fagsystem?,
     ): Access {
         return klageLookupGateway.getAccess(
             brukerId = fnr,

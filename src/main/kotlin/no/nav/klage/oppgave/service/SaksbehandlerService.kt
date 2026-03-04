@@ -11,8 +11,6 @@ import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.domain.saksbehandler.*
-import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
@@ -22,11 +20,9 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class SaksbehandlerService(
     private val innstillingerService: InnstillingerService,
-    private val azureGateway: AzureGateway,
     private val pdlFacade: PdlFacade,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
-    private val roleUtils: RoleUtils,
     private val klageLookupGateway: KlageLookupGateway,
 ) {
 
@@ -47,8 +43,8 @@ class SaksbehandlerService(
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
-            navn = azureGateway.getDataOmSaksbehandler(navIdent = navIdent).sammensattNavn,
-            roller = azureGateway.getRollerForSaksbehandler(navIdent = navIdent),
+            navn = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).sammensattNavn,
+            roller = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent).groups.map { it.id },
             enheter = enheterMedYtelserForSaksbehandler,
             ansattEnhet = enhetMedYtelserForSaksbehandler,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
@@ -68,7 +64,7 @@ class SaksbehandlerService(
             medunderskrivere = getPossibleSaksbehandlere(
                 fnr = fnr,
                 saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
-                isSearchingMedunderskriver = true,
+                isSearchingMedunderskriverOrRol = true,
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
@@ -119,6 +115,7 @@ class SaksbehandlerService(
             saksbehandlere = getPossibleSaksbehandlere(
                 fnr = fnr,
                 saksbehandlerIdentList = getROLIdents(),
+                isSearchingMedunderskriverOrRol = true,
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
@@ -129,7 +126,7 @@ class SaksbehandlerService(
     private fun getPossibleSaksbehandlere(
         fnr: String,
         saksbehandlerIdentList: List<String>,
-        isSearchingMedunderskriver: Boolean = false,
+        isSearchingMedunderskriverOrRol: Boolean = false,
         ytelse: Ytelse,
         sakId: String?,
         fagsystem: Fagsystem?,
@@ -139,11 +136,11 @@ class SaksbehandlerService(
         val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
         val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
 
-        if (isSearchingMedunderskriver && harBeskyttelsesbehovStrengtFortrolig) {
+        if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovStrengtFortrolig) {
             //Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
-        if (isSearchingMedunderskriver && harBeskyttelsesbehovFortrolig) {
+        if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovFortrolig) {
             //Kode 7 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
@@ -214,7 +211,7 @@ class SaksbehandlerService(
     }
 
     private fun getNameForIdent(navIdent: String): SaksbehandlerName {
-        val saksbehandlerPersonligInfo = azureGateway.getDataOmSaksbehandler(navIdent)
+        val saksbehandlerPersonligInfo = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent)
         return SaksbehandlerName(
             fornavn = saksbehandlerPersonligInfo.fornavn,
             etternavn = saksbehandlerPersonligInfo.etternavn,
@@ -224,23 +221,19 @@ class SaksbehandlerService(
 
     private fun getEnhetMedYtelserForSaksbehandler(navIdent: String): EnhetMedLovligeYtelser =
         klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).enhet.let { saksbehandlerEnhet ->
-            val enhet = Enhet(
-                enhetId = saksbehandlerEnhet.enhetId,
-                navn = saksbehandlerEnhet.navn
-            )
             EnhetMedLovligeYtelser(
-                enhet = enhet,
-                ytelser = getYtelserForEnhet(enhet = enhet)
+                enhet = saksbehandlerEnhet,
+                ytelser = getYtelserForEnhet(enhet = saksbehandlerEnhet)
             )
         }
 
-    private fun getYtelserForEnhet(enhet: Enhet): List<Ytelse> =
+    private fun getYtelserForEnhet(enhet: SaksbehandlerEnhet): List<Ytelse> =
         klageenhetToYtelser.filter { it.key.navn == enhet.enhetId }.flatMap { it.value }
 
     private fun getEnheterMedYtelserForSaksbehandler(navIdent: String): EnheterMedLovligeYtelser =
-        listOf(azureGateway.getDataOmSaksbehandler(navIdent = navIdent).enhet).berikMedYtelser()
+        listOf(klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).enhet).berikMedYtelser()
 
-    private fun List<Enhet>.berikMedYtelser(): EnheterMedLovligeYtelser {
+    private fun List<SaksbehandlerEnhet>.berikMedYtelser(): EnheterMedLovligeYtelser {
         return EnheterMedLovligeYtelser(this.map {
             EnhetMedLovligeYtelser(
                 enhet = it,

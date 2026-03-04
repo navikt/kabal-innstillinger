@@ -11,3 +11,5 @@ class IllegalInputException(msg: String) : RuntimeException(msg)
 class UserNotFoundException(msg: String) : RuntimeException(msg)
 
 class GroupNotFoundException(msg: String) : RuntimeException(msg)
+
+class EnhetNotFoundException(msg: String) : RuntimeException(msg)

@@ -1,16 +1,17 @@
 package no.nav.klage.oppgave.service
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
+import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.nom.GetAnsattResponse
 import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
-import no.nav.klage.oppgave.gateway.AzureGateway
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
-import no.nav.klage.oppgave.util.RoleUtils
+import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.scheduling.annotation.Scheduled
@@ -26,9 +27,9 @@ import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess as
 class SaksbehandlerAccessService(
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
     private val innstillingerService: InnstillingerService,
-    private val roleUtils: RoleUtils,
-    private val azureGateway: AzureGateway,
+    private val klageLookupGateway: KlageLookupGateway,
     private val nomClient: NomClient,
+    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -53,8 +54,10 @@ class SaksbehandlerAccessService(
     }
 
     fun getSaksbehandlerAccessesInEnhet(enhet: String): SaksbehandlerAccessResponse {
-        return SaksbehandlerAccessResponse(accessRights = getAnsatteIEnhet(enhet)
-            .filter { roleUtils.isSaksbehandler(ident = it) }
+        return SaksbehandlerAccessResponse(
+            accessRights = getAnsatteIEnhet(enhet)
+            //TODO could be a faster way
+            .filter { klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any { it == AzureGroup.KABAL_SAKSBEHANDLING } }
             .map { ident ->
                 if (saksbehandlerAccessRepository.existsById(ident)) {
                     getSaksbehandlerAccessView(ident)
@@ -155,15 +158,15 @@ class SaksbehandlerAccessService(
     }
 
     private fun getAnsatteIEnhet(enhetId: String): List<String> {
-        return azureGateway.getEnhetensAnsattesNavIdents(enhetId)
+        return klageLookupGateway.getUsersInEnhet(enhetsnummer = enhetId).map { it.navIdent }
     }
 
     private fun getSammensattNameForIdent(navIdent: String): String {
-        val saksbehandlerPersonligInfo = azureGateway.getDataOmSaksbehandler(navIdent)
+        val saksbehandlerPersonligInfo = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent)
         return saksbehandlerPersonligInfo.sammensattNavn
     }
 
-    @Scheduled(cron = "\${SETTINGS_CLEANUP_CRON}", zone = "Europe/Oslo")
+    @Scheduled(cron = $$"${SETTINGS_CLEANUP_CRON}", zone = "Europe/Oslo")
     @SchedulerLock(name = "deleteInnstillingerAndAccessForExpiredSaksbehandlers")
     fun deleteInnstillingerAndAccessForExpiredSaksbehandlers() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()

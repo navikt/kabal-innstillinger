@@ -6,26 +6,24 @@ import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.clients.egenansatt.EgenAnsattService
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.pdl.Beskyttelsesbehov
 import no.nav.klage.oppgave.clients.pdl.PdlFacade
 import no.nav.klage.oppgave.clients.pdl.Person
-import no.nav.klage.oppgave.domain.saksbehandler.Enhet
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
-import no.nav.klage.oppgave.gateway.AzureGateway
-import no.nav.klage.oppgave.util.RoleUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SaksbehandlerServiceTest {
     private val innstillingerService: InnstillingerService = mockk()
-    private val azureGateway: AzureGateway = mockk()
+    private val klageLookupGateway: KlageLookupGateway = mockk()
     private val pdlFacade: PdlFacade = mockk()
     private val egenAnsattService: EgenAnsattService = mockk()
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
-    private val roleUtils: RoleUtils = mockk()
 
     private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
     private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
@@ -33,10 +31,11 @@ class SaksbehandlerServiceTest {
     )
 
     private val SAKSBEHANDLER_1_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
+        navIdent = "abc1231",
         fornavn = "fornavn1",
         etternavn = "etternavn1",
         sammensattNavn = "sammensattNavn1",
-        enhet = Enhet(enhetId = "", navn = "")
+        enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
     )
 
     private val SAKSBEHANDLER_1 = Saksbehandler(
@@ -49,10 +48,11 @@ class SaksbehandlerServiceTest {
     )
 
     private val SAKSBEHANDLER_2_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
+        navIdent = "abc1232",
         fornavn = "fornavn2",
         etternavn = "etternavn2",
         sammensattNavn = "sammensattNavn2",
-        enhet = Enhet(enhetId = "", navn = "")
+        enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
     )
 
     private val SAKSBEHANDLER_2 = Saksbehandler(
@@ -64,11 +64,10 @@ class SaksbehandlerServiceTest {
     private val saksbehandlerService =
         SaksbehandlerService(
             innstillingerService = innstillingerService,
-            azureGateway = azureGateway,
+            klageLookupGateway = klageLookupGateway,
             pdlFacade = pdlFacade,
             tilgangService = tilgangService,
             saksbehandlerAccessService = saksbehandlerAccessService,
-            roleUtils = roleUtils,
         )
 
     private val person = Person(
@@ -109,8 +108,8 @@ class SaksbehandlerServiceTest {
                     )
             )
         )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
         val result = saksbehandlerService.getSaksbehandlere(
             fnr = FNR,
@@ -137,8 +136,8 @@ class SaksbehandlerServiceTest {
                 )
             )
         )
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
-        every { azureGateway.getDataOmSaksbehandler(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
 
         val result = saksbehandlerService.getMedunderskrivere(
             ident = SAKSBEHANDLER_IDENT_1,

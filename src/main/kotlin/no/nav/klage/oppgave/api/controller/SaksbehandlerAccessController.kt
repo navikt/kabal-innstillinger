@@ -2,14 +2,15 @@ package no.nav.klage.oppgave.api.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.service.SaksbehandlerAccessService
-import no.nav.klage.oppgave.util.RoleUtils
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 class SaksbehandlerAccessController(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val tokenUtil: TokenUtil,
-    private val roleUtils: RoleUtils,
+    private val klageLookupGateway: KlageLookupGateway,
 ) {
 
     companion object {
@@ -82,7 +83,7 @@ class SaksbehandlerAccessController(
     }
 
     private fun verifyIsTilgangsstyringEgenEnhet() {
-        if (!roleUtils.isKabalTilgangsstyringEgenEnhet()) {
+        if (!klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any { it == AzureGroup.KABAL_TILGANGSSTYRING_EGEN_ENHET }) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")
         }
     }

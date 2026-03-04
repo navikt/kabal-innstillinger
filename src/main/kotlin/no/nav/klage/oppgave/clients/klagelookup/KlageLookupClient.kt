@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.clients.klagelookup
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
+import no.nav.klage.oppgave.exceptions.EnhetNotFoundException
 import no.nav.klage.oppgave.exceptions.GroupNotFoundException
 import no.nav.klage.oppgave.exceptions.UserNotFoundException
 import no.nav.klage.oppgave.service.TilgangService
@@ -76,7 +77,6 @@ class KlageLookupClient(
     )
     fun getUserInfo(
         navIdent: String,
-        systemContext: Boolean,
     ): ExtendedUserResponse {
         return runWithTimingAndLogging {
             val token = getCorrectBearerToken()
@@ -172,6 +172,40 @@ class KlageLookupClient(
         }
     }
 
+    @Retryable(
+        excludes = [EnhetNotFoundException::class]
+    )
+    fun getUsersInEnhet(
+        enhetsnummer: String,
+    ): UsersResponse {
+        return runWithTimingAndLogging {
+            val token = "Bearer ${tokenUtil.getOnBehalfOfTokenWithKlageLookupScope()}"
+            klageLookupWebClient.get()
+                .uri("/enheter/$enhetsnummer/users")
+                .header(
+                    HttpHeaders.AUTHORIZATION,
+                    token,
+                )
+                .exchangeToMono { response ->
+                    if (response.statusCode().value() == 404) {
+                        logger.debug("Enhet $enhetsnummer not found")
+                        Mono.error(EnhetNotFoundException("Enhet $enhetsnummer not found"))
+
+                    } else if (response.statusCode().isError) {
+                        logErrorResponse(
+                            response = response,
+                            functionName = ::getUsersInEnhet.name,
+                            classLogger = logger,
+                        )
+                        response.createError()
+                    } else {
+                        response.bodyToMono<UsersResponse>()
+                    }
+                }
+                .block() ?: throw RuntimeException("Could not get users information for enhet $enhetsnummer")
+        }
+    }
+
     fun <T> runWithTimingAndLogging(block: () -> T): T {
         val start = System.currentTimeMillis()
         try {
@@ -185,7 +219,7 @@ class KlageLookupClient(
     private fun getCorrectBearerToken(): String {
         return when (tokenUtil.getCurrentTokenType()) {
             TokenUtil.TokenType.OBO -> "Bearer ${tokenUtil.getOnBehalfOfTokenWithKlageLookupScope()}"
-            TokenUtil.TokenType.CC, TokenUtil.TokenType.UNAUTHENTICATED -> "Bearer ${tokenUtil.getMaskinTilMaskinTokenWithKlageLookupScope()}"
+            TokenUtil.TokenType.CC, TokenUtil.TokenType.UNAUTHENTICATED -> "Bearer ${tokenUtil.getAppAccessTokenWithKlageLookupScope()}"
         }
     }
 }

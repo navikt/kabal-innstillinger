@@ -7,24 +7,16 @@ import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerGroups
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.service.TilgangService
-import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
 
 @Service
 class KlageLookupGateway(
     private val klageLookupClient: KlageLookupClient,
-    private val tokenUtil: TokenUtil,
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
-    }
-
-    fun getUserInfoForCurrentUser(): SaksbehandlerPersonligInfo {
-        logger.debug("Getting user info for current user from KlageLookup")
-        val data = klageLookupClient.getUserInfo(navIdent = tokenUtil.getCurrentIdent())
-        return data.toSaksbehandlerPersonligInfo()
     }
 
     fun getUserInfoForGivenNavIdent(navIdent: String): SaksbehandlerPersonligInfo {

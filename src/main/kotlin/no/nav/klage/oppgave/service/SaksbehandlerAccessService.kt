@@ -56,20 +56,20 @@ class SaksbehandlerAccessService(
     fun getSaksbehandlerAccessesInEnhet(enhet: String): SaksbehandlerAccessResponse {
         return SaksbehandlerAccessResponse(
             accessRights = getAnsatteIEnhet(enhet)
-            //TODO could be a faster way
-            .filter { klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any { it == AzureGroup.KABAL_SAKSBEHANDLING } }
-            .map { ident ->
-                if (saksbehandlerAccessRepository.existsById(ident)) {
-                    getSaksbehandlerAccessView(ident)
-                } else {
-                    getEmptySaksbehandlerAccess(ident)
-                }
-            })
+                //TODO could be a faster way
+                .filter { ident -> klageLookupGateway.getGroupsForGivenNavIdent(navIdent = ident).groups.any { it == AzureGroup.KABAL_SAKSBEHANDLING } }
+                .map { ident ->
+                    if (saksbehandlerAccessRepository.existsById(ident)) {
+                        getSaksbehandlerAccessView(ident)
+                    } else {
+                        getEmptySaksbehandlerAccess(ident)
+                    }
+                })
     }
 
     private fun getEmptySaksbehandlerAccess(saksbehandlerIdent: String) = SaksbehandlerAccessView(
         saksbehandlerIdent = saksbehandlerIdent,
-        saksbehandlerName = getSammensattNameForIdent(saksbehandlerIdent),
+        saksbehandlerName = getSammensattNameForIdent(navIdent = saksbehandlerIdent),
         ytelseIdList = emptyList(),
         created = null,
         accessRightsModified = null,

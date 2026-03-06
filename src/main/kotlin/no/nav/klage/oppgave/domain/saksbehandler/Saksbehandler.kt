@@ -6,7 +6,7 @@ import no.nav.klage.kodeverk.ytelse.Ytelse
 data class SaksbehandlerInfo(
     val navIdent: String,
     val navn: String,
-    val roller: List<SaksbehandlerRolle>,
+    val roller: List<String>,
     val enheter: EnheterMedLovligeYtelser,
     val ansattEnhet: EnhetMedLovligeYtelser,
     val saksbehandlerInnstillinger: SaksbehandlerInnstillinger,
@@ -29,10 +29,11 @@ data class SaksbehandlerName(
 )
 
 data class SaksbehandlerPersonligInfo(
+    val navIdent: String,
     val fornavn: String,
     val etternavn: String,
     val sammensattNavn: String,
-    val enhet: Enhet,
+    val enhet: SaksbehandlerEnhet,
 )
 
 data class SaksbehandlerRolle(

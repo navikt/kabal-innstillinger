@@ -1,9 +1,6 @@
 package no.nav.klage.oppgave.config.problem
 
-import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
-import no.nav.klage.oppgave.exceptions.EnhetNotFoundForSaksbehandlerException
-import no.nav.klage.oppgave.exceptions.IllegalInputException
-import no.nav.klage.oppgave.exceptions.MissingTilgangException
+import no.nav.klage.oppgave.exceptions.*
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.http.HttpStatus
@@ -34,10 +31,22 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         createProblemForWebClientResponseException(ex)
 
     @ExceptionHandler
-    fun handleEnhetNotFoundForSaksbehandlerException(
-        ex: EnhetNotFoundForSaksbehandlerException,
+    fun handleEnhetNotFoundException(
+        ex: EnhetNotFoundException,
     ): ProblemDetail =
-        create(HttpStatus.INTERNAL_SERVER_ERROR, ex)
+        create(HttpStatus.NOT_FOUND, ex)
+
+    @ExceptionHandler
+    fun handleUserNotFoundException(
+        ex: UserNotFoundException,
+    ): ProblemDetail =
+        create(HttpStatus.NOT_FOUND, ex)
+
+    @ExceptionHandler
+    fun handleGroupNotFoundException(
+        ex: GroupNotFoundException,
+    ): ProblemDetail =
+        create(HttpStatus.NOT_FOUND, ex)
 
     @ExceptionHandler
     fun handleAbbreviationAlreadyExistsException(

@@ -2,19 +2,19 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val mockkVersion = "1.14.9"
-val tokenValidationVersion = "6.0.3"
+val tokenValidationVersion = "6.0.4"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
 val springMockkVersion = "5.0.1"
-val springDocVersion = "3.0.1"
-val testContainersVersion = "2.0.3"
+val springDocVersion = "3.0.2"
+val testContainersVersion = "2.0.4"
 val ehcacheVersion = "3.11.1"
 val kodeverkVersion = "3.2.6"
-val shedlockVersion = "7.6.0"
+val shedlockVersion = "7.7.0"
 
 plugins {
-    val kotlinVersion = "2.3.10"
-    id("org.springframework.boot") version "4.0.3"
+    val kotlinVersion = "2.3.20"
+    id("org.springframework.boot") version "4.0.4"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -39,7 +39,7 @@ repositories {
 configurations.all {
     resolutionStrategy.dependencySubstitution {
         substitute(module("org.lz4:lz4-java"))
-            .using(module("at.yawk.lz4:lz4-java:1.10.1"))
+            .using(module("at.yawk.lz4:lz4-java:1.10.4"))
             .because("CVE-2025-12183 and CVE-2025-66566: org.lz4:lz4-java is archived, new releases under at.yawk.lz4")
     }
 }

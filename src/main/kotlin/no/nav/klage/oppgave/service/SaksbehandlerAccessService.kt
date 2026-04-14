@@ -201,7 +201,12 @@ class SaksbehandlerAccessService(
             output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
             return output
         }
-        val saksbehandlerEnhetId = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId
+        val saksbehandlerEnhetId = try {
+            klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId
+        } catch (e: Exception) {
+            logger.warn("Could not get user info for $navIdent, returning null. Exception message: ${e.message}")
+            null
+        }
         val saksbehandlerEnhet = Enhet.entries.find { it.navn == saksbehandlerEnhetId }
         val isInKlageEnhet = saksbehandlerEnhet in klageenheter + styringsenheter
 

@@ -244,6 +244,7 @@ class KlageLookupClient(
     @Retryable
     fun getPerson(fnr: String, sak: Sak?): PersonResponse {
         return runWithTimingAndLogging {
+            val token = getCorrectBearerToken()
             klageLookupWebClient.post()
                 .uri("/person")
                 .bodyValue(
@@ -254,7 +255,7 @@ class KlageLookupClient(
                 )
                 .header(
                     HttpHeaders.AUTHORIZATION,
-                    "Bearer ${tokenUtil.getAppAccessTokenWithKlageLookupScope()}",
+                    token,
                 )
                 .retrieve()
                 .onStatus(HttpStatusCode::isError) { response ->

@@ -14,3 +14,18 @@ data class AccessRequest(
         val fagsystem: Fagsystem,
     )
 }
+
+data class GetPersonRequest(
+    val fnr: String,
+    val sak: Sak?,
+)
+
+data class Sak(
+    val sakId: String,
+    val ytelse: Ytelse,
+    val fagsystem: Fagsystem,
+)
+
+data class BatchedUserRequest (
+    val navIdentList: List<String>
+)

@@ -1,6 +1,7 @@
 package no.nav.klage.oppgave.clients.klagelookup
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.LocalDate
 
 data class UsersResponse(
     val users: List<UserResponse>,
@@ -27,6 +28,65 @@ data class Enhet(
     val enhetNavn: String,
 )
 
+data class BatchedGroupsResponse (
+    val hits: List<BatchedGroupsHitResponse>,
+    val misses: List<String>,
+)
+
+data class BatchedGroupsHitResponse(
+    val navIdent: String,
+    val groupIds: List<String>,
+)
+
 data class GroupsResponse(
     val groupIds: List<String>,
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PersonResponse(
+    val foedselsnr: String,
+    val fornavn: String,
+    val mellomnavn: String?,
+    val etternavn: String,
+    val sammensattNavn: String,
+    val kjoenn: String?,
+    val doed: LocalDate?,
+    val strengtFortrolig: Boolean,
+    val strengtFortroligUtland: Boolean,
+    val fortrolig: Boolean,
+    val egenAnsatt: Boolean,
+    val vergemaalEllerFremtidsfullmakt: Boolean,
+    val sikkerhetstiltak: SikkerhetstiltakResponse?,
+    val protectedFamilyMembers: List<ProtectedFamilyMemberResponse>,
+) {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ProtectedFamilyMemberResponse(
+        val foedselsnr: String,
+        val fornavn: String,
+        val mellomnavn: String?,
+        val etternavn: String,
+        val sammensattNavn: String,
+        val kjoenn: String?,
+        val doed: LocalDate?,
+        val strengtFortrolig: Boolean,
+        val strengtFortroligUtland: Boolean,
+        val fortrolig: Boolean,
+        val egenAnsatt: Boolean,
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class SikkerhetstiltakResponse(
+        val tiltakstype: String,
+        val beskrivelse: String,
+        val gyldigFraOgMed: LocalDate,
+        val gyldigTilOgMed: LocalDate,
+    )
+
+    fun personOrFamilyIsFortrolig(): Boolean {
+        return fortrolig || protectedFamilyMembers.any { it.fortrolig }
+    }
+
+    fun personOrFamilyIsStrengtFortrolig(): Boolean {
+        return strengtFortrolig || strengtFortroligUtland || protectedFamilyMembers.any { it.strengtFortrolig || it.strengtFortroligUtland }
+    }
+}

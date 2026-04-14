@@ -9,7 +9,7 @@ import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
-import no.nav.klage.oppgave.clients.pdl.PdlFacade
+import no.nav.klage.oppgave.clients.klagelookup.Sak
 import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class SaksbehandlerService(
     private val innstillingerService: InnstillingerService,
-    private val pdlFacade: PdlFacade,
     private val tilgangService: TilgangService,
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val klageLookupGateway: KlageLookupGateway,
@@ -68,6 +67,7 @@ class SaksbehandlerService(
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
+                requestsROLs = false,
             ).filter { it.navIdent != ident }
                 .sortedBy { it.navn }
         )
@@ -86,6 +86,7 @@ class SaksbehandlerService(
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
+                requestsROLs = false,
             ).sortedBy { it.navn }
         )
     }
@@ -101,6 +102,7 @@ class SaksbehandlerService(
                 ytelse = ytelse,
                 sakId = null,
                 fagsystem = null,
+                requestsROLs = false,
             ).sortedBy { it.navn }
         )
     }
@@ -119,6 +121,7 @@ class SaksbehandlerService(
                 sakId = sakId,
                 ytelse = ytelse,
                 fagsystem = fagsystem,
+                requestsROLs = true,
             ).sortedBy { it.navn }
         )
     }
@@ -130,11 +133,18 @@ class SaksbehandlerService(
         ytelse: Ytelse,
         sakId: String?,
         fagsystem: Fagsystem?,
+        requestsROLs: Boolean,
     ): Set<Saksbehandler> {
-        //TODO: also move pdlFacade to klage-lookup
-        val personInfo = pdlFacade.getPersonInfo(fnr)
-        val harBeskyttelsesbehovFortrolig = personInfo.harBeskyttelsesbehovFortrolig()
-        val harBeskyttelsesbehovStrengtFortrolig = personInfo.harBeskyttelsesbehovStrengtFortrolig()
+        val sak = if (sakId != null && fagsystem != null) {
+            Sak(
+                sakId = sakId,
+                ytelse = ytelse,
+                fagsystem = fagsystem,
+            )
+        } else null
+        val personInfo = klageLookupGateway.getPerson(fnr = fnr, sak = sak)
+        val harBeskyttelsesbehovFortrolig = personInfo.personOrFamilyIsFortrolig()
+        val harBeskyttelsesbehovStrengtFortrolig = personInfo.personOrFamilyIsStrengtFortrolig()
 
         if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovStrengtFortrolig) {
             //Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
@@ -145,7 +155,13 @@ class SaksbehandlerService(
             return emptySet()
         }
 
+        val saksbehandlerGroups = klageLookupGateway.getUserGroupsBatched(navIdentList = saksbehandlerIdentList)
+
         return saksbehandlerIdentList
+            .filter { currentNavIdent ->
+                saksbehandlerGroups.find { it.navIdent == currentNavIdent }?.groupIds?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
+                    ?: false
+            }
             .filter {
                 tilgangService.hasSaksbehandlerAccessToSak(
                     fnr = fnr,

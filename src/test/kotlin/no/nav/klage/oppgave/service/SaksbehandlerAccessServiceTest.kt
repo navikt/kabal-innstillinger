@@ -126,8 +126,8 @@ class SaksbehandlerAccessServiceTest {
                 etternavn = "etternavn",
                 sammensattNavn = "fornavn etternavn",
                 enhet = SaksbehandlerEnhet(
-                    enhetId = enhetOutsideKlageAndStyring.name,
-                    navn = "enhet",
+                    enhetId = enhetOutsideKlageAndStyring.navn,
+                    navn = enhetOutsideKlageAndStyring.beskrivelse,
                 )
             )
             every { saksbehandlerAccessRepository.deleteById(ident) } returns Unit

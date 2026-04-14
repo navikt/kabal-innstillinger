@@ -201,7 +201,8 @@ class SaksbehandlerAccessService(
             output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
             return output
         }
-        val saksbehandlerEnhet = Enhet.entries.find { it.navn == klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId }
+        val saksbehandlerEnhetId = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId
+        val saksbehandlerEnhet = Enhet.entries.find { it.navn == saksbehandlerEnhetId }
         val isInKlageEnhet = saksbehandlerEnhet in klageenheter + styringsenheter
 
         return if (!isInKlageEnhet) {

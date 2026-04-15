@@ -26,6 +26,6 @@ data class Sak(
     val fagsystem: Fagsystem,
 )
 
-data class BatchedUserRequest (
+data class BatchedUserRequest(
     val navIdentList: List<String>
 )

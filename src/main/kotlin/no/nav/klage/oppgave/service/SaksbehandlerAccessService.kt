@@ -2,6 +2,9 @@ package no.nav.klage.oppgave.service
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import no.nav.klage.kodeverk.AzureGroup
+import no.nav.klage.kodeverk.Enhet
+import no.nav.klage.kodeverk.klageenheter
+import no.nav.klage.kodeverk.styringsenheter
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
@@ -54,10 +57,14 @@ class SaksbehandlerAccessService(
     }
 
     fun getSaksbehandlerAccessesInEnhet(enhet: String): SaksbehandlerAccessResponse {
+        val ansatteIdents = getAnsatteIEnhet(enhetId = enhet)
+        val saksbehandlerGroups = klageLookupGateway.getUserGroupsBatched(navIdentList = ansatteIdents)
         return SaksbehandlerAccessResponse(
-            accessRights = getAnsatteIEnhet(enhet)
-                //TODO could be a faster way
-                .filter { ident -> klageLookupGateway.getGroupsForGivenNavIdent(navIdent = ident).groups.any { it == AzureGroup.KABAL_SAKSBEHANDLING } }
+            accessRights = ansatteIdents
+                .filter { ident ->
+                    saksbehandlerGroups.find { it.navIdent == ident }?.groupIds?.contains(AzureGroup.KABAL_SAKSBEHANDLING.id)
+                        ?: false
+                }
                 .map { ident ->
                     if (saksbehandlerAccessRepository.existsById(ident)) {
                         getSaksbehandlerAccessView(ident)
@@ -186,8 +193,25 @@ class SaksbehandlerAccessService(
 
     private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(navIdent: String): String {
         val ansatt = nomClient.getAnsatt(navIdent)
-        return if (ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true) {
+
+        val noLongerInNav = ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true
+        if (noLongerInNav) {
             var output = "Sluttdato is in the past: $ansatt \n"
+            output += deleteSaksbehandler(navIdent)
+            output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
+            return output
+        }
+        val saksbehandlerEnhetId = try {
+            klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId
+        } catch (e: Exception) {
+            logger.warn("Could not get user info for $navIdent, returning null. Exception message: ${e.message}")
+            null
+        }
+        val saksbehandlerEnhet = Enhet.entries.find { it.navn == saksbehandlerEnhetId }
+        val isInKlageEnhet = saksbehandlerEnhet in klageenheter + styringsenheter
+
+        return if (!isInKlageEnhet) {
+            var output = "$ansatt is no longer in klageenhet \n"
             output += deleteSaksbehandler(navIdent)
             output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
             output

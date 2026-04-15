@@ -12,6 +12,7 @@ import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.logErrorResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
+import org.springframework.http.MediaType
 import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -102,6 +103,40 @@ class KlageLookupClient(
                     }
                 }
                 .block() ?: throw RuntimeException("Could not get user info for $navIdent")
+        }
+    }
+
+    @Retryable
+    fun getUserGroupsBatched(
+        navIdentList: List<String>,
+    ): BatchedGroupsResponse {
+        return runWithTimingAndLogging {
+            val token = getCorrectBearerToken()
+            klageLookupWebClient.post()
+                .uri("/users/groups")
+                .header(
+                    HttpHeaders.AUTHORIZATION,
+                    token,
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(
+                    BatchedUserRequest(
+                        navIdentList = navIdentList
+                    )
+                )
+                .exchangeToMono { response ->
+                    if (response.statusCode().isError) {
+                        logErrorResponse(
+                            response = response,
+                            functionName = ::getUserGroupsBatched.name,
+                            classLogger = logger,
+                        )
+                        response.createError()
+                    } else {
+                        response.bodyToMono<BatchedGroupsResponse>()
+                    }
+                }
+                .block() ?: throw RuntimeException("Could not get user groups for input $navIdentList")
         }
     }
 
@@ -203,6 +238,35 @@ class KlageLookupClient(
                     }
                 }
                 .block() ?: throw RuntimeException("Could not get users information for enhet $enhetsnummer")
+        }
+    }
+
+    @Retryable
+    fun getPerson(fnr: String, sak: Sak?): PersonResponse {
+        return runWithTimingAndLogging {
+            val token = getCorrectBearerToken()
+            klageLookupWebClient.post()
+                .uri("/person")
+                .bodyValue(
+                    GetPersonRequest(
+                        fnr = fnr,
+                        sak = sak,
+                    )
+                )
+                .header(
+                    HttpHeaders.AUTHORIZATION,
+                    token,
+                )
+                .retrieve()
+                .onStatus(HttpStatusCode::isError) { response ->
+                    logErrorResponse(
+                        response = response,
+                        functionName = ::getPerson.name,
+                        classLogger = logger,
+                    )
+                }
+                .bodyToMono<PersonResponse>()
+                .block() ?: throw RuntimeException("Could not get person. Response was null.")
         }
     }
 

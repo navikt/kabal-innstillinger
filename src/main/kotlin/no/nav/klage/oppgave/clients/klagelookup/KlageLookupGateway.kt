@@ -25,6 +25,12 @@ class KlageLookupGateway(
         return data.toSaksbehandlerPersonligInfo()
     }
 
+    fun getUserGroupsBatched(navIdentList: List<String>): List<BatchedGroupsHitResponse> {
+        logger.debug("Getting batched user info for $navIdentList from KlageLookup")
+        val data = klageLookupClient.getUserGroupsBatched(navIdentList = navIdentList)
+        return data.hits
+    }
+
     fun getGroupsForGivenNavIdent(navIdent: String): SaksbehandlerGroups {
         logger.debug("Getting group memberships for $navIdent from KlageLookup")
         val data = klageLookupClient.getUserGroups(navIdent = navIdent)
@@ -41,6 +47,10 @@ class KlageLookupGateway(
         logger.debug("Getting users in enhet $enhetsnummer from KlageLookup")
         val data = klageLookupClient.getUsersInEnhet(enhetsnummer = enhetsnummer)
         return data.users
+    }
+
+    fun getPerson(fnr: String, sak: Sak?): PersonResponse {
+        return klageLookupClient.getPerson(fnr = fnr, sak = sak)
     }
 
     fun getAccess(

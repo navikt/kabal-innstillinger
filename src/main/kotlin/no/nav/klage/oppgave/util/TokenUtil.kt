@@ -18,12 +18,6 @@ class TokenUtil(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun getAppAccessTokenWithNomScope(): String {
-        val clientProperties = clientConfigurationProperties.registration["nom-maskintilmaskin"]!!
-        val response = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        return response.access_token!!
-    }
-
     fun getOnBehalfOfTokenWithKlageLookupScope(): String {
         val clientProperties = clientConfigurationProperties.registration["klage-lookup-onbehalfof"]!!
         val response = oAuth2AccessTokenService.getAccessToken(clientProperties)

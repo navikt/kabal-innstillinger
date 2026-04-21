@@ -1,8 +1,5 @@
 TENANT_ID: 62366534-1ec3-4962-8869-9b5535279d0b
 
-NOM_BASE_URL: https://nom-api.intern.nav.no/graphql
-NOM_SCOPE: prod-gcp.nom.nom-api
-
 SETTINGS_CLEANUP_CRON: 0 30 14 * * MON
 
 springdoc:

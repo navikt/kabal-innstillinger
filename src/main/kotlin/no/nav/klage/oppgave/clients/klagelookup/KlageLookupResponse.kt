@@ -23,6 +23,12 @@ data class ExtendedUserResponse(
     val enhet: Enhet,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ExtendedUsersResponse(
+    val hits: List<ExtendedUserResponse>,
+    val misses: List<String>,
+)
+
 data class Enhet(
     val enhetNr: String,
     val enhetNavn: String,
@@ -90,3 +96,13 @@ data class PersonResponse(
         return strengtFortrolig || strengtFortroligUtland || protectedFamilyMembers.any { it.strengtFortrolig || it.strengtFortroligUtland }
     }
 }
+
+data class BatchedSluttdatoResponse(
+    val hits: List<SluttdatoResponse>,
+    val misses: List<String>,
+)
+
+data class SluttdatoResponse(
+    val navIdent: String,
+    val sluttdato: LocalDate?,
+)

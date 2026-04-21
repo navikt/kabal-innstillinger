@@ -31,12 +31,6 @@ class AdminController(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    @GetMapping("/logsaksbehandlerstatus", produces = ["application/json"])
-    fun logSaksbehandlerStatus() {
-        verifyIsAdmin()
-        saksbehandlerAccessService.logAnsattStatusInNom()
-    }
-
     @GetMapping("/deleteexpiredsaksbehandlersettings", produces = ["application/json"])
     fun deleteExpiredSaksbehandlerSettings() {
         verifyIsAdmin()

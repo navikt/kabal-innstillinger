@@ -10,11 +10,8 @@ import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
-import no.nav.klage.oppgave.clients.nom.GetAnsattResponse
-import no.nav.klage.oppgave.clients.nom.NomClient
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
-import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.scheduling.annotation.Scheduled
@@ -31,8 +28,6 @@ class SaksbehandlerAccessService(
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
     private val innstillingerService: InnstillingerService,
     private val klageLookupGateway: KlageLookupGateway,
-    private val nomClient: NomClient,
-    private val tokenUtil: TokenUtil,
 ) {
 
     companion object {
@@ -146,20 +141,6 @@ class SaksbehandlerAccessService(
         } else emptySet()
     }
 
-    fun logAnsattStatusInNom() {
-        val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
-        logger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
-
-        allSaksbehandlerAccessEntries.forEach {
-            getAnsattInfoFromNom(it.saksbehandlerIdent)
-        }
-
-    }
-
-    fun getAnsattInfoFromNom(navIdent: String): GetAnsattResponse {
-        return nomClient.getAnsatt(navIdent)
-    }
-
     fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> {
         return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
     }
@@ -177,6 +158,15 @@ class SaksbehandlerAccessService(
     @SchedulerLock(name = "deleteInnstillingerAndAccessForExpiredSaksbehandlers")
     fun deleteInnstillingerAndAccessForExpiredSaksbehandlers() {
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
+        val navIdentList = allSaksbehandlerAccessEntries.map { it.saksbehandlerIdent }
+
+        val sluttdatoByNavIdent = klageLookupGateway
+            .getSluttdatoForNavIdentList(navIdentList)
+            .associateBy { it.navIdent }
+        val userInfoByNavIdent = klageLookupGateway
+            .getUserInfoForNavIdentList(navIdentList)
+            .associateBy { it.navIdent }
+
         logger.debug("Starting scheduled cleanup process. See more details in team-logs.")
         teamLogger.debug("Starting scheduled cleanup process.")
         teamLogger.debug("Number of saksbehandlerAccess entries: {}", allSaksbehandlerAccessEntries.size)
@@ -184,39 +174,40 @@ class SaksbehandlerAccessService(
         var report = ""
 
         report += allSaksbehandlerAccessEntries.map {
-            deleteInnstillingerAndAccessIfExpiredSaksbehandler(it.saksbehandlerIdent)
+            deleteInnstillingerAndAccessIfExpiredSaksbehandler(
+                navIdent = it.saksbehandlerIdent,
+                ansattSluttdato = sluttdatoByNavIdent[it.saksbehandlerIdent]?.sluttdato,
+                saksbehandlerEnhetId = userInfoByNavIdent[it.saksbehandlerIdent]?.enhet?.enhetId,
+            )
         }
 
         teamLogger.debug("Report after cleanup: \n $report")
     }
 
 
-    private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(navIdent: String): String {
-        val ansatt = nomClient.getAnsatt(navIdent)
-
-        val noLongerInNav = ansatt.data?.ressurs?.sluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true
+    private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(
+        navIdent: String,
+        ansattSluttdato: LocalDate?,
+        saksbehandlerEnhetId: String?,
+    ): String {
+        val noLongerInNav = ansattSluttdato?.isBefore(LocalDate.now().minusWeeks(1)) == true
         if (noLongerInNav) {
-            var output = "Sluttdato is in the past: $ansatt \n"
+            var output = "Sluttdato is in the past: $navIdent \n"
             output += deleteSaksbehandler(navIdent)
             output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
             return output
         }
-        val saksbehandlerEnhetId = try {
-            klageLookupGateway.getUserInfoForGivenNavIdent(navIdent).enhet.enhetId
-        } catch (e: Exception) {
-            logger.warn("Could not get user info for $navIdent, returning null. Exception message: ${e.message}")
-            null
-        }
+
         val saksbehandlerEnhet = Enhet.entries.find { it.navn == saksbehandlerEnhetId }
         val isInKlageEnhet = saksbehandlerEnhet in klageenheter + styringsenheter
 
         return if (!isInKlageEnhet) {
-            var output = "$ansatt is no longer in klageenhet \n"
+            var output = "$navIdent is no longer in klageenhet \n"
             output += deleteSaksbehandler(navIdent)
             output += innstillingerService.deleteInnstillingerForSaksbehandler(navIdent)
             output
         } else {
-            "Still valid: $ansatt \n"
+            "Still valid: $navIdent \n"
         }
     }
 

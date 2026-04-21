@@ -4,7 +4,6 @@ externalHosts:
   - host: login.microsoftonline.com
   - host: unleash.nais.io
   - host: ereg-services.prod-fss-pub.nais.io
-  - host: nom-api.intern.nav.no
 springProfile: prod
 tenant: nav.no
 db_tier: db-custom-1-3840

@@ -26,7 +26,7 @@ data class ExtendedUserResponse(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ExtendedUsersResponse(
     val hits: List<ExtendedUserResponse>,
-    val misses: List<String>
+    val misses: List<String>,
 )
 
 data class Enhet(

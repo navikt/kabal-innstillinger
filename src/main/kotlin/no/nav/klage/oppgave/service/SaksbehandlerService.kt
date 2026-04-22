@@ -135,16 +135,23 @@ class SaksbehandlerService(
         fagsystem: Fagsystem?,
         requestsROLs: Boolean,
     ): Set<Saksbehandler> {
-        val sak = if (sakId != null && fagsystem != null) {
-            Sak(
-                sakId = sakId,
-                ytelse = ytelse,
-                fagsystem = fagsystem,
-            )
-        } else null
-        val personInfo = klageLookupGateway.getPerson(fnr = fnr, sak = sak)
-        val harBeskyttelsesbehovFortrolig = personInfo.personOrFamilyIsFortrolig()
-        val harBeskyttelsesbehovStrengtFortrolig = personInfo.personOrFamilyIsStrengtFortrolig()
+        val persongalleri = if (sakId != null && fagsystem == Fagsystem.FS36) {
+            klageLookupGateway.getPersongalleri(
+                sak = Sak(
+                    sakId = sakId,
+                    ytelse = ytelse,
+                    fagsystem = fagsystem,
+                )
+            ).toSet() + fnr
+        } else {
+            setOf(fnr)
+        }
+
+        val personInfoList = persongalleri.map {
+            klageLookupGateway.getPerson(fnr = it)
+        }
+        val harBeskyttelsesbehovFortrolig = personInfoList.any { it.personIsFortrolig() }
+        val harBeskyttelsesbehovStrengtFortrolig = personInfoList.any { it.personIsStrengtFortrolig() }
 
         if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovStrengtFortrolig) {
             //Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
@@ -162,14 +169,13 @@ class SaksbehandlerService(
                 saksbehandlerGroups.find { it.navIdent == currentNavIdent }?.groupIds?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
                     ?: false
             }
-            .filter {
-                tilgangService.hasSaksbehandlerAccessToSak(
-                    fnr = fnr,
-                    navIdent = it,
-                    sakId = sakId,
-                    ytelse = ytelse,
-                    fagsystem = fagsystem,
-                )
+            .filter { currentNavIdent ->
+                persongalleri.all { fnr ->
+                    tilgangService.hasSaksbehandlerAccessToPerson(
+                        fnr = fnr,
+                        navIdent = currentNavIdent,
+                    )
+                }
             }
             .mapNotNull {
                 try {

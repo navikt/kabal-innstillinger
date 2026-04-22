@@ -170,9 +170,9 @@ class SaksbehandlerService(
                     ?: false
             }
             .filter { currentNavIdent ->
-                persongalleri.all { fnr ->
+                persongalleri.all { currentFnr ->
                     tilgangService.hasSaksbehandlerAccessToPerson(
-                        fnr = fnr,
+                        fnr = currentFnr,
                         navIdent = currentNavIdent,
                     )
                 }

@@ -1,8 +1,6 @@
 package no.nav.klage.oppgave.clients.klagelookup
 
 import no.nav.klage.kodeverk.AzureGroup
-import no.nav.klage.kodeverk.Fagsystem
-import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerGroups
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
@@ -59,8 +57,8 @@ class KlageLookupGateway(
         return data.users
     }
 
-    fun getPerson(fnr: String, sak: Sak?): PersonResponse {
-        return klageLookupClient.getPerson(fnr = fnr, sak = sak)
+    fun getPerson(fnr: String): PersonResponse {
+        return klageLookupClient.getPerson(fnr = fnr)
     }
 
     fun getSluttdatoForGivenNavIdent(navIdent: String): SaksbehandlerSluttdato {
@@ -79,17 +77,15 @@ class KlageLookupGateway(
         /** fnr, dnr or aktorId */
         brukerId: String,
         navIdent: String,
-        ytelse: Ytelse,
-        sakId: String?,
-        fagsystem: Fagsystem?,
     ): TilgangService.Access {
         return klageLookupClient.getAccess(
             brukerId = brukerId,
             navIdent = navIdent,
-            sakId = sakId,
-            ytelse = ytelse,
-            fagsystem = fagsystem,
         )
+    }
+
+    fun getPersongalleri(sak: Sak): List<String> {
+        return klageLookupClient.getPersongalleri(sak = sak).foedselsnummerList
     }
 
     fun ExtendedUserResponse.toSaksbehandlerPersonligInfo(): SaksbehandlerPersonligInfo {

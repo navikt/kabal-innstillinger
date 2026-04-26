@@ -1,7 +1,5 @@
 package no.nav.klage.oppgave.service
 
-import no.nav.klage.kodeverk.Fagsystem
-import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
@@ -16,35 +14,23 @@ class TilgangService(
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun hasSaksbehandlerAccessToSak(
+    fun hasSaksbehandlerAccessToPerson(
         navIdent: String,
         fnr: String,
-        ytelse: Ytelse,
-        sakId: String?,
-        fagsystem: Fagsystem?,
     ): Boolean {
-        return getSaksbehandlerAccessToSak(
+        return getSaksbehandlerAccessToPerson(
             navIdent = navIdent,
             fnr = fnr,
-            sakId = sakId,
-            ytelse = ytelse,
-            fagsystem = fagsystem,
         ).access
     }
 
-    private fun getSaksbehandlerAccessToSak(
+    private fun getSaksbehandlerAccessToPerson(
         navIdent: String,
         fnr: String,
-        ytelse: Ytelse,
-        sakId: String?,
-        fagsystem: Fagsystem?,
     ): Access {
         return klageLookupGateway.getAccess(
             brukerId = fnr,
             navIdent = navIdent,
-            sakId = sakId,
-            ytelse = ytelse,
-            fagsystem = fagsystem,
         )
     }
 

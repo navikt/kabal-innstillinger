@@ -82,7 +82,6 @@ class SaksbehandlerServiceTest {
         egenAnsatt = false,
         vergemaalEllerFremtidsfullmakt = false,
         sikkerhetstiltak = null,
-        protectedFamilyMembers = emptyList(),
     )
 
     private val personStrengtFortrolig = PersonResponse(
@@ -99,7 +98,6 @@ class SaksbehandlerServiceTest {
         egenAnsatt = false,
         vergemaalEllerFremtidsfullmakt = false,
         sikkerhetstiltak = null,
-        protectedFamilyMembers = emptyList(),
     )
 
     private val personFortrolig = PersonResponse(
@@ -116,7 +114,6 @@ class SaksbehandlerServiceTest {
         egenAnsatt = false,
         vergemaalEllerFremtidsfullmakt = false,
         sikkerhetstiltak = null,
-        protectedFamilyMembers = emptyList(),
     )
 
     private fun batchedGroupsForSaksbehandlere(vararg navIdents: String): List<BatchedGroupsHitResponse> =
@@ -137,10 +134,10 @@ class SaksbehandlerServiceTest {
 
     @Test
     fun `getSaksbehandlere inneholder relevante saksbehandlere for ytelse og fnr`() {
-        every { klageLookupGateway.getPerson(any(), any()) }.returns(person)
+        every { klageLookupGateway.getPerson(any()) }.returns(person)
         every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
             batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
-        every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -159,7 +156,7 @@ class SaksbehandlerServiceTest {
             fnr = FNR,
             ytelse = Ytelse.AAP_AAP,
             sakId = "abc",
-            fagsystem = Fagsystem.FS36
+            fagsystem = Fagsystem.AO01
         )
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
         assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_2)
@@ -167,7 +164,7 @@ class SaksbehandlerServiceTest {
 
     @Test
     fun `getSaksbehandlere filtrerer bort saksbehandler uten KABAL_SAKSBEHANDLING rolle`() {
-        every { klageLookupGateway.getPerson(any(), any()) }.returns(person)
+        every { klageLookupGateway.getPerson(any()) }.returns(person)
         every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
             listOf(
                 BatchedGroupsHitResponse(
@@ -179,7 +176,7 @@ class SaksbehandlerServiceTest {
                     groupIds = emptyList(),
                 ),
             )
-        every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -196,18 +193,53 @@ class SaksbehandlerServiceTest {
             fnr = FNR,
             ytelse = Ytelse.AAP_AAP,
             sakId = "abc",
-            fagsystem = Fagsystem.FS36
+            fagsystem = Fagsystem.AO01
         )
 
         assertThat(result.saksbehandlere).containsExactly(SAKSBEHANDLER_1)
     }
 
     @Test
-    fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
-        every { klageLookupGateway.getPerson(any(), any()) }.returns(person)
+    fun `getSaksbehandlere forholder seg til persongalleri for FS36`() {
+        val fortroligFnr = "FORTROLIG_FNR"
+
+        every { klageLookupGateway.getPersongalleri(any()) }.returns(listOf(fortroligFnr, FNR))
+        every { klageLookupGateway.getPerson(FNR) }.returns(person)
+        every { klageLookupGateway.getPerson(fortroligFnr) }.returns(personFortrolig)
         every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
             batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
-        every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), FNR) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(SAKSBEHANDLER_IDENT_1, fortroligFnr) }.returns(false)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(SAKSBEHANDLER_IDENT_2, fortroligFnr) }.returns(true)
+        every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.FOR_FOR) }.returns(
+            listOf(
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                ),
+                SaksbehandlerAccess(
+                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
+                )
+            )
+        )
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+
+        val result = saksbehandlerService.getSaksbehandlere(
+            fnr = FNR,
+            ytelse = Ytelse.FOR_FOR,
+            sakId = "abc",
+            fagsystem = Fagsystem.FS36,
+        )
+
+        assertThat(result.saksbehandlere).containsExactly(SAKSBEHANDLER_2)
+    }
+
+    @Test
+    fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
+        every { klageLookupGateway.getPerson(any()) }.returns(person)
+        every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
+            batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -226,7 +258,7 @@ class SaksbehandlerServiceTest {
             ytelse = Ytelse.AAP_AAP,
             fnr = FNR,
             sakId = "abc",
-            fagsystem = Fagsystem.FS36,
+            fagsystem = Fagsystem.AO01,
         )
         assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)
         assertThat(result.medunderskrivere).contains(SAKSBEHANDLER_2)
@@ -234,7 +266,7 @@ class SaksbehandlerServiceTest {
 
     @Test
     fun `Person med beskyttelsesbehov Strengt Fortrolig skal ikke ha medunderskriver`() {
-        every { klageLookupGateway.getPerson(any(), any()) }.returns(personStrengtFortrolig)
+        every { klageLookupGateway.getPerson(any()) }.returns(personStrengtFortrolig)
 
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(any()) }.returns(
             emptyList()
@@ -245,14 +277,14 @@ class SaksbehandlerServiceTest {
             ytelse = Ytelse.AAP_AAP,
             fnr = FNR,
             sakId = "abc",
-            fagsystem = Fagsystem.FS36,
+            fagsystem = Fagsystem.AO01,
         )
         assertThat(result.medunderskrivere).isEmpty()
     }
 
     @Test
     fun `Person med beskyttelsesbehov Fortrolig skal ikke ha medunderskriver`() {
-        every { klageLookupGateway.getPerson(any(), any()) }.returns(personFortrolig)
+        every { klageLookupGateway.getPerson(any()) }.returns(personFortrolig)
 
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(any()) }.returns(
             emptyList()
@@ -263,7 +295,7 @@ class SaksbehandlerServiceTest {
             ytelse = Ytelse.AAP_AAP,
             fnr = FNR,
             sakId = "abc",
-            fagsystem = Fagsystem.FS36,
+            fagsystem = Fagsystem.AO01,
         )
         assertThat(result.medunderskrivere).isEmpty()
     }
@@ -281,7 +313,7 @@ class SaksbehandlerServiceTest {
                 enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
             )
 
-            every { klageLookupGateway.getPerson(any(), any()) }.returns(person)
+            every { klageLookupGateway.getPerson(any()) }.returns(person)
             every { klageLookupGateway.getUsersInGroup(AzureGroup.KABAL_ROL) }.returns(
                 listOf(
                     UserResponse(
@@ -293,14 +325,14 @@ class SaksbehandlerServiceTest {
                 )
             )
             every { klageLookupGateway.getUserGroupsBatched(listOf(rolIdent)) } returns batchedGroupsForROLs(rolIdent)
-            every { tilgangService.hasSaksbehandlerAccessToSak(any(), any(), any(), any(), any()) }.returns(true)
+            every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
             every { klageLookupGateway.getUserInfoForGivenNavIdent(rolIdent) }.returns(rolName)
 
             val result = saksbehandlerService.getROLList(
                 fnr = FNR,
                 ytelse = Ytelse.AAP_AAP,
                 sakId = "abc",
-                fagsystem = Fagsystem.FS36
+                fagsystem = Fagsystem.AO01
             )
             assertThat(result.saksbehandlere).contains(
                 Saksbehandler(navIdent = rolIdent, navn = "rol bruker")
@@ -309,14 +341,14 @@ class SaksbehandlerServiceTest {
 
         @Test
         fun `getROLList med person med Strengt Fortrolig beskyttelsesbehov returnerer tom liste`() {
-            every { klageLookupGateway.getPerson(any(), any()) }.returns(personStrengtFortrolig)
+            every { klageLookupGateway.getPerson(any()) }.returns(personStrengtFortrolig)
             every { klageLookupGateway.getUsersInGroup(AzureGroup.KABAL_ROL) }.returns(emptyList())
 
             val result = saksbehandlerService.getROLList(
                 fnr = FNR,
                 ytelse = Ytelse.AAP_AAP,
                 sakId = "abc",
-                fagsystem = Fagsystem.FS36
+                fagsystem = Fagsystem.AO01
             )
             assertThat(result.saksbehandlere).isEmpty()
         }

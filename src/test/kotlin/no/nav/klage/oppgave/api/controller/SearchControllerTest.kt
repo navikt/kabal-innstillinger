@@ -77,6 +77,7 @@ class SearchControllerTest {
             Saksbehandler(
                 navIdent = navIdent,
                 navn = navn,
+                ansattEnhetId = enhet,
             )
         )
     )
@@ -86,6 +87,7 @@ class SearchControllerTest {
             Saksbehandler(
                 navIdent = navIdent,
                 navn = navn,
+                ansattEnhetId = enhet,
             )
         )
     )

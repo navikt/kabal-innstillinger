@@ -178,8 +178,14 @@ class SaksbehandlerService(
                 }
             }
             .mapNotNull {
+                val saksbehandlerInfo = getDataOmSaksbehandler(navIdent = it)
+
                 try {
-                    Saksbehandler(navIdent = it, navn = getNameForIdent(it).sammensattNavn)
+                    Saksbehandler(
+                        navIdent = it,
+                        navn = saksbehandlerInfo.navn,
+                        ansattEnhetId = saksbehandlerInfo.ansattEnhet.enhet.enhetId,
+                    )
                 } catch (e: Exception) {
                     logger.warn("Error when getting name for ident $it", e)
                     null

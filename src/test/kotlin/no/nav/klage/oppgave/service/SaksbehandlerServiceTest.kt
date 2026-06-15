@@ -10,9 +10,7 @@ import no.nav.klage.oppgave.clients.klagelookup.BatchedGroupsHitResponse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.klagelookup.PersonResponse
 import no.nav.klage.oppgave.clients.klagelookup.UserResponse
-import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
-import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
-import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
+import no.nav.klage.oppgave.domain.saksbehandler.*
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -34,11 +32,13 @@ class SaksbehandlerServiceTest {
         fornavn = "fornavn1",
         etternavn = "etternavn1",
         sammensattNavn = "sammensattNavn1",
-        enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
+        enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
     )
 
     private val SAKSBEHANDLER_1 = Saksbehandler(
-        navIdent = SAKSBEHANDLER_IDENT_1, navn = SAKSBEHANDLER_NAME_1.sammensattNavn
+        navIdent = SAKSBEHANDLER_IDENT_1,
+        navn = SAKSBEHANDLER_NAME_1.sammensattNavn,
+        ansattEnhetId = "saksbehandlerEnhetId",
     )
 
     private val SAKSBEHANDLER_IDENT_2 = "SAKSBEHANDLER_IDENT_2"
@@ -51,11 +51,13 @@ class SaksbehandlerServiceTest {
         fornavn = "fornavn2",
         etternavn = "etternavn2",
         sammensattNavn = "sammensattNavn2",
-        enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
+        enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
     )
 
     private val SAKSBEHANDLER_2 = Saksbehandler(
-        navIdent = SAKSBEHANDLER_IDENT_2, navn = SAKSBEHANDLER_NAME_2.sammensattNavn
+        navIdent = SAKSBEHANDLER_IDENT_2,
+        navn = SAKSBEHANDLER_NAME_2.sammensattNavn,
+        ansattEnhetId = "saksbehandlerEnhetId",
     )
 
     private val FNR = "FNR"
@@ -151,6 +153,11 @@ class SaksbehandlerServiceTest {
         )
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
+        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
+            anonymous = false
+        )
 
         val result = saksbehandlerService.getSaksbehandlere(
             fnr = FNR,
@@ -188,6 +195,11 @@ class SaksbehandlerServiceTest {
             )
         )
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
+        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
+            anonymous = false
+        )
 
         val result = saksbehandlerService.getSaksbehandlere(
             fnr = FNR,
@@ -223,6 +235,11 @@ class SaksbehandlerServiceTest {
         )
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
+        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
+            anonymous = false
+        )
 
         val result = saksbehandlerService.getSaksbehandlere(
             fnr = FNR,
@@ -252,6 +269,11 @@ class SaksbehandlerServiceTest {
         )
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
         every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
+        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
+            anonymous = false
+        )
 
         val result = saksbehandlerService.getMedunderskrivere(
             ident = SAKSBEHANDLER_IDENT_1,
@@ -310,7 +332,7 @@ class SaksbehandlerServiceTest {
                 fornavn = "rol",
                 etternavn = "bruker",
                 sammensattNavn = "rol bruker",
-                enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
+                enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
             )
 
             every { klageLookupGateway.getPerson(any()) }.returns(person)
@@ -327,6 +349,11 @@ class SaksbehandlerServiceTest {
             every { klageLookupGateway.getUserGroupsBatched(listOf(rolIdent)) } returns batchedGroupsForROLs(rolIdent)
             every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
             every { klageLookupGateway.getUserInfoForGivenNavIdent(rolIdent) }.returns(rolName)
+            every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
+            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+            every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
+                anonymous = false
+            )
 
             val result = saksbehandlerService.getROLList(
                 fnr = FNR,
@@ -335,7 +362,7 @@ class SaksbehandlerServiceTest {
                 fagsystem = Fagsystem.AO01
             )
             assertThat(result.saksbehandlere).contains(
-                Saksbehandler(navIdent = rolIdent, navn = "rol bruker")
+                Saksbehandler(navIdent = rolIdent, navn = "rol bruker", ansattEnhetId = "saksbehandlerEnhetId")
             )
         }
 

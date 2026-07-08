@@ -303,7 +303,7 @@ class KlageLookupClient(
         enhetsnummer: String,
     ): UsersResponse {
         return runWithTimingAndLogging {
-            val token = "Bearer ${tokenUtil.getOnBehalfOfTokenWithKlageLookupScope()}"
+            val token = getCorrectBearerToken()
             klageLookupWebClient.get()
                 .uri("/enheter/$enhetsnummer/users")
                 .header(

@@ -1,9 +1,10 @@
 package no.nav.klage.oppgave.service
 
 import io.mockk.*
-import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
+import no.nav.klage.kodeverk.ytelse.Ytelse
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
@@ -17,8 +18,10 @@ import java.time.LocalDateTime
 class InnstillingerServiceTest {
     private val innstillingerRepository: InnstillingerRepository = spyk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
+    private val klageLookupGateway: KlageLookupGateway = mockk()
     private val innstillingerService = InnstillingerService(
         innstillingerRepository = innstillingerRepository,
+        klageLookupGateway = klageLookupGateway,
     )
 
     private val ident1 = "ident1"

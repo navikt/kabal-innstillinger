@@ -1,8 +1,10 @@
 package no.nav.klage.oppgave.service
 
+import no.nav.klage.kodeverk.Enhet
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
 import no.nav.klage.kodeverk.ytelse.Ytelse
+import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
@@ -15,6 +17,7 @@ import java.time.LocalDateTime
 @Transactional
 class InnstillingerService(
     private val innstillingerRepository: InnstillingerRepository,
+    private val klageLookupGateway: KlageLookupGateway,
 ) {
 
     companion object {
@@ -217,9 +220,17 @@ class InnstillingerService(
         }
     }
 
-    fun getAllHjemlerForYtelse(ytelse: Ytelse): Set<String> {
+    fun getAllHjemlerForYtelse(ytelse: Ytelse, includeStyringsEnhet: Boolean): Set<String> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
-        val hjemmelSet = relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
+        val hjemmelSet = if (includeStyringsEnhet) {
+            relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
+        } else {
+            val navIdentsInKAStyringsEnhet = klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }
+            relevantInnstillinger.filter {
+                it.saksbehandlerident !in navIdentsInKAStyringsEnhet
+            }.flatMap { it.hjemler }.map { it.id }.toSet()
+        }
+
         return hjemmelSet
     }
 }

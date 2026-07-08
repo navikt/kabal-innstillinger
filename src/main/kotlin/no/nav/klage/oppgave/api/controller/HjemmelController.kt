@@ -29,7 +29,11 @@ class HjemmelController(private val innstillingerService: InnstillingerService) 
     @GetMapping("/hjemler")
     fun getHjemlerForYtelse(
         @RequestParam(required = true, name = "ytelseId") ytelseId: String,
+        @RequestParam(required = false, name = "includeSE") includeStyringsEnhet: Boolean = true,
     ): Set<String> {
-        return innstillingerService.getAllHjemlerForYtelse(Ytelse.of(ytelseId))
+        return innstillingerService.getAllHjemlerForYtelse(
+            ytelse = Ytelse.of(ytelseId),
+            includeStyringsEnhet = includeStyringsEnhet
+        )
     }
 }

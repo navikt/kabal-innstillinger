@@ -13,7 +13,7 @@ val kodeverkVersion = "3.3.10"
 val shedlockVersion = "7.7.0"
 
 plugins {
-    val kotlinVersion = "2.4.0"
+    val kotlinVersion = "2.4.10"
     id("org.springframework.boot") version "4.1.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion

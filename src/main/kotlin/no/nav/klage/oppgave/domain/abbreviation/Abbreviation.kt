@@ -17,7 +17,7 @@ class Abbreviation(
     @Column(name = "short")
     var short: String,
     @Column(name = "long")
-    var long: String
+    var long: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -41,8 +41,5 @@ class Abbreviation(
         return result
     }
 
-    override fun toString(): String {
-        return "Abbreviation(id=$id, navIdent='$navIdent', short='$short', long='$long')"
-    }
-
+    override fun toString(): String = "Abbreviation(id=$id, navIdent='$navIdent', short='$short', long='$long')"
 }

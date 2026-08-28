@@ -29,15 +29,14 @@ class SaksbehandlerAccessService(
     private val innstillingerService: InnstillingerService,
     private val klageLookupGateway: KlageLookupGateway,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val teamLogger = getTeamLogger()
     }
 
-    fun getSaksbehandlerAccessView(saksbehandlerIdent: String): SaksbehandlerAccessView {
-        return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
+    fun getSaksbehandlerAccessView(saksbehandlerIdent: String): SaksbehandlerAccessView =
+        if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
             SaksbehandlerAccessView(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
@@ -49,33 +48,34 @@ class SaksbehandlerAccessService(
         } else {
             getEmptySaksbehandlerAccess(saksbehandlerIdent)
         }
-    }
 
     fun getSaksbehandlerAccessesInEnhet(enhet: String): SaksbehandlerAccessResponse {
         val ansatteIdents = getAnsatteIEnhet(enhetId = enhet)
         val saksbehandlerGroups = klageLookupGateway.getUserGroupsBatched(navIdentList = ansatteIdents)
         return SaksbehandlerAccessResponse(
-            accessRights = ansatteIdents
-                .filter { ident ->
-                    saksbehandlerGroups.find { it.navIdent == ident }?.groupIds?.contains(AzureGroup.KABAL_SAKSBEHANDLING.id)
-                        ?: false
-                }
-                .map { ident ->
-                    if (saksbehandlerAccessRepository.existsById(ident)) {
-                        getSaksbehandlerAccessView(ident)
-                    } else {
-                        getEmptySaksbehandlerAccess(ident)
-                    }
-                })
+            accessRights =
+                ansatteIdents
+                    .filter { ident ->
+                        saksbehandlerGroups.find { it.navIdent == ident }?.groupIds?.contains(AzureGroup.KABAL_SAKSBEHANDLING.id)
+                            ?: false
+                    }.map { ident ->
+                        if (saksbehandlerAccessRepository.existsById(ident)) {
+                            getSaksbehandlerAccessView(ident)
+                        } else {
+                            getEmptySaksbehandlerAccess(ident)
+                        }
+                    },
+        )
     }
 
-    private fun getEmptySaksbehandlerAccess(saksbehandlerIdent: String) = SaksbehandlerAccessView(
-        saksbehandlerIdent = saksbehandlerIdent,
-        saksbehandlerName = getSammensattNameForIdent(navIdent = saksbehandlerIdent),
-        ytelseIdList = emptyList(),
-        created = null,
-        accessRightsModified = null,
-    )
+    private fun getEmptySaksbehandlerAccess(saksbehandlerIdent: String) =
+        SaksbehandlerAccessView(
+            saksbehandlerIdent = saksbehandlerIdent,
+            saksbehandlerName = getSammensattNameForIdent(navIdent = saksbehandlerIdent),
+            ytelseIdList = emptyList(),
+            created = null,
+            accessRightsModified = null,
+        )
 
     fun getTildelteYtelserForEnhet(enhet: String): TildelteYtelserResponse {
         val saksbehandlereAccess = getSaksbehandlerAccessesInEnhet(enhet)
@@ -86,7 +86,7 @@ class SaksbehandlerAccessService(
 
     fun setYtelserForAnsatt(
         ytelseInput: YtelseInput,
-        innloggetAnsattIdent: String
+        innloggetAnsattIdent: String,
     ): SaksbehandlerAccessResponse {
         logger.debug("setYtelser for saksbehandlere with ytelser {}", ytelseInput)
 
@@ -95,59 +95,60 @@ class SaksbehandlerAccessService(
 
         ytelseInput.accessRights.forEach { accessRight ->
             val ytelseSet = accessRight.ytelseIdList.map { Ytelse.of(it) }.toSet()
-            val saksbehandlerAccess = if (!saksbehandlerAccessRepository.existsById(accessRight.saksbehandlerIdent)) {
-                saksbehandlerAccessRepository.save(
-                    SaksbehandlerAccessEntity(
-                        saksbehandlerIdent = accessRight.saksbehandlerIdent,
-                        modifiedBy = innloggetAnsattIdent,
-                        ytelser = ytelseSet,
-                        created = now,
-                        accessRightsModified = now,
+            val saksbehandlerAccess =
+                if (!saksbehandlerAccessRepository.existsById(accessRight.saksbehandlerIdent)) {
+                    saksbehandlerAccessRepository.save(
+                        SaksbehandlerAccessEntity(
+                            saksbehandlerIdent = accessRight.saksbehandlerIdent,
+                            modifiedBy = innloggetAnsattIdent,
+                            ytelser = ytelseSet,
+                            created = now,
+                            accessRightsModified = now,
+                        ),
                     )
-                )
-            } else {
-                saksbehandlerAccessRepository.getReferenceById(accessRight.saksbehandlerIdent).apply {
-                    if (ytelser != ytelseSet) {
-                        ytelser = ytelseSet
-                        modifiedBy = innloggetAnsattIdent
-                        accessRightsModified = now
-                    } else {
-                        logger.debug("No changes for saksbehandler {}", accessRight.saksbehandlerIdent)
+                } else {
+                    saksbehandlerAccessRepository.getReferenceById(accessRight.saksbehandlerIdent).apply {
+                        if (ytelser != ytelseSet) {
+                            ytelser = ytelseSet
+                            modifiedBy = innloggetAnsattIdent
+                            accessRightsModified = now
+                        } else {
+                            logger.debug("No changes for saksbehandler {}", accessRight.saksbehandlerIdent)
+                        }
                     }
                 }
-            }
 
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = accessRight.saksbehandlerIdent,
                 inputYtelseSet = ytelseSet,
-                assignedYtelseSet = ytelseSet
+                assignedYtelseSet = ytelseSet,
             )
 
-            saksbehandlerAccessList += SaksbehandlerAccessView(
-                saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
-                saksbehandlerName = getSammensattNameForIdent(saksbehandlerAccess.saksbehandlerIdent),
-                ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
-                created = saksbehandlerAccess.created,
-                accessRightsModified = saksbehandlerAccess.accessRightsModified,
-            )
+            saksbehandlerAccessList +=
+                SaksbehandlerAccessView(
+                    saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
+                    saksbehandlerName = getSammensattNameForIdent(saksbehandlerAccess.saksbehandlerIdent),
+                    ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
+                    created = saksbehandlerAccess.created,
+                    accessRightsModified = saksbehandlerAccess.accessRightsModified,
+                )
         }
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
     }
 
-    fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> {
-        return if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
+    fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> =
+        if (saksbehandlerAccessRepository.existsById(saksbehandlerIdent)) {
             val saksbehandlerAccess = saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent)
             saksbehandlerAccess.ytelser
-        } else emptySet()
-    }
+        } else {
+            emptySet()
+        }
 
-    fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> {
-        return saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
-    }
+    fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> =
+        saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
 
-    private fun getAnsatteIEnhet(enhetId: String): List<String> {
-        return klageLookupGateway.getUsersInEnhet(enhetsnummer = enhetId).map { it.navIdent }
-    }
+    private fun getAnsatteIEnhet(enhetId: String): List<String> =
+        klageLookupGateway.getUsersInEnhet(enhetsnummer = enhetId).map { it.navIdent }
 
     private fun getSammensattNameForIdent(navIdent: String): String {
         val saksbehandlerPersonligInfo = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent)
@@ -160,12 +161,14 @@ class SaksbehandlerAccessService(
         val allSaksbehandlerAccessEntries = saksbehandlerAccessRepository.findAll()
         val navIdentList = allSaksbehandlerAccessEntries.map { it.saksbehandlerIdent }
 
-        val sluttdatoByNavIdent = klageLookupGateway
-            .getSluttdatoForNavIdentList(navIdentList)
-            .associateBy { it.navIdent }
-        val userInfoByNavIdent = klageLookupGateway
-            .getUserInfoForNavIdentList(navIdentList)
-            .associateBy { it.navIdent }
+        val sluttdatoByNavIdent =
+            klageLookupGateway
+                .getSluttdatoForNavIdentList(navIdentList)
+                .associateBy { it.navIdent }
+        val userInfoByNavIdent =
+            klageLookupGateway
+                .getUserInfoForNavIdentList(navIdentList)
+                .associateBy { it.navIdent }
 
         logger.debug("Starting scheduled cleanup process. See more details in team-logs.")
         teamLogger.debug("Starting scheduled cleanup process.")
@@ -173,17 +176,17 @@ class SaksbehandlerAccessService(
 
         var report = ""
 
-        report += allSaksbehandlerAccessEntries.map {
-            deleteInnstillingerAndAccessIfExpiredSaksbehandler(
-                navIdent = it.saksbehandlerIdent,
-                ansattSluttdato = sluttdatoByNavIdent[it.saksbehandlerIdent]?.sluttdato,
-                saksbehandlerEnhetId = userInfoByNavIdent[it.saksbehandlerIdent]?.enhet?.enhetId,
-            )
-        }
+        report +=
+            allSaksbehandlerAccessEntries.map {
+                deleteInnstillingerAndAccessIfExpiredSaksbehandler(
+                    navIdent = it.saksbehandlerIdent,
+                    ansattSluttdato = sluttdatoByNavIdent[it.saksbehandlerIdent]?.sluttdato,
+                    saksbehandlerEnhetId = userInfoByNavIdent[it.saksbehandlerIdent]?.enhet?.enhetId,
+                )
+            }
 
         teamLogger.debug("Report after cleanup: \n $report")
     }
-
 
     private fun deleteInnstillingerAndAccessIfExpiredSaksbehandler(
         navIdent: String,

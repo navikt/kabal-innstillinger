@@ -17,12 +17,16 @@ data class InnstillingerView(
 data class EnhetView(
     val id: String,
     val navn: String,
-    val lovligeYtelser: List<String>
+    val lovligeYtelser: List<String>,
 )
 
-data class StringInputView(val value: String?)
+data class StringInputView(
+    val value: String?,
+)
 
-data class BooleanInputView(val value: Boolean)
+data class BooleanInputView(
+    val value: Boolean,
+)
 
 data class Signature(
     val longName: String,

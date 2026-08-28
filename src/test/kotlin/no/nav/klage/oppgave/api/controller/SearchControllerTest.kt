@@ -5,7 +5,11 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
-import no.nav.klage.oppgave.api.view.*
+import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
+import no.nav.klage.oppgave.api.view.SakInput
+import no.nav.klage.oppgave.api.view.Saksbehandler
+import no.nav.klage.oppgave.api.view.Saksbehandlere
+import no.nav.klage.oppgave.api.view.SearchMedunderskrivereInput
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.TokenUtil
 import org.junit.jupiter.api.BeforeEach
@@ -22,7 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @WebMvcTest(SearchController::class)
 @ActiveProfiles("local")
 class SearchControllerTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -46,51 +49,59 @@ class SearchControllerTest {
     private val sakId = "sakId"
     private val fagsystemId = Fagsystem.FS36.id
 
-    private val searchMedunderskrivereInput = SearchMedunderskrivereInput(
-        enhet = enhet,
-        navIdent = navIdent,
-        sak = SakInput(
+    private val searchMedunderskrivereInput =
+        SearchMedunderskrivereInput(
+            enhet = enhet,
+            navIdent = navIdent,
+            sak =
+                SakInput(
+                    fnr = fnr,
+                    sakId = sakId,
+                    ytelseId = ytelseId,
+                    fagsystemId = fagsystemId,
+                ),
+        )
+
+    private val searchROLInput =
+        SakInput(
             fnr = fnr,
             sakId = sakId,
             ytelseId = ytelseId,
             fagsystemId = fagsystemId,
-        ),
-    )
-
-    private val searchROLInput = SakInput(
-        fnr = fnr,
-        sakId = sakId,
-        ytelseId = ytelseId,
-        fagsystemId = fagsystemId,
-    )
-
-    private val searchSaksbehandlerInput = SakInput(
-        fnr = fnr,
-        sakId = sakId,
-        ytelseId = ytelseId,
-        fagsystemId = fagsystemId,
-    )
-
-    private val medunderskrivereForYtelse = MedunderskrivereForYtelse(
-        ytelse = ytelseId,
-        medunderskrivere = listOf(
-            Saksbehandler(
-                navIdent = navIdent,
-                navn = navn,
-                ansattEnhetId = enhet,
-            )
         )
-    )
 
-    private val saksbehandlere = Saksbehandlere(
-        saksbehandlere = listOf(
-            Saksbehandler(
-                navIdent = navIdent,
-                navn = navn,
-                ansattEnhetId = enhet,
-            )
+    private val searchSaksbehandlerInput =
+        SakInput(
+            fnr = fnr,
+            sakId = sakId,
+            ytelseId = ytelseId,
+            fagsystemId = fagsystemId,
         )
-    )
+
+    private val medunderskrivereForYtelse =
+        MedunderskrivereForYtelse(
+            ytelse = ytelseId,
+            medunderskrivere =
+                listOf(
+                    Saksbehandler(
+                        navIdent = navIdent,
+                        navn = navn,
+                        ansattEnhetId = enhet,
+                    ),
+                ),
+        )
+
+    private val saksbehandlere =
+        Saksbehandlere(
+            saksbehandlere =
+                listOf(
+                    Saksbehandler(
+                        navIdent = navIdent,
+                        navn = navn,
+                        ansattEnhetId = enhet,
+                    ),
+                ),
+        )
 
     @Test
     fun getMedunderskrivereForSak() {
@@ -104,11 +115,12 @@ class SearchControllerTest {
             )
         } returns medunderskrivereForYtelse
 
-        mockMvc.perform(
-            post("/search/medunderskrivere").content(mapper.writeValueAsString(searchMedunderskrivereInput))
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/search/medunderskrivere")
+                    .content(mapper.writeValueAsString(searchMedunderskrivereInput))
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     }
 
@@ -123,11 +135,12 @@ class SearchControllerTest {
             )
         } returns saksbehandlere
 
-        mockMvc.perform(
-            post("/search/rol").content(mapper.writeValueAsString(searchROLInput))
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/search/rol")
+                    .content(mapper.writeValueAsString(searchROLInput))
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     }
 
@@ -142,11 +155,12 @@ class SearchControllerTest {
             )
         } returns saksbehandlere
 
-        mockMvc.perform(
-            post("/search/saksbehandlere").content(mapper.writeValueAsString(searchSaksbehandlerInput))
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/search/saksbehandlere")
+                    .content(mapper.writeValueAsString(searchSaksbehandlerInput))
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     }
 }

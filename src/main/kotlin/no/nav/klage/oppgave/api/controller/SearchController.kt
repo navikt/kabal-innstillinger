@@ -4,7 +4,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
-import no.nav.klage.oppgave.api.view.*
+import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
+import no.nav.klage.oppgave.api.view.SakInput
+import no.nav.klage.oppgave.api.view.Saksbehandlere
+import no.nav.klage.oppgave.api.view.SearchMedunderskrivereInput
+import no.nav.klage.oppgave.api.view.SearchSaksbehandlereForBrukerInput
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.TokenUtil
@@ -20,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 class SearchController(
     private val saksbehandlerService: SaksbehandlerService,
     private val tokenUtil: TokenUtil,
-)  {
+) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
@@ -28,14 +32,14 @@ class SearchController(
 
     @Operation(
         summary = "Hent medunderskrivere for en gitt sak",
-        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt sak."
+        description = "Henter alle medunderskrivere som saksbehandler er knyttet til for en gitt sak.",
     )
     @PostMapping(
         "/search/medunderskrivere",
-        produces = ["application/json"]
+        produces = ["application/json"],
     )
     fun getMedunderskrivereForSak(
-        @RequestBody input: SearchMedunderskrivereInput
+        @RequestBody input: SearchMedunderskrivereInput,
     ): MedunderskrivereForYtelse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getMedunderskrivereForSak.name)
@@ -51,11 +55,11 @@ class SearchController(
 
     @Operation(
         summary = "Hent mulige ROLs for en gitt sak",
-        description = "Henter alle ROLs som kan brukes for en gitt sak."
+        description = "Henter alle ROLs som kan brukes for en gitt sak.",
     )
     @PostMapping(
         "/search/rol",
-        produces = ["application/json"]
+        produces = ["application/json"],
     )
     fun getROLsForSak(
         @RequestBody input: SakInput,
@@ -73,14 +77,14 @@ class SearchController(
 
     @Operation(
         summary = "Hent potensielle saksbehandlere for en gitt sak",
-        description = "Hent potensielle saksbehandlere for en gitt sak"
+        description = "Hent potensielle saksbehandlere for en gitt sak",
     )
     @PostMapping(
         "/search/saksbehandlere",
-        produces = ["application/json"]
+        produces = ["application/json"],
     )
     fun getSaksbehandlereForSak(
-        @RequestBody input: SakInput
+        @RequestBody input: SakInput,
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForSak.name)
@@ -95,14 +99,14 @@ class SearchController(
 
     @Operation(
         summary = "Hent potensielle saksbehandlere for en gitt bruker",
-        description = "Hent potensielle saksbehandlere for en gitt bruker"
+        description = "Hent potensielle saksbehandlere for en gitt bruker",
     )
     @PostMapping(
         "/search/saksbehandlere-for-bruker",
-        produces = ["application/json"]
+        produces = ["application/json"],
     )
     fun getSaksbehandlereForBruker(
-        @RequestBody input: SearchSaksbehandlereForBrukerInput
+        @RequestBody input: SearchSaksbehandlereForBrukerInput,
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlereForBruker.name)
@@ -113,7 +117,10 @@ class SearchController(
         )
     }
 
-    private fun logMethodCall(navIdent: String, methodName: String) {
+    private fun logMethodCall(
+        navIdent: String,
+        methodName: String,
+    ) {
         logger.debug("$methodName is requested by $navIdent")
     }
 }

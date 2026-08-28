@@ -1,6 +1,11 @@
 package no.nav.klage.oppgave.config.problem
 
-import no.nav.klage.oppgave.exceptions.*
+import no.nav.klage.oppgave.exceptions.AbbreviationAlreadyExistsException
+import no.nav.klage.oppgave.exceptions.EnhetNotFoundException
+import no.nav.klage.oppgave.exceptions.GroupNotFoundException
+import no.nav.klage.oppgave.exceptions.IllegalInputException
+import no.nav.klage.oppgave.exceptions.MissingTilgangException
+import no.nav.klage.oppgave.exceptions.UserNotFoundException
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.getTeamLogger
 import org.springframework.http.HttpStatus
@@ -13,7 +18,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val ourLogger = getLogger(javaClass.enclosingClass)
@@ -21,50 +25,35 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler
-    fun handleMissingTilgang(ex: MissingTilgangException, request: NativeWebRequest): ProblemDetail =
-        create(HttpStatus.FORBIDDEN, ex)
+    fun handleMissingTilgang(
+        ex: MissingTilgangException,
+        request: NativeWebRequest,
+    ): ProblemDetail = create(httpHttpStatus = HttpStatus.FORBIDDEN, ex = ex)
 
     @ExceptionHandler
-    fun handleResponseHttpStatusException(
-        ex: WebClientResponseException,
-    ): ProblemDetail =
-        createProblemForWebClientResponseException(ex)
+    fun handleResponseHttpStatusException(ex: WebClientResponseException): ProblemDetail = createProblemForWebClientResponseException(ex)
 
     @ExceptionHandler
-    fun handleEnhetNotFoundException(
-        ex: EnhetNotFoundException,
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
+    fun handleEnhetNotFoundException(ex: EnhetNotFoundException): ProblemDetail = create(httpHttpStatus = HttpStatus.NOT_FOUND, ex = ex)
 
     @ExceptionHandler
-    fun handleUserNotFoundException(
-        ex: UserNotFoundException,
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
+    fun handleUserNotFoundException(ex: UserNotFoundException): ProblemDetail = create(httpHttpStatus = HttpStatus.NOT_FOUND, ex = ex)
 
     @ExceptionHandler
-    fun handleGroupNotFoundException(
-        ex: GroupNotFoundException,
-    ): ProblemDetail =
-        create(HttpStatus.NOT_FOUND, ex)
+    fun handleGroupNotFoundException(ex: GroupNotFoundException): ProblemDetail = create(httpHttpStatus = HttpStatus.NOT_FOUND, ex = ex)
 
     @ExceptionHandler
-    fun handleAbbreviationAlreadyExistsException(
-        ex: AbbreviationAlreadyExistsException,
-    ): ProblemDetail =
-        create(HttpStatus.CONFLICT, ex)
+    fun handleAbbreviationAlreadyExistsException(ex: AbbreviationAlreadyExistsException): ProblemDetail =
+        create(httpHttpStatus = HttpStatus.CONFLICT, ex = ex)
 
     @ExceptionHandler
-    fun handleIllegalInputException(
-        ex: IllegalInputException,
-    ): ProblemDetail =
-        create(HttpStatus.BAD_REQUEST, ex)
+    fun handleIllegalInputException(ex: IllegalInputException): ProblemDetail = create(httpHttpStatus = HttpStatus.BAD_REQUEST, ex = ex)
 
     private fun createProblemForWebClientResponseException(ex: WebClientResponseException): ProblemDetail {
         logError(
             httpStatus = HttpStatus.valueOf(ex.statusCode.value()),
             errorMessage = ex.statusText,
-            exception = ex
+            exception = ex,
         )
 
         return ProblemDetail.forStatus(ex.statusCode).apply {
@@ -73,13 +62,16 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         }
     }
 
-    private fun create(httpHttpStatus: HttpStatus, ex: Exception): ProblemDetail {
+    private fun create(
+        httpHttpStatus: HttpStatus,
+        ex: Exception,
+    ): ProblemDetail {
         val errorMessage = ex.message ?: "No error message available"
 
         logError(
             httpStatus = httpHttpStatus,
             errorMessage = errorMessage,
-            exception = ex
+            exception = ex,
         )
 
         return ProblemDetail.forStatusAndDetail(httpHttpStatus, errorMessage).apply {
@@ -87,7 +79,11 @@ class ProblemHandlingControllerAdvice : ResponseEntityExceptionHandler() {
         }
     }
 
-    private fun logError(httpStatus: HttpStatus, errorMessage: String, exception: Exception) {
+    private fun logError(
+        httpStatus: HttpStatus,
+        errorMessage: String,
+        exception: Exception,
+    ) {
         when {
             httpStatus.is5xxServerError -> {
                 ourLogger.error("Exception thrown to client: ${exception.javaClass.name}. See team-logs for more details.")

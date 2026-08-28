@@ -19,5 +19,5 @@ data class Sak(
 )
 
 data class BatchedUserRequest(
-    val navIdentList: List<String>
+    val navIdentList: List<String>,
 )

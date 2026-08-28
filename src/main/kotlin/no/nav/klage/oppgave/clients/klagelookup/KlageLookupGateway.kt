@@ -57,9 +57,7 @@ class KlageLookupGateway(
         return data.users
     }
 
-    fun getPerson(fnr: String): PersonResponse {
-        return klageLookupClient.getPerson(fnr = fnr)
-    }
+    fun getPerson(fnr: String): PersonResponse = klageLookupClient.getPerson(fnr = fnr)
 
     fun getSluttdatoForGivenNavIdent(navIdent: String): SaksbehandlerSluttdato {
         logger.debug("Getting sluttdato for $navIdent from KlageLookup")
@@ -77,42 +75,37 @@ class KlageLookupGateway(
         /** fnr, dnr or aktorId */
         brukerId: String,
         navIdent: String,
-    ): TilgangService.Access {
-        return klageLookupClient.getAccess(
+    ): TilgangService.Access =
+        klageLookupClient.getAccess(
             brukerId = brukerId,
             navIdent = navIdent,
         )
-    }
 
-    fun getPersongalleri(sak: Sak): List<String> {
-        return klageLookupClient.getPersongalleri(sak = sak).foedselsnummerList
-    }
+    fun getPersongalleri(sak: Sak): List<String> = klageLookupClient.getPersongalleri(sak = sak).foedselsnummerList
 
-    fun ExtendedUserResponse.toSaksbehandlerPersonligInfo(): SaksbehandlerPersonligInfo {
-        return SaksbehandlerPersonligInfo(
+    fun ExtendedUserResponse.toSaksbehandlerPersonligInfo(): SaksbehandlerPersonligInfo =
+        SaksbehandlerPersonligInfo(
             navIdent = this.navIdent,
             fornavn = this.fornavn,
             etternavn = this.etternavn,
             sammensattNavn = this.sammensattNavn,
-            enhet = SaksbehandlerEnhet(
-                enhetId = this.enhet.enhetNr,
-                navn = this.enhet.enhetNavn,
-            )
+            enhet =
+                SaksbehandlerEnhet(
+                    enhetId = this.enhet.enhetNr,
+                    navn = this.enhet.enhetNavn,
+                ),
         )
-    }
 
-    fun GroupsResponse.toSaksbehandlerGroups(): SaksbehandlerGroups {
-        return SaksbehandlerGroups(
-            groups = this.groupIds.map { AzureGroup.of(it) }
+    fun GroupsResponse.toSaksbehandlerGroups(): SaksbehandlerGroups =
+        SaksbehandlerGroups(
+            groups = this.groupIds.map { AzureGroup.of(it) },
         )
-    }
 
-    private fun SluttdatoResponse.toSaksbehandlerSluttdato(): SaksbehandlerSluttdato {
-        return SaksbehandlerSluttdato(
+    private fun SluttdatoResponse.toSaksbehandlerSluttdato(): SaksbehandlerSluttdato =
+        SaksbehandlerSluttdato(
             navIdent = this.navIdent,
             sluttdato = this.sluttdato,
         )
-    }
 
     private fun BatchedSluttdatoResponse.toSaksbehandlerSluttdatoList(): List<SaksbehandlerSluttdato> {
         val resultList = mutableListOf<SaksbehandlerSluttdato>()
@@ -121,7 +114,7 @@ class KlageLookupGateway(
                 SaksbehandlerSluttdato(
                     navIdent = it.navIdent,
                     sluttdato = it.sluttdato,
-                )
+                ),
             )
         }
         misses.forEach {
@@ -129,7 +122,7 @@ class KlageLookupGateway(
                 SaksbehandlerSluttdato(
                     navIdent = it,
                     sluttdato = null,
-                )
+                ),
             )
         }
         return resultList

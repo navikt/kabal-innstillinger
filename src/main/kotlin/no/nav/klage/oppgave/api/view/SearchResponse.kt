@@ -1,6 +1,8 @@
 package no.nav.klage.oppgave.api.view
 
-data class Saksbehandlere(val saksbehandlere: List<Saksbehandler>)
+data class Saksbehandlere(
+    val saksbehandlere: List<Saksbehandler>,
+)
 
 data class Saksbehandler(
     val navIdent: String,
@@ -9,8 +11,7 @@ data class Saksbehandler(
 )
 
 data class MedunderskrivereForYtelse(
-    //TODO: Dette er ytelseId, bør få nytt navn.
+    // TODO: Dette er ytelseId, bør få nytt navn.
     val ytelse: String,
     val medunderskrivere: List<Saksbehandler>,
 )
-

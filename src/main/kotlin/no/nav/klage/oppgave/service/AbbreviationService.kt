@@ -8,36 +8,45 @@ import no.nav.klage.oppgave.exceptions.MissingTilgangException
 import no.nav.klage.oppgave.repositories.AbbreviationRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.UUID
 
 @Service
 @Transactional
 class AbbreviationService(
-    private val abbreviationRepository: AbbreviationRepository
+    private val abbreviationRepository: AbbreviationRepository,
 ) {
-    fun getAbbreviationsForSaksbehandler(navIdent: String): List<AbbreviationResponse> {
-        return abbreviationRepository.findByNavIdent(navIdent).map { it.toAbbreviationResponse() }
-    }
+    fun getAbbreviationsForSaksbehandler(navIdent: String): List<AbbreviationResponse> =
+        abbreviationRepository.findByNavIdent(navIdent).map { it.toAbbreviationResponse() }
 
-    fun createAbbreviationForSaksbehandler(short: String, long: String, navIdent: String): AbbreviationResponse {
+    fun createAbbreviationForSaksbehandler(
+        short: String,
+        long: String,
+        navIdent: String,
+    ): AbbreviationResponse {
         validateShort(short = short)
         validateLong(long = long)
 
         checkUniqueShortForSaksbehandler(
             short = short,
-            navIdent = navIdent
+            navIdent = navIdent,
         )
 
-        return abbreviationRepository.save(
-            Abbreviation(
-                navIdent = navIdent,
-                short = short,
-                long = long,
-            )
-        ).toAbbreviationResponse()
+        return abbreviationRepository
+            .save(
+                Abbreviation(
+                    navIdent = navIdent,
+                    short = short,
+                    long = long,
+                ),
+            ).toAbbreviationResponse()
     }
 
-    fun updateAbbreviation(abbreviationId: UUID, short: String, long: String, navIdent: String): AbbreviationResponse {
+    fun updateAbbreviation(
+        abbreviationId: UUID,
+        short: String,
+        long: String,
+        navIdent: String,
+    ): AbbreviationResponse {
         validateShort(short = short)
         validateLong(long = long)
 
@@ -48,7 +57,7 @@ class AbbreviationService(
             }
 
             val existingAbbreviationsForSaksbehandler = abbreviationRepository.findByNavIdent(navIdent)
-            if (existingAbbreviationsForSaksbehandler.any { it.short == short && it.id != abbreviation.id}) {
+            if (existingAbbreviationsForSaksbehandler.any { it.short == short && it.id != abbreviation.id }) {
                 throw AbbreviationAlreadyExistsException("Forkortelsen $short fins allerede")
             }
 
@@ -61,7 +70,10 @@ class AbbreviationService(
         }
     }
 
-    fun deleteAbbreviation(abbreviationId: UUID, navIdent: String) {
+    fun deleteAbbreviation(
+        abbreviationId: UUID,
+        navIdent: String,
+    ) {
         if (abbreviationRepository.existsById(abbreviationId)) {
             val abbreviation = abbreviationRepository.getReferenceById(abbreviationId)
             if (abbreviation.navIdent != navIdent) {
@@ -86,18 +98,20 @@ class AbbreviationService(
         }
     }
 
-    private fun checkUniqueShortForSaksbehandler(short: String, navIdent: String) {
+    private fun checkUniqueShortForSaksbehandler(
+        short: String,
+        navIdent: String,
+    ) {
         val existingAbbreviationsForSaksbehandler = abbreviationRepository.findByNavIdent(navIdent)
         if (existingAbbreviationsForSaksbehandler.any { it.short == short }) {
             throw AbbreviationAlreadyExistsException("Forkortelsen $short fins allerede")
         }
     }
 
-    private fun Abbreviation.toAbbreviationResponse(): AbbreviationResponse {
-        return AbbreviationResponse(
+    private fun Abbreviation.toAbbreviationResponse(): AbbreviationResponse =
+        AbbreviationResponse(
             id = id,
             short = short,
             long = long,
         )
-    }
 }

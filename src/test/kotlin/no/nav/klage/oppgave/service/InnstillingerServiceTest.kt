@@ -1,6 +1,10 @@
 package no.nav.klage.oppgave.service
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.spyk
+import io.mockk.verify
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
 import no.nav.klage.kodeverk.ytelse.Ytelse
@@ -19,10 +23,11 @@ class InnstillingerServiceTest {
     private val innstillingerRepository: InnstillingerRepository = spyk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
     private val klageLookupGateway: KlageLookupGateway = mockk()
-    private val innstillingerService = InnstillingerService(
-        innstillingerRepository = innstillingerRepository,
-        klageLookupGateway = klageLookupGateway,
-    )
+    private val innstillingerService =
+        InnstillingerService(
+            innstillingerRepository = innstillingerRepository,
+            klageLookupGateway = klageLookupGateway,
+        )
 
     private val ident1 = "ident1"
     private val ident2 = "ident2"
@@ -37,24 +42,23 @@ class InnstillingerServiceTest {
     private val longName = "longName"
     private val jobTitle = "jobTitle"
 
-    private val saksbehandlerInnstillingerInput = SaksbehandlerInnstillinger(
-        hjemler = setOf(hjemmel1, hjemmel2),
-        ytelser = setOf(ytelse1, ytelse2),
-        shortName = null,
-        longName = null,
-        jobTitle = null,
-        anonymous = false,
-    )
+    private val saksbehandlerInnstillingerInput =
+        SaksbehandlerInnstillinger(
+            hjemler = setOf(hjemmel1, hjemmel2),
+            ytelser = setOf(ytelse1, ytelse2),
+            shortName = null,
+            longName = null,
+            jobTitle = null,
+            anonymous = false,
+        )
     private val now = LocalDateTime.now()
 
     @BeforeEach
     fun before() {
-
         mockkStatic(LocalDateTime::class)
         every { LocalDateTime.now() } returns now
         every { innstillingerRepository.save(any()) }.returnsArgument(0)
     }
-
 
     @Test
     fun findSaksbehandlerInnstillinger() {
@@ -63,29 +67,32 @@ class InnstillingerServiceTest {
                 saksbehandlerident = ident1,
                 ytelser = setOf(Ytelse.of("1")),
                 anonymous = false,
-            )
+            ),
         )
         every { innstillingerRepository.findBySaksbehandlerident(ident2) }.returns(null)
         assertNotEquals(
-            /* unexpected = */ innstillingerService.findSaksbehandlerInnstillinger(ident = ident1),
-            /* actual = */ innstillingerService.findSaksbehandlerInnstillinger(ident = ident2)
+            // unexpected =
+            innstillingerService.findSaksbehandlerInnstillinger(ident = ident1),
+            // actual =
+            innstillingerService.findSaksbehandlerInnstillinger(ident = ident2),
         )
     }
 
     @Nested
     inner class StoreInnstillingerButKeepSignature {
-
         @Test
         fun `happy path`() {
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(null)
 
             assertEquals(
-                /* expected = */ saksbehandlerInnstillingerInput,
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
+                // expected =
+                saksbehandlerInnstillingerInput,
+                // actual =
+                innstillingerService.storeInnstillingerButKeepSignature(
                     navIdent = ident1,
                     newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1, ytelse2)
-                )
+                    assignedYtelseSet = setOf(ytelse1, ytelse2),
+                ),
             )
         }
 
@@ -94,67 +101,83 @@ class InnstillingerServiceTest {
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(null)
 
             assertEquals(
-                /* expected = */ listOf(ytelse1).map { it.id },
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
-                    navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1)
-                ).ytelser.map { it.id }
+                // expected =
+                listOf(ytelse1).map { it.id },
+                // actual =
+                innstillingerService
+                    .storeInnstillingerButKeepSignature(
+                        navIdent = ident1,
+                        newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                        assignedYtelseSet = setOf(ytelse1),
+                    ).ytelser
+                    .map { it.id },
             )
         }
 
         @Test
         fun `signature input ignored`() {
-
-            val oldInnstillinger = Innstillinger(
-                saksbehandlerident = ident1,
-                hjemler = setOf(hjemmel1, hjemmel2),
-                ytelser = setOf(ytelse1, ytelse2),
-                shortName = shortName,
-                longName = longName,
-                jobTitle = jobTitle,
-                modified = now,
-                anonymous = true,
-            )
+            val oldInnstillinger =
+                Innstillinger(
+                    saksbehandlerident = ident1,
+                    hjemler = setOf(hjemmel1, hjemmel2),
+                    ytelser = setOf(ytelse1, ytelse2),
+                    shortName = shortName,
+                    longName = longName,
+                    jobTitle = jobTitle,
+                    modified = now,
+                    anonymous = true,
+                )
 
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(
-                oldInnstillinger
+                oldInnstillinger,
             )
 
             assertEquals(
-                /* expected = */ shortName,
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
-                    navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1, ytelse2)
-                ).shortName
+                // expected =
+                shortName,
+                // actual =
+                innstillingerService
+                    .storeInnstillingerButKeepSignature(
+                        navIdent = ident1,
+                        newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                        assignedYtelseSet = setOf(ytelse1, ytelse2),
+                    ).shortName,
             )
 
             assertEquals(
-                /* expected = */ longName,
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
-                    navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1, ytelse2)
-                ).longName
+                // expected =
+                longName,
+                // actual =
+                innstillingerService
+                    .storeInnstillingerButKeepSignature(
+                        navIdent = ident1,
+                        newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                        assignedYtelseSet = setOf(ytelse1, ytelse2),
+                    ).longName,
             )
 
             assertEquals(
-                /* expected = */ jobTitle,
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
-                    navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1, ytelse2)
-                ).jobTitle
+                // expected =
+                jobTitle,
+                // actual =
+                innstillingerService
+                    .storeInnstillingerButKeepSignature(
+                        navIdent = ident1,
+                        newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                        assignedYtelseSet = setOf(ytelse1, ytelse2),
+                    ).jobTitle,
             )
 
             assertEquals(
-                /* expected = */ true,
-                /* actual = */ innstillingerService.storeInnstillingerButKeepSignature(
-                    navIdent = ident1,
-                    newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
-                    assignedYtelseSet = setOf(ytelse1, ytelse2)
-                ).anonymous
+                // expected =
+                true,
+                // actual =
+                innstillingerService
+                    .storeInnstillingerButKeepSignature(
+                        navIdent = ident1,
+                        newSaksbehandlerInnstillinger = saksbehandlerInnstillingerInput,
+                        assignedYtelseSet = setOf(ytelse1, ytelse2),
+                    ).anonymous,
             )
         }
     }
@@ -182,31 +205,33 @@ class InnstillingerServiceTest {
                         jobTitle = null,
                         modified = now,
                         anonymous = false,
-                    )
+                    ),
                 )
             }
         }
 
         @Test
-        fun `existing Innstillinger, saves all hjemler from new ytelse, keeps existing ytelse and hjemler, removes existing hjemler and ytelser no longer legal`() {
-            val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.map { it.hjemmel }.subList(0, 3)
+        fun `existing Innstillinger, saves all hjemler from new ytelse, keeps legal ones and removes the rest`() {
+            val existingYtelse2Hjemler = ytelseToHjemler[ytelse2]!!.map { it.hjemmel }.subList(fromIndex = 0, toIndex = 3)
             val extraExistingHjemler = setOf(ytelseToHjemler[ytelse3]!!.map { it.hjemmel }[0])
 
             val existingHjemler = existingYtelse2Hjemler + extraExistingHjemler
 
-            val mockInnstillinger = spyk(
-                Innstillinger(
-                    saksbehandlerident = ident1,
-                    hjemler = existingHjemler.toSet(),
-                    ytelser = setOf(ytelse2, ytelse3),
-                    shortName = null,
-                    longName = null,
-                    jobTitle = null,
-                    modified = now,
-                    anonymous = false,
-                ),
-                recordPrivateCalls = true,
-            )
+            val mockInnstillinger =
+                spyk(
+                    objToCopy =
+                        Innstillinger(
+                            saksbehandlerident = ident1,
+                            hjemler = existingHjemler.toSet(),
+                            ytelser = setOf(ytelse2, ytelse3),
+                            shortName = null,
+                            longName = null,
+                            jobTitle = null,
+                            modified = now,
+                            anonymous = false,
+                        ),
+                    recordPrivateCalls = true,
+                )
 
             every { mockInnstillinger.ytelser = any() } returnsArgument 0
             every { mockInnstillinger.hjemler = any() } returnsArgument 0
@@ -216,106 +241,113 @@ class InnstillingerServiceTest {
                 setOf(
                     ytelse1,
                     ytelse2,
-                )
+                ),
             )
             every { innstillingerRepository.existsById(ident1) }.returns(true)
             every { innstillingerRepository.findBySaksbehandlerident(ident1) }.returns(
-                mockInnstillinger
+                mockInnstillinger,
             )
             every { innstillingerRepository.getReferenceById(ident1) }.returns(
-                mockInnstillinger
+                mockInnstillinger,
             )
 
             innstillingerService.updateYtelseAndHjemmelInnstillinger(
                 navIdent = ident1,
                 inputYtelseSet = setOf(ytelse1, ytelse2),
                 assignedYtelseSet = setOf(ytelse1, ytelse2),
-
-                )
+            )
 
             verify {
-                mockInnstillinger setProperty "ytelser" value setOf(
-                    ytelse1,
-                    ytelse2,
-                )
+                mockInnstillinger setProperty "ytelser" value
+                    setOf(
+                        ytelse1,
+                        ytelse2,
+                    )
 
-                mockInnstillinger setProperty "hjemler" value (ytelseToHjemler[ytelse1]!!.map { it.hjemmel } + existingYtelse2Hjemler).toSet()
+                mockInnstillinger setProperty "hjemler" value
+                    (ytelseToHjemler[ytelse1]!!.map { it.hjemmel } + existingYtelse2Hjemler).toSet()
             }
         }
     }
 
     @Test
     fun `add hjemler for ytelse`() {
-        val mockInnstillinger1 = spyk(
-            Innstillinger(
-                saksbehandlerident = ident1,
-                hjemler = setOf(hjemmel1),
-                ytelser = setOf(ytelse2, ytelse3),
-                shortName = null,
-                longName = null,
-                jobTitle = null,
-                modified = now,
-                anonymous = false,
-            ),
-            recordPrivateCalls = true,
-        )
+        val mockInnstillinger1 =
+            spyk(
+                objToCopy =
+                    Innstillinger(
+                        saksbehandlerident = ident1,
+                        hjemler = setOf(hjemmel1),
+                        ytelser = setOf(ytelse2, ytelse3),
+                        shortName = null,
+                        longName = null,
+                        jobTitle = null,
+                        modified = now,
+                        anonymous = false,
+                    ),
+                recordPrivateCalls = true,
+            )
 
-        val mockInnstillinger2 = spyk(
-            Innstillinger(
-                saksbehandlerident = ident1,
-                hjemler = setOf(hjemmel2),
-                ytelser = setOf(ytelse3),
-                shortName = null,
-                longName = null,
-                jobTitle = null,
-                modified = now,
-                anonymous = false,
-            ),
-            recordPrivateCalls = true,
-        )
+        val mockInnstillinger2 =
+            spyk(
+                objToCopy =
+                    Innstillinger(
+                        saksbehandlerident = ident1,
+                        hjemler = setOf(hjemmel2),
+                        ytelser = setOf(ytelse3),
+                        shortName = null,
+                        longName = null,
+                        jobTitle = null,
+                        modified = now,
+                        anonymous = false,
+                    ),
+                recordPrivateCalls = true,
+            )
 
         every { innstillingerRepository.findAll() }.returns(
-            listOf(mockInnstillinger1, mockInnstillinger2)
+            listOf(mockInnstillinger1, mockInnstillinger2),
         )
 
         innstillingerService.addHjemlerForYtelse(
             ytelse = ytelse2,
-            hjemmelList = listOf(hjemmel3, hjemmel4)
+            hjemmelList = listOf(hjemmel3, hjemmel4),
         )
 
         verify {
             mockInnstillinger1 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
         }
 
-        //mockInnstillinger2 does not have ytelse in input, skipped in update.
-        verify (exactly = 0) {
+        // mockInnstillinger2 does not have ytelse in input, skipped in update.
+        verify(exactly = 0) {
             mockInnstillinger2 setProperty "hjemler" value setOf(hjemmel1, hjemmel3, hjemmel4)
         }
     }
 
     @Test
     fun `attempt at adding existing hjemler, no change`() {
-        val mockInnstillinger = spyk(
-            Innstillinger(
-                saksbehandlerident = ident1,
-                hjemler = setOf(hjemmel1, hjemmel3),
-                ytelser = setOf(ytelse2, ytelse3),
-                shortName = null,
-                longName = null,
-                jobTitle = null,
-                modified = now,
-                anonymous = false,
-            ),
-            recordPrivateCalls = true,
-        )
+        val mockInnstillinger =
+            spyk(
+                objToCopy =
+                    Innstillinger(
+                        saksbehandlerident = ident1,
+                        hjemler = setOf(hjemmel1, hjemmel3),
+                        ytelser = setOf(ytelse2, ytelse3),
+                        shortName = null,
+                        longName = null,
+                        jobTitle = null,
+                        modified = now,
+                        anonymous = false,
+                    ),
+                recordPrivateCalls = true,
+            )
 
         every { innstillingerRepository.findAll() }.returns(
-            listOf(mockInnstillinger)
+            listOf(mockInnstillinger),
         )
 
         innstillingerService.addHjemlerForYtelse(
             ytelse = ytelse2,
-            hjemmelList = listOf(hjemmel3)
+            hjemmelList = listOf(hjemmel3),
         )
 
         verify(exactly = 0) {

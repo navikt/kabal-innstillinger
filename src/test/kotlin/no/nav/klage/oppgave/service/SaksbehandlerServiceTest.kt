@@ -10,7 +10,11 @@ import no.nav.klage.oppgave.clients.klagelookup.BatchedGroupsHitResponse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.klagelookup.PersonResponse
 import no.nav.klage.oppgave.clients.klagelookup.UserResponse
-import no.nav.klage.oppgave.domain.saksbehandler.*
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerGroups
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -22,45 +26,55 @@ class SaksbehandlerServiceTest {
     private val tilgangService: TilgangService = mockk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
 
-    private val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
-    private val SAKSBEHANDLER_NAME_1 = SaksbehandlerName(
-        fornavn = "fornavn1", etternavn = "etternavn1", sammensattNavn = "sammensattNavn1"
-    )
+    private val saksbehandlerIdent1 = "SAKSBEHANDLER_IDENT_1"
+    private val saksbehandlerName1 =
+        SaksbehandlerName(
+            fornavn = "fornavn1",
+            etternavn = "etternavn1",
+            sammensattNavn = "sammensattNavn1",
+        )
 
-    private val SAKSBEHANDLER_1_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
-        navIdent = "abc1231",
-        fornavn = "fornavn1",
-        etternavn = "etternavn1",
-        sammensattNavn = "sammensattNavn1",
-        enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
-    )
+    private val saksbehandler1PersonligInfo =
+        SaksbehandlerPersonligInfo(
+            navIdent = "abc1231",
+            fornavn = "fornavn1",
+            etternavn = "etternavn1",
+            sammensattNavn = "sammensattNavn1",
+            enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = ""),
+        )
 
-    private val SAKSBEHANDLER_1 = Saksbehandler(
-        navIdent = SAKSBEHANDLER_IDENT_1,
-        navn = SAKSBEHANDLER_NAME_1.sammensattNavn,
-        ansattEnhetId = "saksbehandlerEnhetId",
-    )
+    private val saksbehandler1 =
+        Saksbehandler(
+            navIdent = saksbehandlerIdent1,
+            navn = saksbehandlerName1.sammensattNavn,
+            ansattEnhetId = "saksbehandlerEnhetId",
+        )
 
-    private val SAKSBEHANDLER_IDENT_2 = "SAKSBEHANDLER_IDENT_2"
-    private val SAKSBEHANDLER_NAME_2 = SaksbehandlerName(
-        fornavn = "fornavn2", etternavn = "etternavn2", sammensattNavn = "sammensattNavn2"
-    )
+    private val saksbehandlerIdent2 = "SAKSBEHANDLER_IDENT_2"
+    private val saksbehandlerName2 =
+        SaksbehandlerName(
+            fornavn = "fornavn2",
+            etternavn = "etternavn2",
+            sammensattNavn = "sammensattNavn2",
+        )
 
-    private val SAKSBEHANDLER_2_PERSONLIG_INFO = SaksbehandlerPersonligInfo(
-        navIdent = "abc1232",
-        fornavn = "fornavn2",
-        etternavn = "etternavn2",
-        sammensattNavn = "sammensattNavn2",
-        enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
-    )
+    private val saksbehandler2PersonligInfo =
+        SaksbehandlerPersonligInfo(
+            navIdent = "abc1232",
+            fornavn = "fornavn2",
+            etternavn = "etternavn2",
+            sammensattNavn = "sammensattNavn2",
+            enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = ""),
+        )
 
-    private val SAKSBEHANDLER_2 = Saksbehandler(
-        navIdent = SAKSBEHANDLER_IDENT_2,
-        navn = SAKSBEHANDLER_NAME_2.sammensattNavn,
-        ansattEnhetId = "saksbehandlerEnhetId",
-    )
+    private val saksbehandler2 =
+        Saksbehandler(
+            navIdent = saksbehandlerIdent2,
+            navn = saksbehandlerName2.sammensattNavn,
+            ansattEnhetId = "saksbehandlerEnhetId",
+        )
 
-    private val FNR = "FNR"
+    private val fnr = "FNR"
 
     private val saksbehandlerService =
         SaksbehandlerService(
@@ -70,53 +84,56 @@ class SaksbehandlerServiceTest {
             saksbehandlerAccessService = saksbehandlerAccessService,
         )
 
-    private val person = PersonResponse(
-        foedselsnr = FNR,
-        fornavn = "fornavn",
-        mellomnavn = null,
-        etternavn = "etternavn",
-        sammensattNavn = "fornavn etternavn",
-        kjoenn = "M",
-        doed = null,
-        strengtFortrolig = false,
-        strengtFortroligUtland = false,
-        fortrolig = false,
-        egenAnsatt = false,
-        vergemaalEllerFremtidsfullmakt = false,
-        sikkerhetstiltak = null,
-    )
+    private val person =
+        PersonResponse(
+            foedselsnr = fnr,
+            fornavn = "fornavn",
+            mellomnavn = null,
+            etternavn = "etternavn",
+            sammensattNavn = "fornavn etternavn",
+            kjoenn = "M",
+            doed = null,
+            strengtFortrolig = false,
+            strengtFortroligUtland = false,
+            fortrolig = false,
+            egenAnsatt = false,
+            vergemaalEllerFremtidsfullmakt = false,
+            sikkerhetstiltak = null,
+        )
 
-    private val personStrengtFortrolig = PersonResponse(
-        foedselsnr = FNR,
-        fornavn = "fornavn",
-        mellomnavn = null,
-        etternavn = "etternavn",
-        sammensattNavn = "fornavn etternavn",
-        kjoenn = "M",
-        doed = null,
-        strengtFortrolig = true,
-        strengtFortroligUtland = false,
-        fortrolig = false,
-        egenAnsatt = false,
-        vergemaalEllerFremtidsfullmakt = false,
-        sikkerhetstiltak = null,
-    )
+    private val personStrengtFortrolig =
+        PersonResponse(
+            foedselsnr = fnr,
+            fornavn = "fornavn",
+            mellomnavn = null,
+            etternavn = "etternavn",
+            sammensattNavn = "fornavn etternavn",
+            kjoenn = "M",
+            doed = null,
+            strengtFortrolig = true,
+            strengtFortroligUtland = false,
+            fortrolig = false,
+            egenAnsatt = false,
+            vergemaalEllerFremtidsfullmakt = false,
+            sikkerhetstiltak = null,
+        )
 
-    private val personFortrolig = PersonResponse(
-        foedselsnr = FNR,
-        fornavn = "fornavn",
-        mellomnavn = null,
-        etternavn = "etternavn",
-        sammensattNavn = "fornavn etternavn",
-        kjoenn = "M",
-        doed = null,
-        strengtFortrolig = false,
-        strengtFortroligUtland = false,
-        fortrolig = true,
-        egenAnsatt = false,
-        vergemaalEllerFremtidsfullmakt = false,
-        sikkerhetstiltak = null,
-    )
+    private val personFortrolig =
+        PersonResponse(
+            foedselsnr = fnr,
+            fornavn = "fornavn",
+            mellomnavn = null,
+            etternavn = "etternavn",
+            sammensattNavn = "fornavn etternavn",
+            kjoenn = "M",
+            doed = null,
+            strengtFortrolig = false,
+            strengtFortroligUtland = false,
+            fortrolig = true,
+            egenAnsatt = false,
+            vergemaalEllerFremtidsfullmakt = false,
+            sikkerhetstiltak = null,
+        )
 
     private fun batchedGroupsForSaksbehandlere(vararg navIdents: String): List<BatchedGroupsHitResponse> =
         navIdents.map {
@@ -137,153 +154,168 @@ class SaksbehandlerServiceTest {
     @Test
     fun `getSaksbehandlere inneholder relevante saksbehandlere for ytelse og fnr`() {
         every { klageLookupGateway.getPerson(any()) }.returns(person)
-        every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
-            batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
+        every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+            batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                    saksbehandlerIdent = saksbehandlerIdent1,
+                    modifiedBy = "",
                 ),
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
-
-                    )
-            )
+                    saksbehandlerIdent = saksbehandlerIdent2,
+                    modifiedBy = "",
+                ),
+            ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
-            anonymous = false
-        )
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
+            SaksbehandlerInnstillinger(
+                anonymous = false,
+            )
 
-        val result = saksbehandlerService.getSaksbehandlere(
-            fnr = FNR,
-            ytelse = Ytelse.AAP_AAP,
-            sakId = "abc",
-            fagsystem = Fagsystem.AO01
-        )
-        assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_1)
-        assertThat(result.saksbehandlere).contains(SAKSBEHANDLER_2)
+        val result =
+            saksbehandlerService.getSaksbehandlere(
+                fnr = fnr,
+                ytelse = Ytelse.AAP_AAP,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+            )
+        assertThat(result.saksbehandlere).contains(saksbehandler1)
+        assertThat(result.saksbehandlere).contains(saksbehandler2)
     }
 
     @Test
     fun `getSaksbehandlere filtrerer bort saksbehandler uten KABAL_SAKSBEHANDLING rolle`() {
         every { klageLookupGateway.getPerson(any()) }.returns(person)
-        every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
+        every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
             listOf(
                 BatchedGroupsHitResponse(
-                    navIdent = SAKSBEHANDLER_IDENT_1,
+                    navIdent = saksbehandlerIdent1,
                     groupIds = listOf(AzureGroup.KABAL_SAKSBEHANDLING.id),
                 ),
                 BatchedGroupsHitResponse(
-                    navIdent = SAKSBEHANDLER_IDENT_2,
+                    navIdent = saksbehandlerIdent2,
                     groupIds = emptyList(),
                 ),
             )
-        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                    saksbehandlerIdent = saksbehandlerIdent1,
+                    modifiedBy = "",
                 ),
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
-                )
-            )
+                    saksbehandlerIdent = saksbehandlerIdent2,
+                    modifiedBy = "",
+                ),
+            ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
-            anonymous = false
-        )
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
+            SaksbehandlerInnstillinger(
+                anonymous = false,
+            )
 
-        val result = saksbehandlerService.getSaksbehandlere(
-            fnr = FNR,
-            ytelse = Ytelse.AAP_AAP,
-            sakId = "abc",
-            fagsystem = Fagsystem.AO01
-        )
+        val result =
+            saksbehandlerService.getSaksbehandlere(
+                fnr = fnr,
+                ytelse = Ytelse.AAP_AAP,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+            )
 
-        assertThat(result.saksbehandlere).containsExactly(SAKSBEHANDLER_1)
+        assertThat(result.saksbehandlere).containsExactly(saksbehandler1)
     }
 
     @Test
     fun `getSaksbehandlere forholder seg til persongalleri for FS36`() {
         val fortroligFnr = "FORTROLIG_FNR"
 
-        every { klageLookupGateway.getPersongalleri(any()) }.returns(listOf(fortroligFnr, FNR))
-        every { klageLookupGateway.getPerson(FNR) }.returns(person)
+        every { klageLookupGateway.getPersongalleri(any()) }.returns(listOf(fortroligFnr, fnr))
+        every { klageLookupGateway.getPerson(fnr) }.returns(person)
         every { klageLookupGateway.getPerson(fortroligFnr) }.returns(personFortrolig)
-        every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
-            batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), FNR) }.returns(true)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(SAKSBEHANDLER_IDENT_1, fortroligFnr) }.returns(false)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(SAKSBEHANDLER_IDENT_2, fortroligFnr) }.returns(true)
+        every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+            batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = fnr) }.returns(true)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = saksbehandlerIdent1, fnr = fortroligFnr) }.returns(false)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = saksbehandlerIdent2, fnr = fortroligFnr) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.FOR_FOR) }.returns(
             listOf(
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                    saksbehandlerIdent = saksbehandlerIdent1,
+                    modifiedBy = "",
                 ),
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
-                )
-            )
+                    saksbehandlerIdent = saksbehandlerIdent2,
+                    modifiedBy = "",
+                ),
+            ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
-            anonymous = false
-        )
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
+            SaksbehandlerInnstillinger(
+                anonymous = false,
+            )
 
-        val result = saksbehandlerService.getSaksbehandlere(
-            fnr = FNR,
-            ytelse = Ytelse.FOR_FOR,
-            sakId = "abc",
-            fagsystem = Fagsystem.FS36,
-        )
+        val result =
+            saksbehandlerService.getSaksbehandlere(
+                fnr = fnr,
+                ytelse = Ytelse.FOR_FOR,
+                sakId = "abc",
+                fagsystem = Fagsystem.FS36,
+            )
 
-        assertThat(result.saksbehandlere).containsExactly(SAKSBEHANDLER_2)
+        assertThat(result.saksbehandlere).containsExactly(saksbehandler2)
     }
 
     @Test
     fun `getMedunderskrivere inneholder ikke innsender, men relevant medunderskriver`() {
         every { klageLookupGateway.getPerson(any()) }.returns(person)
-        every { klageLookupGateway.getUserGroupsBatched(listOf(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)) } returns
-            batchedGroupsForSaksbehandlere(SAKSBEHANDLER_IDENT_1, SAKSBEHANDLER_IDENT_2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
+        every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+            batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
+        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_1, modifiedBy = "",
+                    saksbehandlerIdent = saksbehandlerIdent1,
+                    modifiedBy = "",
                 ),
                 SaksbehandlerAccess(
-                    saksbehandlerIdent = SAKSBEHANDLER_IDENT_2, modifiedBy = "",
-                )
-            )
+                    saksbehandlerIdent = saksbehandlerIdent2,
+                    modifiedBy = "",
+                ),
+            ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_1) }.returns(SAKSBEHANDLER_1_PERSONLIG_INFO)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(SAKSBEHANDLER_IDENT_2) }.returns(SAKSBEHANDLER_2_PERSONLIG_INFO)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
+        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
-            anonymous = false
-        )
+        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
+            SaksbehandlerInnstillinger(
+                anonymous = false,
+            )
 
-        val result = saksbehandlerService.getMedunderskrivere(
-            ident = SAKSBEHANDLER_IDENT_1,
-            ytelse = Ytelse.AAP_AAP,
-            fnr = FNR,
-            sakId = "abc",
-            fagsystem = Fagsystem.AO01,
-        )
-        assertThat(result.medunderskrivere).doesNotContain(SAKSBEHANDLER_1)
-        assertThat(result.medunderskrivere).contains(SAKSBEHANDLER_2)
+        val result =
+            saksbehandlerService.getMedunderskrivere(
+                ident = saksbehandlerIdent1,
+                ytelse = Ytelse.AAP_AAP,
+                fnr = fnr,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+            )
+        assertThat(result.medunderskrivere).doesNotContain(saksbehandler1)
+        assertThat(result.medunderskrivere).contains(saksbehandler2)
     }
 
     @Test
@@ -291,16 +323,17 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getPerson(any()) }.returns(personStrengtFortrolig)
 
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(any()) }.returns(
-            emptyList()
+            emptyList(),
         )
 
-        val result = saksbehandlerService.getMedunderskrivere(
-            ident = SAKSBEHANDLER_IDENT_1,
-            ytelse = Ytelse.AAP_AAP,
-            fnr = FNR,
-            sakId = "abc",
-            fagsystem = Fagsystem.AO01,
-        )
+        val result =
+            saksbehandlerService.getMedunderskrivere(
+                ident = saksbehandlerIdent1,
+                ytelse = Ytelse.AAP_AAP,
+                fnr = fnr,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+            )
         assertThat(result.medunderskrivere).isEmpty()
     }
 
@@ -309,16 +342,17 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getPerson(any()) }.returns(personFortrolig)
 
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(any()) }.returns(
-            emptyList()
+            emptyList(),
         )
 
-        val result = saksbehandlerService.getMedunderskrivere(
-            ident = SAKSBEHANDLER_IDENT_1,
-            ytelse = Ytelse.AAP_AAP,
-            fnr = FNR,
-            sakId = "abc",
-            fagsystem = Fagsystem.AO01,
-        )
+        val result =
+            saksbehandlerService.getMedunderskrivere(
+                ident = saksbehandlerIdent1,
+                ytelse = Ytelse.AAP_AAP,
+                fnr = fnr,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+            )
         assertThat(result.medunderskrivere).isEmpty()
     }
 
@@ -327,13 +361,14 @@ class SaksbehandlerServiceTest {
         @Test
         fun `getROLList inneholder relevante ROL for ytelse og fnr`() {
             val rolIdent = "ROL_IDENT"
-            val rolName = SaksbehandlerPersonligInfo(
-                navIdent = rolIdent,
-                fornavn = "rol",
-                etternavn = "bruker",
-                sammensattNavn = "rol bruker",
-                enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = "")
-            )
+            val rolName =
+                SaksbehandlerPersonligInfo(
+                    navIdent = rolIdent,
+                    fornavn = "rol",
+                    etternavn = "bruker",
+                    sammensattNavn = "rol bruker",
+                    enhet = SaksbehandlerEnhet(enhetId = "saksbehandlerEnhetId", navn = ""),
+                )
 
             every { klageLookupGateway.getPerson(any()) }.returns(person)
             every { klageLookupGateway.getUsersInGroup(AzureGroup.KABAL_ROL) }.returns(
@@ -343,26 +378,28 @@ class SaksbehandlerServiceTest {
                         fornavn = "rol",
                         etternavn = "bruker",
                         sammensattNavn = "rol bruker",
-                    )
-                )
+                    ),
+                ),
             )
             every { klageLookupGateway.getUserGroupsBatched(listOf(rolIdent)) } returns batchedGroupsForROLs(rolIdent)
-            every { tilgangService.hasSaksbehandlerAccessToPerson(any(), any()) }.returns(true)
+            every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
             every { klageLookupGateway.getUserInfoForGivenNavIdent(rolIdent) }.returns(rolName)
             every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
             every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-            every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns SaksbehandlerInnstillinger(
-                anonymous = false
-            )
+            every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
+                SaksbehandlerInnstillinger(
+                    anonymous = false,
+                )
 
-            val result = saksbehandlerService.getROLList(
-                fnr = FNR,
-                ytelse = Ytelse.AAP_AAP,
-                sakId = "abc",
-                fagsystem = Fagsystem.AO01
-            )
+            val result =
+                saksbehandlerService.getROLList(
+                    fnr = fnr,
+                    ytelse = Ytelse.AAP_AAP,
+                    sakId = "abc",
+                    fagsystem = Fagsystem.AO01,
+                )
             assertThat(result.saksbehandlere).contains(
-                Saksbehandler(navIdent = rolIdent, navn = "rol bruker", ansattEnhetId = "saksbehandlerEnhetId")
+                Saksbehandler(navIdent = rolIdent, navn = "rol bruker", ansattEnhetId = "saksbehandlerEnhetId"),
             )
         }
 
@@ -371,12 +408,13 @@ class SaksbehandlerServiceTest {
             every { klageLookupGateway.getPerson(any()) }.returns(personStrengtFortrolig)
             every { klageLookupGateway.getUsersInGroup(AzureGroup.KABAL_ROL) }.returns(emptyList())
 
-            val result = saksbehandlerService.getROLList(
-                fnr = FNR,
-                ytelse = Ytelse.AAP_AAP,
-                sakId = "abc",
-                fagsystem = Fagsystem.AO01
-            )
+            val result =
+                saksbehandlerService.getROLList(
+                    fnr = fnr,
+                    ytelse = Ytelse.AAP_AAP,
+                    sakId = "abc",
+                    fagsystem = Fagsystem.AO01,
+                )
             assertThat(result.saksbehandlere).isEmpty()
         }
     }

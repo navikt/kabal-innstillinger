@@ -6,13 +6,14 @@ import java.util.concurrent.ConcurrentMap
 
 @Service
 class EgenAnsattService {
-
     private val egenAnsattMap: ConcurrentMap<String, EgenAnsatt> = ConcurrentHashMap()
 
-    fun erEgenAnsatt(foedselsnr: String): Boolean =
-        egenAnsattMap[foedselsnr]?.erGyldig() ?: false
+    fun erEgenAnsatt(foedselsnr: String): Boolean = egenAnsattMap[foedselsnr]?.erGyldig() ?: false
 
-    fun oppdaterEgenAnsatt(foedselsnr: String, egenAnsatt: EgenAnsatt) {
+    fun oppdaterEgenAnsatt(
+        foedselsnr: String,
+        egenAnsatt: EgenAnsatt,
+    ) {
         egenAnsattMap[foedselsnr] = egenAnsatt
     }
 

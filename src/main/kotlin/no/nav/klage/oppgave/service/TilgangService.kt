@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 class TilgangService(
     private val klageLookupGateway: KlageLookupGateway,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
@@ -17,22 +16,20 @@ class TilgangService(
     fun hasSaksbehandlerAccessToPerson(
         navIdent: String,
         fnr: String,
-    ): Boolean {
-        return getSaksbehandlerAccessToPerson(
+    ): Boolean =
+        getSaksbehandlerAccessToPerson(
             navIdent = navIdent,
             fnr = fnr,
         ).access
-    }
 
     private fun getSaksbehandlerAccessToPerson(
         navIdent: String,
         fnr: String,
-    ): Access {
-        return klageLookupGateway.getAccess(
+    ): Access =
+        klageLookupGateway.getAccess(
             brukerId = fnr,
             navIdent = navIdent,
         )
-    }
 
     data class Access(
         val access: Boolean,

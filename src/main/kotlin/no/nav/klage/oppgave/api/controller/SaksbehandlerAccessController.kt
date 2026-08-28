@@ -91,8 +91,7 @@ class SaksbehandlerAccessController(
 
     private fun verifyIsTilgangsstyringEgenEnhet() {
         if (!klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any {
-                it ==
-                    AzureGroup.KABAL_TILGANGSSTYRING_EGEN_ENHET
+                it == AzureGroup.KABAL_TILGANGSSTYRING_EGEN_ENHET
             }
         ) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")

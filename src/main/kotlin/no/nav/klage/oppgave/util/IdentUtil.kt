@@ -21,6 +21,6 @@ fun isValidFnrOrDnr(fnr: String): Boolean {
     if (k2 == 11) k2 = 0
 
     return k1 < 10 && k2 < 10 && k1 < 10 && k2 < 10 &&
-            k1 == fnr.substring(startIndex = 9, endIndex = 10).toInt() &&
-            k2 == fnr.substring(startIndex = 10, endIndex = 11).toInt()
+        k1 == fnr.substring(startIndex = 9, endIndex = 10).toInt() &&
+        k2 == fnr.substring(startIndex = 10, endIndex = 11).toInt()
 }

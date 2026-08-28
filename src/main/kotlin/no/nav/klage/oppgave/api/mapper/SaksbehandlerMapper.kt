@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class SaksbehandlerMapper {
-
     fun mapToView(saksbehandlerInfo: SaksbehandlerInfo) =
         SaksbehandlerView(
             navIdent = saksbehandlerInfo.navIdent,
@@ -21,30 +20,33 @@ class SaksbehandlerMapper {
             roller = saksbehandlerInfo.roller,
             enheter = mapToView(saksbehandlerInfo.enheter),
             ansattEnhet = mapToView(saksbehandlerInfo.ansattEnhet),
-            tildelteYtelser = saksbehandlerInfo.tildelteYtelser.sortedBy { it.navn }.map { it.id }
+            tildelteYtelser = saksbehandlerInfo.tildelteYtelser.sortedBy { it.navn }.map { it.id },
         )
 
     fun mapToView(saksbehandlerInnstillinger: SaksbehandlerInnstillinger) =
         InnstillingerView(
             hjemler = saksbehandlerInnstillinger.hjemler.map { it.id }.toSet(),
-            ytelser = saksbehandlerInnstillinger.ytelser.sortedBy { it.navn }.map { it.id }.toSet(),
+            ytelser =
+                saksbehandlerInnstillinger.ytelser
+                    .sortedBy { it.navn }
+                    .map { it.id }
+                    .toSet(),
         )
 
     fun mapToDomain(innstillingerView: InnstillingerView) =
         SaksbehandlerInnstillinger(
             hjemler = innstillingerView.hjemler.map { Hjemmel.of(it) }.toSet(),
             ytelser = innstillingerView.ytelser.map { Ytelse.of(it) }.toSet(),
-            //Placeholder, ignored later
-            anonymous = false
+            // Placeholder, ignored later
+            anonymous = false,
         )
 
-    fun mapToView(enheterMedLovligeYtelser: EnheterMedLovligeYtelser) =
-        enheterMedLovligeYtelser.enheter.map { enhet -> mapToView(enhet) }
+    fun mapToView(enheterMedLovligeYtelser: EnheterMedLovligeYtelser) = enheterMedLovligeYtelser.enheter.map { enhet -> mapToView(enhet) }
 
     fun mapToView(enhetMedLovligeYtelser: EnhetMedLovligeYtelser) =
         EnhetView(
             id = enhetMedLovligeYtelser.enhet.enhetId,
             navn = enhetMedLovligeYtelser.enhet.navn,
-            lovligeYtelser = enhetMedLovligeYtelser.ytelser.sortedBy { it.navn }.map { ytelse -> ytelse.id }
+            lovligeYtelser = enhetMedLovligeYtelser.ytelser.sortedBy { it.navn }.map { ytelse -> ytelse.id },
         )
 }

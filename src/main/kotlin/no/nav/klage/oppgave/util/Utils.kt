@@ -2,7 +2,10 @@ package no.nav.klage.oppgave.util
 
 import org.apache.commons.lang3.StringUtils
 
-fun generateShortNameOrNull(fornavn: String, etternavn: String): String? {
+fun generateShortNameOrNull(
+    fornavn: String,
+    etternavn: String,
+): String? {
     val fornavnList = fornavn.split(" ")
     if (fornavnList.any { it.first().isLowerCase() }) {
         return null

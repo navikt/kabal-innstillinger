@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class TrimStringTest {
-
     @Test
     fun `test trimming`() {
         assertThat(" a ".trimToNull()).isEqualTo("a")
@@ -17,5 +16,4 @@ class TrimStringTest {
         assertThat(" ".trimToNull()).isNull()
         assertThat("\n".trimToNull()).isNull()
     }
-
 }

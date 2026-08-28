@@ -4,14 +4,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class GenerateShortNameTest {
-
     @Test
     fun `basic name works`() {
         assertThat(
             generateShortNameOrNull(
                 fornavn = "Kalle",
                 etternavn = "Anka",
-            )
+            ),
         ).isEqualTo("K. Anka")
     }
 
@@ -21,7 +20,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "Kalle Peder",
                 etternavn = "Anka",
-            )
+            ),
         ).isEqualTo("K.P. Anka")
     }
 
@@ -31,7 +30,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "Kalle Peder Petter",
                 etternavn = "Anka",
-            )
+            ),
         ).isEqualTo("K.P.P. Anka")
     }
 
@@ -41,7 +40,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "Kalle",
                 etternavn = "Anka-And",
-            )
+            ),
         ).isEqualTo("K. Anka-And")
     }
 
@@ -51,7 +50,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "Kalle",
                 etternavn = "Anka And",
-            )
+            ),
         ).isEqualTo("K. Anka And")
     }
 
@@ -61,7 +60,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "Kalle",
                 etternavn = "av Ankeborg",
-            )
+            ),
         ).isEqualTo("K. av Ankeborg")
     }
 
@@ -71,7 +70,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "kalle",
                 etternavn = "de España",
-            )
+            ),
         ).isNull()
     }
 
@@ -81,7 +80,7 @@ class GenerateShortNameTest {
             generateShortNameOrNull(
                 fornavn = "kalle Fnatte",
                 etternavn = "de España",
-            )
+            ),
         ).isNull()
     }
 }

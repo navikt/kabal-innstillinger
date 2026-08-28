@@ -1,13 +1,20 @@
 package no.nav.klage.oppgave.domain.saksbehandler.entities
 
-import jakarta.persistence.*
+import jakarta.persistence.CollectionTable
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.Table
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "saksbehandler_access", schema = "innstillinger")
 class SaksbehandlerAccess(
-
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerIdent: String,
@@ -17,11 +24,13 @@ class SaksbehandlerAccess(
     @CollectionTable(
         name = "saksbehandler_access_ytelse",
         schema = "innstillinger",
-        joinColumns = [JoinColumn(
-            name = "saksbehandlerident",
-            referencedColumnName = "saksbehandlerident",
-            nullable = false
-        )]
+        joinColumns = [
+            JoinColumn(
+                name = "saksbehandlerident",
+                referencedColumnName = "saksbehandlerident",
+                nullable = false,
+            ),
+        ],
     )
     @Convert(converter = YtelseConverter::class)
     @Column(name = "ytelse_id")
@@ -29,7 +38,7 @@ class SaksbehandlerAccess(
     @Column(name = "created")
     val created: LocalDateTime = LocalDateTime.now(),
     @Column(name = "access_rights_modified")
-    var accessRightsModified: LocalDateTime = LocalDateTime.now()
+    var accessRightsModified: LocalDateTime = LocalDateTime.now(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -53,9 +62,6 @@ class SaksbehandlerAccess(
         return result
     }
 
-    override fun toString(): String {
-        return "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerIdent', ytelser=$ytelser, created=$created, accessRightsModified=$accessRightsModified)"
-    }
-
-
+    override fun toString(): String =
+        "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerIdent', ytelser=$ytelser, created=$created, accessRightsModified=$accessRightsModified)"
 }

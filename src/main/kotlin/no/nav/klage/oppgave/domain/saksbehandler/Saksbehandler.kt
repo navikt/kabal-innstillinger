@@ -38,5 +38,5 @@ data class SaksbehandlerPersonligInfo(
 
 data class SaksbehandlerRolle(
     val id: String,
-    val navn: String
+    val navn: String,
 )

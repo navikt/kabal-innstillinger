@@ -10,14 +10,12 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
 import org.springframework.test.context.ActiveProfiles
 
-
 @ActiveProfiles("local")
 @DataJpaTest
-class SaksbehandlerAccessRepositoryTest: PostgresIntegrationTestBase() {
-
-    val SAKSBEHANDLER_IDENT_1 = "SAKSBEHANDLER_IDENT_1"
-    val SAKSBEHANDLER_IDENT_2 = "SAKSBEHANDLER_IDENT_2"
-    val SAKSBEHANDLER_IDENT_3 = "SAKSBEHANDLER_IDENT_3"
+class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
+    val saksbehandlerIdent1 = "SAKSBEHANDLER_IDENT_1"
+    val saksbehandlerIdent2 = "SAKSBEHANDLER_IDENT_2"
+    val saksbehandlerIdent3 = "SAKSBEHANDLER_IDENT_3"
 
     @Autowired
     lateinit var testEntityManager: TestEntityManager
@@ -27,14 +25,15 @@ class SaksbehandlerAccessRepositoryTest: PostgresIntegrationTestBase() {
 
     @Test
     fun `persist SaksbehandlerAccess works`() {
-        val saksbehandlerident = SAKSBEHANDLER_IDENT_1
-        val innloggetIdent = SAKSBEHANDLER_IDENT_2
+        val saksbehandlerident = saksbehandlerIdent1
+        val innloggetIdent = saksbehandlerIdent2
         val ytelser = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
-        val saksbehandlerAccess = SaksbehandlerAccess(
-            saksbehandlerIdent = saksbehandlerident,
-            modifiedBy = innloggetIdent,
-            ytelser = ytelser,
-        )
+        val saksbehandlerAccess =
+            SaksbehandlerAccess(
+                saksbehandlerIdent = saksbehandlerident,
+                modifiedBy = innloggetIdent,
+                ytelser = ytelser,
+            )
 
         saksbehandlerAccessRepository.save(saksbehandlerAccess)
         testEntityManager.flush()
@@ -46,25 +45,28 @@ class SaksbehandlerAccessRepositoryTest: PostgresIntegrationTestBase() {
     @Test
     fun `findByYtelser functionality`() {
         val ytelser1 = setOf(Ytelse.AAP_AAP, Ytelse.SYK_SYK)
-        val saksbehandlerAccess1 = SaksbehandlerAccess(
-            saksbehandlerIdent = SAKSBEHANDLER_IDENT_1,
-            modifiedBy = SAKSBEHANDLER_IDENT_3,
-            ytelser = ytelser1,
-        )
+        val saksbehandlerAccess1 =
+            SaksbehandlerAccess(
+                saksbehandlerIdent = saksbehandlerIdent1,
+                modifiedBy = saksbehandlerIdent3,
+                ytelser = ytelser1,
+            )
 
         val ytelser2 = setOf(Ytelse.SYK_SYK, Ytelse.BAR_BAR)
-        val saksbehandlerAccess2 = SaksbehandlerAccess(
-            saksbehandlerIdent = SAKSBEHANDLER_IDENT_2,
-            modifiedBy = SAKSBEHANDLER_IDENT_3,
-            ytelser = ytelser2,
-        )
+        val saksbehandlerAccess2 =
+            SaksbehandlerAccess(
+                saksbehandlerIdent = saksbehandlerIdent2,
+                modifiedBy = saksbehandlerIdent3,
+                ytelser = ytelser2,
+            )
 
         val ytelser3 = setOf(Ytelse.OMS_OLP)
-        val saksbehandlerAccess3 = SaksbehandlerAccess(
-            saksbehandlerIdent = SAKSBEHANDLER_IDENT_3,
-            modifiedBy = SAKSBEHANDLER_IDENT_3,
-            ytelser = ytelser3,
-        )
+        val saksbehandlerAccess3 =
+            SaksbehandlerAccess(
+                saksbehandlerIdent = saksbehandlerIdent3,
+                modifiedBy = saksbehandlerIdent3,
+                ytelser = ytelser3,
+            )
 
         saksbehandlerAccessRepository.save(saksbehandlerAccess1)
         saksbehandlerAccessRepository.save(saksbehandlerAccess2)
@@ -76,6 +78,4 @@ class SaksbehandlerAccessRepositoryTest: PostgresIntegrationTestBase() {
         assertThat(saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.OMS_OLP).size).isEqualTo(1)
         assertThat(saksbehandlerAccessRepository.findAllByYtelserContaining(Ytelse.OMS_PLS).size).isEqualTo(0)
     }
-
-
 }

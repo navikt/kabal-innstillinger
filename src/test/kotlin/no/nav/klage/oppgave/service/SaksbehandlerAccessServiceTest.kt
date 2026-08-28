@@ -18,17 +18,17 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-
 class SaksbehandlerAccessServiceTest {
     private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val innstillingerService: InnstillingerService = mockk()
     private val klageLookupGateway: KlageLookupGateway = mockk()
 
-    private val saksbehandlerAccessService = SaksbehandlerAccessService(
-        saksbehandlerAccessRepository = saksbehandlerAccessRepository,
-        innstillingerService = innstillingerService,
-        klageLookupGateway = klageLookupGateway,
-    )
+    private val saksbehandlerAccessService =
+        SaksbehandlerAccessService(
+            saksbehandlerAccessRepository = saksbehandlerAccessRepository,
+            innstillingerService = innstillingerService,
+            klageLookupGateway = klageLookupGateway,
+        )
 
     private val ident = "ident"
     private val sammensattNavn = "sammensattNavn"
@@ -38,25 +38,26 @@ class SaksbehandlerAccessServiceTest {
         @Test
         fun `does not exists, verifies saksbehandlerName`() {
             every { saksbehandlerAccessRepository.existsById(any()) } returns false
-            every { klageLookupGateway.getUserInfoForGivenNavIdent(any()) } returns SaksbehandlerPersonligInfo(
-                navIdent = "",
-                fornavn = "",
-                etternavn = "",
-                sammensattNavn = sammensattNavn,
-                enhet = SaksbehandlerEnhet(enhetId = "", navn = "")
-            )
+            every { klageLookupGateway.getUserInfoForGivenNavIdent(any()) } returns
+                SaksbehandlerPersonligInfo(
+                    navIdent = "",
+                    fornavn = "",
+                    etternavn = "",
+                    sammensattNavn = sammensattNavn,
+                    enhet = SaksbehandlerEnhet(enhetId = "", navn = ""),
+                )
 
             assertEquals(
                 emptyList<String>(),
-                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).ytelseIdList
+                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).ytelseIdList,
             )
             assertEquals(
                 ident,
-                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).saksbehandlerIdent
+                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).saksbehandlerIdent,
             )
             assertEquals(
                 sammensattNavn,
-                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).saksbehandlerName
+                saksbehandlerAccessService.getSaksbehandlerAccessView(saksbehandlerIdent = ident).saksbehandlerName,
             )
         }
     }
@@ -65,21 +66,23 @@ class SaksbehandlerAccessServiceTest {
     inner class DeleteInnstillingerAndAccessForExpiredSaksbehandlers {
         @Test
         fun `deletes access and innstillinger when ansatt is expired`() {
-            every { saksbehandlerAccessRepository.findAll() } returns listOf(
-                SaksbehandlerAccess(
-                    saksbehandlerIdent = ident,
-                    modifiedBy = "admin",
-                    ytelser = emptySet(),
-                    created = LocalDateTime.now(),
-                    accessRightsModified = LocalDateTime.now(),
+            every { saksbehandlerAccessRepository.findAll() } returns
+                listOf(
+                    SaksbehandlerAccess(
+                        saksbehandlerIdent = ident,
+                        modifiedBy = "admin",
+                        ytelser = emptySet(),
+                        created = LocalDateTime.now(),
+                        accessRightsModified = LocalDateTime.now(),
+                    ),
                 )
-            )
-            every { klageLookupGateway.getSluttdatoForNavIdentList(listOf(ident)) } returns listOf(
-                SaksbehandlerSluttdato(
-                    navIdent = ident,
-                    sluttdato = LocalDate.now().minusWeeks(2),
+            every { klageLookupGateway.getSluttdatoForNavIdentList(listOf(ident)) } returns
+                listOf(
+                    SaksbehandlerSluttdato(
+                        navIdent = ident,
+                        sluttdato = LocalDate.now().minusWeeks(2),
+                    ),
                 )
-            )
             every { klageLookupGateway.getUserInfoForNavIdentList(listOf(ident)) } returns emptyList()
             every { saksbehandlerAccessRepository.deleteById(ident) } returns Unit
             every { innstillingerService.deleteInnstillingerForSaksbehandler(ident) } returns "deleted\n"
@@ -98,35 +101,39 @@ class SaksbehandlerAccessServiceTest {
         fun `deletes access and innstillinger when ansatt is not in klageenhet`() {
             val enhetOutsideKlageAndStyring = Enhet.entries.first { it !in (klageenheter + styringsenheter) }
 
-            every { saksbehandlerAccessRepository.findAll() } returns listOf(
-                SaksbehandlerAccess(
-                    saksbehandlerIdent = ident,
-                    modifiedBy = "admin",
-                    ytelser = emptySet(),
-                    created = LocalDateTime.now(),
-                    accessRightsModified = LocalDateTime.now(),
+            every { saksbehandlerAccessRepository.findAll() } returns
+                listOf(
+                    SaksbehandlerAccess(
+                        saksbehandlerIdent = ident,
+                        modifiedBy = "admin",
+                        ytelser = emptySet(),
+                        created = LocalDateTime.now(),
+                        accessRightsModified = LocalDateTime.now(),
+                    ),
                 )
-            )
 
-            every { klageLookupGateway.getSluttdatoForNavIdentList(listOf(ident)) } returns listOf(
-                SaksbehandlerSluttdato(
-                    navIdent = ident,
-                    sluttdato = LocalDate.now().plusDays(1),
+            every { klageLookupGateway.getSluttdatoForNavIdentList(listOf(ident)) } returns
+                listOf(
+                    SaksbehandlerSluttdato(
+                        navIdent = ident,
+                        sluttdato = LocalDate.now().plusDays(1),
+                    ),
                 )
-            )
 
-            every { klageLookupGateway.getUserInfoForNavIdentList(listOf(ident)) } returns listOf(
-                SaksbehandlerPersonligInfo(
-                    navIdent = ident,
-                    fornavn = "fornavn",
-                    etternavn = "etternavn",
-                    sammensattNavn = "fornavn etternavn",
-                    enhet = SaksbehandlerEnhet(
-                        enhetId = enhetOutsideKlageAndStyring.navn,
-                        navn = enhetOutsideKlageAndStyring.beskrivelse,
-                    )
+            every { klageLookupGateway.getUserInfoForNavIdentList(listOf(ident)) } returns
+                listOf(
+                    SaksbehandlerPersonligInfo(
+                        navIdent = ident,
+                        fornavn = "fornavn",
+                        etternavn = "etternavn",
+                        sammensattNavn = "fornavn etternavn",
+                        enhet =
+                            SaksbehandlerEnhet(
+                                enhetId = enhetOutsideKlageAndStyring.navn,
+                                navn = enhetOutsideKlageAndStyring.beskrivelse,
+                            ),
+                    ),
                 )
-            )
             every { saksbehandlerAccessRepository.deleteById(ident) } returns Unit
             every { innstillingerService.deleteInnstillingerForSaksbehandler(ident) } returns "deleted\n"
 

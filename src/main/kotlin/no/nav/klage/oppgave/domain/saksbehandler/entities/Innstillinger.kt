@@ -1,6 +1,14 @@
 package no.nav.klage.oppgave.domain.saksbehandler.entities
 
-import jakarta.persistence.*
+import jakarta.persistence.CollectionTable
+import jakarta.persistence.Column
+import jakarta.persistence.Convert
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.Table
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.HjemmelConverter
 import no.nav.klage.kodeverk.ytelse.Ytelse
@@ -11,7 +19,6 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "innstillinger", schema = "innstillinger")
 class Innstillinger(
-
     @Id
     @Column(name = "saksbehandlerident")
     val saksbehandlerident: String,
@@ -19,7 +26,13 @@ class Innstillinger(
     @CollectionTable(
         name = "innstillinger_hjemmel",
         schema = "innstillinger",
-        joinColumns = [JoinColumn(name = "innstillinger_saksbehandlerident", referencedColumnName = "saksbehandlerident", nullable = false)]
+        joinColumns = [
+            JoinColumn(
+                name = "innstillinger_saksbehandlerident",
+                referencedColumnName = "saksbehandlerident",
+                nullable = false,
+            ),
+        ],
     )
     @Convert(converter = HjemmelConverter::class)
     @Column(name = "id")
@@ -28,7 +41,13 @@ class Innstillinger(
     @CollectionTable(
         name = "innstillinger_ytelse",
         schema = "innstillinger",
-        joinColumns = [JoinColumn(name = "innstillinger_saksbehandlerident", referencedColumnName = "saksbehandlerident", nullable = false)]
+        joinColumns = [
+            JoinColumn(
+                name = "innstillinger_saksbehandlerident",
+                referencedColumnName = "saksbehandlerident",
+                nullable = false,
+            ),
+        ],
     )
     @Convert(converter = YtelseConverter::class)
     @Column(name = "id")
@@ -42,23 +61,22 @@ class Innstillinger(
     @Column(name = "modified")
     var modified: LocalDateTime = LocalDateTime.now(),
     @Column(name = "anonymous")
-    var anonymous: Boolean
+    var anonymous: Boolean,
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger {
-        return SaksbehandlerInnstillinger(
+    fun toSaksbehandlerInnstillinger(): SaksbehandlerInnstillinger =
+        SaksbehandlerInnstillinger(
             hjemler = hjemler,
             ytelser = ytelser,
             shortName = shortName,
             longName = longName,
             jobTitle = jobTitle,
-            anonymous = anonymous
+            anonymous = anonymous,
         )
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -69,11 +87,8 @@ class Innstillinger(
         return saksbehandlerident == other.saksbehandlerident
     }
 
-    override fun hashCode(): Int {
-        return saksbehandlerident.hashCode()
-    }
+    override fun hashCode(): Int = saksbehandlerident.hashCode()
 
-    override fun toString(): String {
-        return "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler=$hjemler, ytelser=$ytelser, shortName=$shortName, longName=$longName, jobTitle=$jobTitle, modified=$modified, anonymous=$anonymous)"
-    }
+    override fun toString(): String =
+        "Innstillinger(saksbehandlerident='$saksbehandlerident', hjemler=$hjemler, ytelser=$ytelser, shortName=$shortName, longName=$longName, jobTitle=$jobTitle, modified=$modified, anonymous=$anonymous)"
 }

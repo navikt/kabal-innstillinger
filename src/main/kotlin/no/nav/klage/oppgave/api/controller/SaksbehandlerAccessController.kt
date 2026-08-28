@@ -14,7 +14,11 @@ import no.nav.klage.oppgave.service.SaksbehandlerAccessService
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.security.token.support.core.api.ProtectedWithClaims
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 
 @ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
@@ -24,7 +28,6 @@ class SaksbehandlerAccessController(
     private val tokenUtil: TokenUtil,
     private val klageLookupGateway: KlageLookupGateway,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
@@ -32,7 +35,7 @@ class SaksbehandlerAccessController(
 
     @Operation(
         summary = "Henter ytelser som den ansatte har blitt tildelt av leder",
-        description = "Henter ytelser som den ansatte har blitt tildelt av leder"
+        description = "Henter ytelser som den ansatte har blitt tildelt av leder",
     )
     @GetMapping("/ansatte/{navIdent}/tildelteytelser", produces = ["application/json"])
     fun getSaksbehandlerAccess(
@@ -44,10 +47,12 @@ class SaksbehandlerAccessController(
 
     @Operation(
         summary = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser",
-        description = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser"
+        description = "Hent saksbehandlere for en enhet, inkludert tildelte ytelser",
     )
     @GetMapping("/enhet/{enhet}/saksbehandlere", produces = ["application/json"])
-    fun getSaksbehandlerAccessesForEnhet(@PathVariable enhet: String): SaksbehandlerAccessResponse {
+    fun getSaksbehandlerAccessesForEnhet(
+        @PathVariable enhet: String,
+    ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getSaksbehandlerAccessesForEnhet.name)
@@ -56,10 +61,12 @@ class SaksbehandlerAccessController(
 
     @Operation(
         summary = "Hent alle tildelte ytelser i en enhet",
-        description = "Hent alle tildelte ytelser i en enhet"
+        description = "Hent alle tildelte ytelser i en enhet",
     )
     @GetMapping("/enhet/{enhet}/tildelteytelser", produces = ["application/json"])
-    fun getTildelteYtelserForEnhet(@PathVariable enhet: String): TildelteYtelserResponse {
+    fun getTildelteYtelserForEnhet(
+        @PathVariable enhet: String,
+    ): TildelteYtelserResponse {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getTildelteYtelserForEnhet.name)
         return saksbehandlerAccessService.getTildelteYtelserForEnhet(enhet = enhet)
@@ -67,28 +74,34 @@ class SaksbehandlerAccessController(
 
     @Operation(
         summary = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
-        description = "Setter hvilke ytelser som de ansatte får lov til å jobbe med"
+        description = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
     )
     @PutMapping("/ansatte/setytelser", produces = ["application/json"])
     fun setYtelserForSaksbehandlere(
-        @RequestBody input: YtelseInput
+        @RequestBody input: YtelseInput,
     ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setYtelserForSaksbehandlere.name)
         return saksbehandlerAccessService.setYtelserForAnsatt(
             ytelseInput = input,
-            innloggetAnsattIdent = innloggetSaksbehandlerNavIdent
+            innloggetAnsattIdent = innloggetSaksbehandlerNavIdent,
         )
     }
 
     private fun verifyIsTilgangsstyringEgenEnhet() {
-        if (!klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any { it == AzureGroup.KABAL_TILGANGSSTYRING_EGEN_ENHET }) {
+        if (!klageLookupGateway.getGroupsForGivenNavIdent(tokenUtil.getCurrentIdent()).groups.any {
+                it == AzureGroup.KABAL_TILGANGSSTYRING_EGEN_ENHET
+            }
+        ) {
             throw MissingTilgangException(msg = "Innlogget ansatt har ikke tilgangsstyringrolle")
         }
     }
 
-    private fun logMethodCall(navIdent: String, methodName: String) {
+    private fun logMethodCall(
+        navIdent: String,
+        methodName: String,
+    ) {
         logger.debug("$methodName is requested by $navIdent")
     }
 }

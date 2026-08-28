@@ -1,6 +1,5 @@
 package no.nav.klage.oppgave.repositories
 
-
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.db.PostgresIntegrationTestBase
@@ -14,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("local")
 @DataJpaTest
-class InnstillingerRepositoryTest: PostgresIntegrationTestBase() {
+class InnstillingerRepositoryTest : PostgresIntegrationTestBase() {
     @Autowired
     lateinit var testEntityManager: TestEntityManager
 
@@ -24,15 +23,16 @@ class InnstillingerRepositoryTest: PostgresIntegrationTestBase() {
     @Test
     fun `persist innstillinger works`() {
         val navIdent = "AB12345"
-        val innstillinger = Innstillinger(
-            saksbehandlerident = navIdent,
-            hjemler = setOf(Hjemmel.of("FVL_16"), Hjemmel.of("FS_TILL_ST_15_2")),
-            ytelser = setOf(Ytelse.of("3"), Ytelse.of("4")),
-            shortName = "shortName",
-            longName = "longName",
-            jobTitle = "myTitle",
-            anonymous = false,
-        )
+        val innstillinger =
+            Innstillinger(
+                saksbehandlerident = navIdent,
+                hjemler = setOf(Hjemmel.of("FVL_16"), Hjemmel.of("FS_TILL_ST_15_2")),
+                ytelser = setOf(Ytelse.of("3"), Ytelse.of("4")),
+                shortName = "shortName",
+                longName = "longName",
+                jobTitle = "myTitle",
+                anonymous = false,
+            )
 
         innstillingerRepository.save(innstillinger)
         testEntityManager.flush()

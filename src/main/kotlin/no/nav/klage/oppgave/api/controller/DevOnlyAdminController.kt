@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 @Profile("dev")
 @RestController
 class DevOnlyAdminController(
-    private val saksbehandlerAccessService: SaksbehandlerAccessService
+    private val saksbehandlerAccessService: SaksbehandlerAccessService,
 ) {
-    //Not currently in use
+    // Not currently in use
 }

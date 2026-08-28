@@ -12,42 +12,45 @@ import org.springframework.kafka.annotation.PartitionOffset
 import org.springframework.kafka.annotation.TopicPartition
 import org.springframework.stereotype.Component
 
-
 @Component
 class EgenAnsattKafkaConsumer(
     private val egenAnsattService: EgenAnsattService,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
         private val teamLogger = getTeamLogger()
-        private val mapper = ObjectMapper().registerModule(
-            KotlinModule.Builder()
-                .withReflectionCacheSize(512)
-                .configure(KotlinFeature.NullToEmptyCollection, false)
-                .configure(KotlinFeature.NullToEmptyMap, false)
-                .configure(KotlinFeature.NullIsSameAsDefault, false)
-                .configure(KotlinFeature.SingletonSupport, false)
-                .configure(KotlinFeature.StrictNullChecks, false)
-                .build()
-        ).registerModule(JavaTimeModule())
+        private val mapper =
+            ObjectMapper()
+                .registerModule(
+                    KotlinModule
+                        .Builder()
+                        .withReflectionCacheSize(512)
+                        .configure(feature = KotlinFeature.NullToEmptyCollection, enabled = false)
+                        .configure(feature = KotlinFeature.NullToEmptyMap, enabled = false)
+                        .configure(feature = KotlinFeature.NullIsSameAsDefault, enabled = false)
+                        .configure(feature = KotlinFeature.SingletonSupport, enabled = false)
+                        .configure(feature = KotlinFeature.StrictNullChecks, enabled = false)
+                        .build(),
+                ).registerModule(JavaTimeModule())
     }
 
     @KafkaListener(
         id = "klageEgenAnsattListener",
         idIsGroup = false,
         containerFactory = "egenAnsattKafkaListenerContainerFactory",
-        topicPartitions = [TopicPartition(
-            topic = "\${EGENANSATT_KAFKA_TOPIC}",
-            partitions = ["#{@egenAnsattFinder.partitions('\${EGENANSATT_KAFKA_TOPIC}')}"],
-            partitionOffsets = [PartitionOffset(partition = "*", initialOffset = "0")]
-        )]
+        topicPartitions = [
+            TopicPartition(
+                topic = "\${EGENANSATT_KAFKA_TOPIC}",
+                partitions = ["#{@egenAnsattFinder.partitions('\${EGENANSATT_KAFKA_TOPIC}')}"],
+                partitionOffsets = [PartitionOffset(partition = "*", initialOffset = "0")],
+            ),
+        ],
     )
     fun listen(egenAnsattRecord: ConsumerRecord<String, String?>) {
         runCatching {
             val foedselsnr = egenAnsattRecord.key()
-            //Handle tombstone
+            // Handle tombstone
             if (egenAnsattRecord.value() == null) {
                 egenAnsattService.removeEgenAnsatt(foedselsnr)
             } else {

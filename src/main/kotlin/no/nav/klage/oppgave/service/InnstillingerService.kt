@@ -19,19 +19,16 @@ class InnstillingerService(
     private val innstillingerRepository: InnstillingerRepository,
     private val klageLookupGateway: KlageLookupGateway,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
     }
 
-    fun findSaksbehandlerInnstillinger(
-        ident: String,
-    ): SaksbehandlerInnstillinger {
-        return innstillingerRepository.findBySaksbehandlerident(ident)
+    fun findSaksbehandlerInnstillinger(ident: String): SaksbehandlerInnstillinger =
+        innstillingerRepository
+            .findBySaksbehandlerident(ident)
             ?.toSaksbehandlerInnstillinger()
             ?: SaksbehandlerInnstillinger(anonymous = false)
-    }
 
     fun storeInnstillingerButKeepSignature(
         navIdent: String,
@@ -40,18 +37,19 @@ class InnstillingerService(
     ): SaksbehandlerInnstillinger {
         val oldInnstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
 
-        return innstillingerRepository.save(
-            Innstillinger(
-                saksbehandlerident = navIdent,
-                hjemler = newSaksbehandlerInnstillinger.hjemler,
-                ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseSet }.toSet(),
-                shortName = oldInnstillinger?.shortName,
-                longName = oldInnstillinger?.longName,
-                jobTitle = oldInnstillinger?.jobTitle,
-                modified = LocalDateTime.now(),
-                anonymous = oldInnstillinger?.anonymous ?: false
-            )
-        ).toSaksbehandlerInnstillinger()
+        return innstillingerRepository
+            .save(
+                Innstillinger(
+                    saksbehandlerident = navIdent,
+                    hjemler = newSaksbehandlerInnstillinger.hjemler,
+                    ytelser = newSaksbehandlerInnstillinger.ytelser.filter { it in assignedYtelseSet }.toSet(),
+                    shortName = oldInnstillinger?.shortName,
+                    longName = oldInnstillinger?.longName,
+                    jobTitle = oldInnstillinger?.jobTitle,
+                    modified = LocalDateTime.now(),
+                    anonymous = oldInnstillinger?.anonymous ?: false,
+                ),
+            ).toSaksbehandlerInnstillinger()
     }
 
     fun updateYtelseAndHjemmelInnstillinger(
@@ -62,9 +60,10 @@ class InnstillingerService(
         val filteredYtelseSet = inputYtelseSet.filter { it in assignedYtelseSet }.toSet()
 
         if (!innstillingerRepository.existsById(navIdent)) {
-            val hjemmelSet = getUpdatedHjemmelSet(
-                ytelserToAdd = filteredYtelseSet,
-            )
+            val hjemmelSet =
+                getUpdatedHjemmelSet(
+                    ytelserToAdd = filteredYtelseSet,
+                )
 
             innstillingerRepository.save(
                 Innstillinger(
@@ -76,28 +75,34 @@ class InnstillingerService(
                     jobTitle = null,
                     modified = LocalDateTime.now(),
                     anonymous = false,
-                )
+                ),
             )
         } else {
-            val existingInnstillinger = findSaksbehandlerInnstillinger(
-                ident = navIdent,
-            )
+            val existingInnstillinger =
+                findSaksbehandlerInnstillinger(
+                    ident = navIdent,
+                )
 
             val existingInnstillingerYtelseSet = existingInnstillinger.ytelser.toSet()
             val existingHjemmelSet = existingInnstillinger.hjemler.toSet()
 
-            val ytelserToAdd = getYtelserToAdd(
-                inputYtelser = inputYtelseSet,
-                existingInnstillingerYtelser = existingInnstillingerYtelseSet
-            )
-            val ytelserToKeep = getYtelserToKeep(
-                inputYtelser = inputYtelseSet,
-                existingInnstillingerYtelser = existingInnstillingerYtelseSet
-            )
+            val ytelserToAdd =
+                getYtelserToAdd(
+                    inputYtelser = inputYtelseSet,
+                    existingInnstillingerYtelser = existingInnstillingerYtelseSet,
+                )
+            val ytelserToKeep =
+                getYtelserToKeep(
+                    inputYtelser = inputYtelseSet,
+                    existingInnstillingerYtelser = existingInnstillingerYtelseSet,
+                )
 
-            val hjemmelSet = getUpdatedHjemmelSet(
-                ytelserToAdd = ytelserToAdd, ytelserToKeep = ytelserToKeep, existingHjemler = existingHjemmelSet
-            )
+            val hjemmelSet =
+                getUpdatedHjemmelSet(
+                    ytelserToAdd = ytelserToAdd,
+                    ytelserToKeep = ytelserToKeep,
+                    existingHjemler = existingHjemmelSet,
+                )
 
             innstillingerRepository.getReferenceById(navIdent).apply {
                 ytelser = filteredYtelseSet
@@ -107,22 +112,34 @@ class InnstillingerService(
         }
     }
 
-    fun storeShortName(navIdent: String, shortName: String?) {
+    fun storeShortName(
+        navIdent: String,
+        shortName: String?,
+    ) {
         val innstillinger = getOrCreateInnstillinger(navIdent)
         innstillinger.shortName = shortName
     }
 
-    fun storeLongName(navIdent: String, longName: String?) {
+    fun storeLongName(
+        navIdent: String,
+        longName: String?,
+    ) {
         val innstillinger = getOrCreateInnstillinger(navIdent)
         innstillinger.longName = longName
     }
 
-    fun storeJobTitle(navIdent: String, jobTitle: String?) {
+    fun storeJobTitle(
+        navIdent: String,
+        jobTitle: String?,
+    ) {
         val innstillinger = getOrCreateInnstillinger(navIdent)
         innstillinger.jobTitle = jobTitle
     }
 
-    fun storeAnonymous(navIdent: String, anonymous: Boolean) {
+    fun storeAnonymous(
+        navIdent: String,
+        anonymous: Boolean,
+    ) {
         val innstillinger = getOrCreateInnstillinger(navIdent)
         innstillinger.anonymous = anonymous
     }
@@ -130,12 +147,13 @@ class InnstillingerService(
     private fun getOrCreateInnstillinger(navIdent: String): Innstillinger {
         var innstillinger = innstillingerRepository.findBySaksbehandlerident(navIdent)
         if (innstillinger == null) {
-            innstillinger = innstillingerRepository.save(
-                Innstillinger(
-                    saksbehandlerident = navIdent,
-                    anonymous = false,
+            innstillinger =
+                innstillingerRepository.save(
+                    Innstillinger(
+                        saksbehandlerident = navIdent,
+                        anonymous = false,
+                    ),
                 )
-            )
         }
         return innstillinger
     }
@@ -167,14 +185,13 @@ class InnstillingerService(
 
     private fun getYtelserToAdd(
         inputYtelser: Set<Ytelse>,
-        existingInnstillingerYtelser: Set<Ytelse> = emptySet()
-    ): Set<Ytelse> {
-        return inputYtelser.filter { it !in existingInnstillingerYtelser }.toSet()
-    }
+        existingInnstillingerYtelser: Set<Ytelse> = emptySet(),
+    ): Set<Ytelse> = inputYtelser.filter { it !in existingInnstillingerYtelser }.toSet()
 
-    private fun getYtelserToKeep(inputYtelser: Set<Ytelse>, existingInnstillingerYtelser: Set<Ytelse>): Set<Ytelse> {
-        return inputYtelser.intersect(existingInnstillingerYtelser)
-    }
+    private fun getYtelserToKeep(
+        inputYtelser: Set<Ytelse>,
+        existingInnstillingerYtelser: Set<Ytelse>,
+    ): Set<Ytelse> = inputYtelser.intersect(existingInnstillingerYtelser)
 
     fun deleteInnstillingerForSaksbehandler(navIdent: String): String {
         val output = "Deleting innstillinger for saksbehandler $navIdent"
@@ -182,7 +199,7 @@ class InnstillingerService(
         return output + "\n"
     }
 
-    //For admin endpoint, use when adding new hjemler to existing ytelse.
+    // For admin endpoint, use when adding new hjemler to existing ytelse.
     fun addHjemlerForYtelse(
         ytelse: Ytelse,
         hjemmelList: List<Hjemmel>,
@@ -199,16 +216,18 @@ class InnstillingerService(
             val saksbehandlerInnstilling = innstilling.toSaksbehandlerInnstillinger()
             if (saksbehandlerInnstilling.ytelser.contains(ytelse)) {
                 val existingHjemmelSet = saksbehandlerInnstilling.hjemler.toSet()
-                val hjemlerToAdd = hjemmelList.filter { hjemmel ->
-                    !existingHjemmelSet.contains(hjemmel)
-                }.toSet()
+                val hjemlerToAdd =
+                    hjemmelList
+                        .filter { hjemmel ->
+                            !existingHjemmelSet.contains(hjemmel)
+                        }.toSet()
                 val newHjemmelSet = existingHjemmelSet + hjemlerToAdd
 
                 if (newHjemmelSet != existingHjemmelSet) {
                     logger.debug(
                         "Lagrer nytt hjemmelsett {} for saksbehandler {}",
                         newHjemmelSet,
-                        innstilling.saksbehandlerident
+                        innstilling.saksbehandlerident,
                     )
                     innstilling.apply {
                         hjemler = newHjemmelSet
@@ -220,16 +239,23 @@ class InnstillingerService(
         }
     }
 
-    fun getAllHjemlerForYtelse(ytelse: Ytelse, includeStyringsEnhet: Boolean): Set<String> {
+    fun getAllHjemlerForYtelse(
+        ytelse: Ytelse,
+        includeStyringsEnhet: Boolean,
+    ): Set<String> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
-        val hjemmelSet = if (includeStyringsEnhet) {
-            relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
-        } else {
-            val navIdentsInKAStyringsEnhet = klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }
-            relevantInnstillinger.filter {
-                it.saksbehandlerident !in navIdentsInKAStyringsEnhet
-            }.flatMap { it.hjemler }.map { it.id }.toSet()
-        }
+        val hjemmelSet =
+            if (includeStyringsEnhet) {
+                relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
+            } else {
+                val navIdentsInKAStyringsEnhet = klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }
+                relevantInnstillinger
+                    .filter {
+                        it.saksbehandlerident !in navIdentsInKAStyringsEnhet
+                    }.flatMap { it.hjemler }
+                    .map { it.id }
+                    .toSet()
+            }
 
         return hjemmelSet
     }

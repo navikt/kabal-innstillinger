@@ -3,11 +3,11 @@ package no.nav.klage.oppgave.api.view
 import java.time.LocalDateTime
 
 data class TildelteYtelserResponse(
-    val ytelseIdList: List<String>
+    val ytelseIdList: List<String>,
 )
 
 data class SaksbehandlerAccessResponse(
-    val accessRights: List<SaksbehandlerAccess>
+    val accessRights: List<SaksbehandlerAccess>,
 )
 
 data class SaksbehandlerAccess(
@@ -19,10 +19,10 @@ data class SaksbehandlerAccess(
 )
 
 data class YtelseInput(
-    val accessRights: List<AccessRightInput>
+    val accessRights: List<AccessRightInput>,
 ) {
     data class AccessRightInput(
         val saksbehandlerIdent: String,
-        val ytelseIdList: List<String>
+        val ytelseIdList: List<String>,
     )
 }

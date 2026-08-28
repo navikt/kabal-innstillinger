@@ -10,7 +10,12 @@ import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.clients.klagelookup.Sak
-import no.nav.klage.oppgave.domain.saksbehandler.*
+import no.nav.klage.oppgave.domain.saksbehandler.EnhetMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.EnheterMedLovligeYtelser
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInfo
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
+import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerName
 import no.nav.klage.oppgave.util.generateShortNameOrNull
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
@@ -24,7 +29,6 @@ class SaksbehandlerService(
     private val saksbehandlerAccessService: SaksbehandlerAccessService,
     private val klageLookupGateway: KlageLookupGateway,
 ) {
-
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
@@ -34,9 +38,10 @@ class SaksbehandlerService(
         val enhetMedYtelserForSaksbehandler = getEnhetMedYtelserForSaksbehandler(navIdent = navIdent)
         val assignedYtelser = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent)
 
-        val saksbehandlerInnstillinger = innstillingerService.findSaksbehandlerInnstillinger(
-            ident = navIdent,
-        )
+        val saksbehandlerInnstillinger =
+            innstillingerService.findSaksbehandlerInnstillinger(
+                ident = navIdent,
+            )
 
         val enheterMedYtelserForSaksbehandler = getEnheterMedYtelserForSaksbehandler(navIdent = navIdent)
 
@@ -47,7 +52,7 @@ class SaksbehandlerService(
             enheter = enheterMedYtelserForSaksbehandler,
             ansattEnhet = enhetMedYtelserForSaksbehandler,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,
-            tildelteYtelser = assignedYtelser
+            tildelteYtelser = assignedYtelser,
         )
     }
 
@@ -57,74 +62,74 @@ class SaksbehandlerService(
         fnr: String,
         sakId: String,
         fagsystem: Fagsystem,
-    ): MedunderskrivereForYtelse {
-        return MedunderskrivereForYtelse(
+    ): MedunderskrivereForYtelse =
+        MedunderskrivereForYtelse(
             ytelse = ytelse.id,
-            medunderskrivere = getPossibleSaksbehandlere(
-                fnr = fnr,
-                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
-                isSearchingMedunderskriverOrRol = true,
-                sakId = sakId,
-                ytelse = ytelse,
-                fagsystem = fagsystem,
-                requestsROLs = false,
-            ).filter { it.navIdent != ident }
-                .sortedBy { it.navn }
+            medunderskrivere =
+                getPossibleSaksbehandlere(
+                    fnr = fnr,
+                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    isSearchingMedunderskriverOrRol = true,
+                    sakId = sakId,
+                    ytelse = ytelse,
+                    fagsystem = fagsystem,
+                    requestsROLs = false,
+                ).filter { it.navIdent != ident }
+                    .sortedBy { it.navn },
         )
-    }
 
     fun getSaksbehandlere(
         fnr: String,
         ytelse: Ytelse,
         sakId: String,
         fagsystem: Fagsystem,
-    ): Saksbehandlere {
-        return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlere(
-                fnr = fnr,
-                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
-                sakId = sakId,
-                ytelse = ytelse,
-                fagsystem = fagsystem,
-                requestsROLs = false,
-            ).sortedBy { it.navn }
+    ): Saksbehandlere =
+        Saksbehandlere(
+            saksbehandlere =
+                getPossibleSaksbehandlere(
+                    fnr = fnr,
+                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    sakId = sakId,
+                    ytelse = ytelse,
+                    fagsystem = fagsystem,
+                    requestsROLs = false,
+                ).sortedBy { it.navn },
         )
-    }
 
     fun getSaksbehandlereForBruker(
         fnr: String,
         ytelse: Ytelse,
-    ): Saksbehandlere {
-        return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlere(
-                fnr = fnr,
-                saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
-                ytelse = ytelse,
-                sakId = null,
-                fagsystem = null,
-                requestsROLs = false,
-            ).sortedBy { it.navn }
+    ): Saksbehandlere =
+        Saksbehandlere(
+            saksbehandlere =
+                getPossibleSaksbehandlere(
+                    fnr = fnr,
+                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    ytelse = ytelse,
+                    sakId = null,
+                    fagsystem = null,
+                    requestsROLs = false,
+                ).sortedBy { it.navn },
         )
-    }
 
     fun getROLList(
         fnr: String,
         ytelse: Ytelse,
         sakId: String,
         fagsystem: Fagsystem,
-    ): Saksbehandlere {
-        return Saksbehandlere(
-            saksbehandlere = getPossibleSaksbehandlere(
-                fnr = fnr,
-                saksbehandlerIdentList = getROLIdents(),
-                isSearchingMedunderskriverOrRol = true,
-                sakId = sakId,
-                ytelse = ytelse,
-                fagsystem = fagsystem,
-                requestsROLs = true,
-            ).sortedBy { it.navn }
+    ): Saksbehandlere =
+        Saksbehandlere(
+            saksbehandlere =
+                getPossibleSaksbehandlere(
+                    fnr = fnr,
+                    saksbehandlerIdentList = getROLIdents(),
+                    isSearchingMedunderskriverOrRol = true,
+                    sakId = sakId,
+                    ytelse = ytelse,
+                    fagsystem = fagsystem,
+                    requestsROLs = true,
+                ).sortedBy { it.navn },
         )
-    }
 
     private fun getPossibleSaksbehandlere(
         fnr: String,
@@ -135,30 +140,34 @@ class SaksbehandlerService(
         fagsystem: Fagsystem?,
         requestsROLs: Boolean,
     ): Set<Saksbehandler> {
-        val persongalleri = if (sakId != null && fagsystem == Fagsystem.FS36) {
-            klageLookupGateway.getPersongalleri(
-                sak = Sak(
-                    sakId = sakId,
-                    ytelse = ytelse,
-                    fagsystem = fagsystem,
-                )
-            ).toSet() + fnr
-        } else {
-            setOf(fnr)
-        }
+        val persongalleri =
+            if (sakId != null && fagsystem == Fagsystem.FS36) {
+                klageLookupGateway
+                    .getPersongalleri(
+                        sak =
+                            Sak(
+                                sakId = sakId,
+                                ytelse = ytelse,
+                                fagsystem = fagsystem,
+                            ),
+                    ).toSet() + fnr
+            } else {
+                setOf(fnr)
+            }
 
-        val personInfoList = persongalleri.map {
-            klageLookupGateway.getPerson(fnr = it)
-        }
+        val personInfoList =
+            persongalleri.map {
+                klageLookupGateway.getPerson(fnr = it)
+            }
         val harBeskyttelsesbehovFortrolig = personInfoList.any { it.personIsFortrolig() }
         val harBeskyttelsesbehovStrengtFortrolig = personInfoList.any { it.personIsStrengtFortrolig() }
 
         if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovStrengtFortrolig) {
-            //Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
+            // Kode 6 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
         if (isSearchingMedunderskriverOrRol && harBeskyttelsesbehovFortrolig) {
-            //Kode 7 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
+            // Kode 7 skal ikke ha medunderskrivere, og skal ikke kunne tildeles av andre.
             return emptySet()
         }
 
@@ -166,18 +175,20 @@ class SaksbehandlerService(
 
         return saksbehandlerIdentList
             .filter { currentNavIdent ->
-                saksbehandlerGroups.find { it.navIdent == currentNavIdent }?.groupIds?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
+                saksbehandlerGroups
+                    .find {
+                        it.navIdent == currentNavIdent
+                    }?.groupIds
+                    ?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
                     ?: false
-            }
-            .filter { currentNavIdent ->
+            }.filter { currentNavIdent ->
                 persongalleri.all { currentFnr ->
                     tilgangService.hasSaksbehandlerAccessToPerson(
                         fnr = currentFnr,
                         navIdent = currentNavIdent,
                     )
                 }
-            }
-            .mapNotNull {
+            }.mapNotNull {
                 val saksbehandlerInfo = getDataOmSaksbehandler(navIdent = it)
 
                 try {
@@ -190,25 +201,25 @@ class SaksbehandlerService(
                     logger.warn("Error when getting name for ident $it", e)
                     null
                 }
-            }
-            .toSet()
+            }.toSet()
     }
 
     fun getSignature(navIdent: String): Signature {
         val innstillinger = innstillingerService.findSaksbehandlerInnstillinger(ident = navIdent)
 
-        val name = try {
-            getNameForIdent(navIdent = navIdent)
-        } catch (e: Exception) {
-            return Signature(
-                longName = "$navIdent - Ugyldig ident",
-                generatedShortName = "$navIdent - Ugyldig ident",
-                customLongName = "$navIdent - Ugyldig ident",
-                customShortName = "$navIdent - Ugyldig ident",
-                customJobTitle = null,
-                anonymous = false,
-            )
-        }
+        val name =
+            try {
+                getNameForIdent(navIdent = navIdent)
+            } catch (e: Exception) {
+                return Signature(
+                    longName = "$navIdent - Ugyldig ident",
+                    generatedShortName = "$navIdent - Ugyldig ident",
+                    customLongName = "$navIdent - Ugyldig ident",
+                    customShortName = "$navIdent - Ugyldig ident",
+                    customJobTitle = null,
+                    anonymous = false,
+                )
+            }
 
         return Signature(
             longName = name.fornavn + " " + name.etternavn,
@@ -251,7 +262,7 @@ class SaksbehandlerService(
         klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).enhet.let { saksbehandlerEnhet ->
             EnhetMedLovligeYtelser(
                 enhet = saksbehandlerEnhet,
-                ytelser = getYtelserForEnhet(enhet = saksbehandlerEnhet)
+                ytelser = getYtelserForEnhet(enhet = saksbehandlerEnhet),
             )
         }
 
@@ -261,23 +272,23 @@ class SaksbehandlerService(
     private fun getEnheterMedYtelserForSaksbehandler(navIdent: String): EnheterMedLovligeYtelser =
         listOf(klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).enhet).berikMedYtelser()
 
-    private fun List<SaksbehandlerEnhet>.berikMedYtelser(): EnheterMedLovligeYtelser {
-        return EnheterMedLovligeYtelser(this.map {
-            EnhetMedLovligeYtelser(
-                enhet = it,
-                ytelser = getYtelserForEnhet(it)
-            )
-        })
-    }
+    private fun List<SaksbehandlerEnhet>.berikMedYtelser(): EnheterMedLovligeYtelser =
+        EnheterMedLovligeYtelser(
+            this.map {
+                EnhetMedLovligeYtelser(
+                    enhet = it,
+                    ytelser = getYtelserForEnhet(it),
+                )
+            },
+        )
 
     fun storeInnstillingerButKeepSignature(
         navIdent: String,
-        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger
-    ): SaksbehandlerInnstillinger {
-        return innstillingerService.storeInnstillingerButKeepSignature(
+        newSaksbehandlerInnstillinger: SaksbehandlerInnstillinger,
+    ): SaksbehandlerInnstillinger =
+        innstillingerService.storeInnstillingerButKeepSignature(
             navIdent = navIdent,
             newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,
-            assignedYtelseSet = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent)
+            assignedYtelseSet = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent),
         )
-    }
 }

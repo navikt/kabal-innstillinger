@@ -64,7 +64,6 @@ data class PersonResponse(
     val vergemaalEllerFremtidsfullmakt: Boolean,
     val sikkerhetstiltak: SikkerhetstiltakResponse?,
 ) {
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class SikkerhetstiltakResponse(
         val tiltakstype: String,
@@ -73,13 +72,9 @@ data class PersonResponse(
         val gyldigTilOgMed: LocalDate,
     )
 
-    fun personIsFortrolig(): Boolean {
-        return fortrolig
-    }
+    fun personIsFortrolig(): Boolean = fortrolig
 
-    fun personIsStrengtFortrolig(): Boolean {
-        return strengtFortrolig || strengtFortroligUtland
-    }
+    fun personIsStrengtFortrolig(): Boolean = strengtFortrolig || strengtFortroligUtland
 }
 
 data class BatchedSluttdatoResponse(

@@ -27,6 +27,10 @@ plugins {
 
 apply(plugin = "io.spring.dependency-management")
 
+// Temporary override: tomcat-embed-core 11.0.24 from the Spring Boot BOM has CVE-2026-65905.
+// Remove when Spring Boot ships 11.0.25 or newer.
+extra["tomcat.version"] = "11.0.25"
+
 java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {

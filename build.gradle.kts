@@ -12,7 +12,7 @@ val springDocVersion = "3.1.0"
 val testContainersVersion = "2.0.5"
 val ehcacheVersion = "3.12.0"
 val kodeverkVersion = "3.3.26"
-val shedlockVersion = "7.9.0"
+val shedlockVersion = "7.10.0"
 
 plugins {
     val kotlinVersion = "2.4.10"

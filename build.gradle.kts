@@ -8,11 +8,11 @@ val tokenValidationVersion = "6.0.12"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
 val springMockkVersion = "5.0.1"
-val springDocVersion = "3.1.0"
+val springDocVersion = "3.1.1"
 val testContainersVersion = "2.0.5"
 val ehcacheVersion = "3.12.0"
 val kodeverkVersion = "3.3.29"
-val shedlockVersion = "7.9.0"
+val shedlockVersion = "7.10.0"
 
 plugins {
     val kotlinVersion = "2.4.10"

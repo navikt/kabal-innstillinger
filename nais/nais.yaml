@@ -16,7 +16,7 @@ spec:
       runtime: java
   gcp:
     sqlInstances:
-      - name: kabal-innstillinger
+      - name: {{db_instance_name}}
         type: {{db_type}}
         maintenance:
           day: 1
@@ -29,7 +29,7 @@ spec:
         autoBackupHour: 2
         cascadingDelete: false
         databases:
-          - name: kabal-innstillinger
+          - name: {{db_name}}
   azure:
     application:
       enabled: true

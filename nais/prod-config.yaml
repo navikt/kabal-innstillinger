@@ -10,6 +10,8 @@ db_tier: db-custom-1-3840
 db_size: 10
 db_ha: true
 db_type: POSTGRES_18
+db_instance_name: kabal-innstillinger
+db_name: kabal-innstillinger
 kafka_pool: nav-prod
 
 adRoles:

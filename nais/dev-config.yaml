@@ -10,7 +10,7 @@ db_tier: db-f1-micro
 db_size: 10
 db_ha: false
 db_type: POSTGRES_18
-db_instance_name: kabal-innstillinger
+db_instance_name: kabal-innstillinger-priv
 db_name: kabal-innstillinger
 kafka_pool: nav-dev
 

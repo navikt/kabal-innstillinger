@@ -32,6 +32,8 @@ class SaksbehandlerService(
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
         private val logger = getLogger(javaClass.enclosingClass)
+
+        const val ANKETEAM_ROLE = "ANKETEAM"
     }
 
     fun getDataOmSaksbehandler(navIdent: String): SaksbehandlerInfo {
@@ -45,10 +47,18 @@ class SaksbehandlerService(
 
         val enheterMedYtelserForSaksbehandler = getEnheterMedYtelserForSaksbehandler(navIdent = navIdent)
 
+        val azureRoller = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent).groups.map { it.id }
+        val roller =
+            if (saksbehandlerAccessService.isAnketeam(navIdent)) {
+                azureRoller + ANKETEAM_ROLE
+            } else {
+                azureRoller
+            }
+
         return SaksbehandlerInfo(
             navIdent = navIdent,
             navn = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).sammensattNavn,
-            roller = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent).groups.map { it.id },
+            roller = roller,
             enheter = enheterMedYtelserForSaksbehandler,
             ansattEnhet = enhetMedYtelserForSaksbehandler,
             saksbehandlerInnstillinger = saksbehandlerInnstillinger,

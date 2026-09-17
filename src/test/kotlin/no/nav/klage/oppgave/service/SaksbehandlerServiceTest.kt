@@ -175,6 +175,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
         every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
             SaksbehandlerInnstillinger(
                 anonymous = false,
@@ -223,6 +224,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
         every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
             SaksbehandlerInnstillinger(
                 anonymous = false,
@@ -269,6 +271,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
         every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
             SaksbehandlerInnstillinger(
                 anonymous = false,
@@ -309,6 +312,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
         every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
         every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
         every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
             SaksbehandlerInnstillinger(
                 anonymous = false,
@@ -394,6 +398,7 @@ class SaksbehandlerServiceTest {
             every { klageLookupGateway.getUserInfoForGivenNavIdent(rolIdent) }.returns(rolName)
             every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
             every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
+            every { saksbehandlerAccessService.isAnketeam(any()) } returns false
             every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
                 SaksbehandlerInnstillinger(
                     anonymous = false,
@@ -424,6 +429,40 @@ class SaksbehandlerServiceTest {
                     fagsystem = Fagsystem.AO01,
                 )
             assertThat(result.saksbehandlere).isEmpty()
+        }
+    }
+
+    @Nested
+    inner class GetDataOmSaksbehandler {
+        private fun mockCommon() {
+            every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) } returns saksbehandler1PersonligInfo
+            every { klageLookupGateway.getGroupsForGivenNavIdent(saksbehandlerIdent1) } returns
+                SaksbehandlerGroups(listOf(AzureGroup.KABAL_SAKSBEHANDLING))
+            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent1) } returns emptySet()
+            every { innstillingerService.findSaksbehandlerInnstillinger(ident = saksbehandlerIdent1) } returns
+                SaksbehandlerInnstillinger(
+                    anonymous = false,
+                )
+        }
+
+        @Test
+        fun `roller inneholder ANKETEAM naar saksbehandler er i anketeam`() {
+            mockCommon()
+            every { saksbehandlerAccessService.isAnketeam(saksbehandlerIdent1) } returns true
+
+            val result = saksbehandlerService.getDataOmSaksbehandler(navIdent = saksbehandlerIdent1)
+
+            assertThat(result.roller).containsExactly(AzureGroup.KABAL_SAKSBEHANDLING.id, "ANKETEAM")
+        }
+
+        @Test
+        fun `roller inneholder ikke ANKETEAM naar saksbehandler ikke er i anketeam`() {
+            mockCommon()
+            every { saksbehandlerAccessService.isAnketeam(saksbehandlerIdent1) } returns false
+
+            val result = saksbehandlerService.getDataOmSaksbehandler(navIdent = saksbehandlerIdent1)
+
+            assertThat(result.roller).containsExactly(AzureGroup.KABAL_SAKSBEHANDLING.id)
         }
     }
 }

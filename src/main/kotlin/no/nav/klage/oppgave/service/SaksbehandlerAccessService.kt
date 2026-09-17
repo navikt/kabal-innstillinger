@@ -149,6 +149,10 @@ class SaksbehandlerAccessService(
             emptySet()
         }
 
+    fun isAnketeam(saksbehandlerIdent: String): Boolean =
+        saksbehandlerAccessRepository.existsById(saksbehandlerIdent) &&
+            saksbehandlerAccessRepository.getReferenceById(saksbehandlerIdent).anketeam
+
     fun getAllSaksbehandlerAccessesForYtelse(ytelse: Ytelse): List<SaksbehandlerAccess> =
         saksbehandlerAccessRepository.findAllByYtelserContaining(ytelse)
 

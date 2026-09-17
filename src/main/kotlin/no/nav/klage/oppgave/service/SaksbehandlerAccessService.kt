@@ -6,9 +6,9 @@ import no.nav.klage.kodeverk.Enhet
 import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.kodeverk.styringsenheter
 import no.nav.klage.kodeverk.ytelse.Ytelse
+import no.nav.klage.oppgave.api.view.AccessInput
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
-import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
@@ -42,6 +42,7 @@ class SaksbehandlerAccessService(
                 saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
                 saksbehandlerName = getSammensattNameForIdent(saksbehandlerIdent),
                 ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
+                anketeam = saksbehandlerAccess.anketeam,
                 created = saksbehandlerAccess.created,
                 accessRightsModified = saksbehandlerAccess.accessRightsModified,
             )
@@ -73,6 +74,7 @@ class SaksbehandlerAccessService(
             saksbehandlerIdent = saksbehandlerIdent,
             saksbehandlerName = getSammensattNameForIdent(navIdent = saksbehandlerIdent),
             ytelseIdList = emptyList(),
+            anketeam = false,
             created = null,
             accessRightsModified = null,
         )
@@ -84,16 +86,16 @@ class SaksbehandlerAccessService(
         return TildelteYtelserResponse(ytelseIdList = ytelseIdUnion.toList())
     }
 
-    fun setYtelserForAnsatt(
-        ytelseInput: YtelseInput,
+    fun setAccessForAnsatt(
+        accessInput: AccessInput,
         innloggetAnsattIdent: String,
     ): SaksbehandlerAccessResponse {
-        logger.debug("setYtelser for saksbehandlere with ytelser {}", ytelseInput)
+        logger.debug("{} for saksbehandlere with ytelser {}", ::setAccessForAnsatt, accessInput)
 
         val now = LocalDateTime.now()
         val saksbehandlerAccessList = mutableListOf<SaksbehandlerAccessView>()
 
-        ytelseInput.accessRights.forEach { accessRight ->
+        accessInput.accessRights.forEach { accessRight ->
             val ytelseSet = accessRight.ytelseIdList.map { Ytelse.of(it) }.toSet()
             val saksbehandlerAccess =
                 if (!saksbehandlerAccessRepository.existsById(accessRight.saksbehandlerIdent)) {
@@ -102,14 +104,16 @@ class SaksbehandlerAccessService(
                             saksbehandlerIdent = accessRight.saksbehandlerIdent,
                             modifiedBy = innloggetAnsattIdent,
                             ytelser = ytelseSet,
+                            anketeam = accessRight.anketeam,
                             created = now,
                             accessRightsModified = now,
                         ),
                     )
                 } else {
                     saksbehandlerAccessRepository.getReferenceById(accessRight.saksbehandlerIdent).apply {
-                        if (ytelser != ytelseSet) {
+                        if (ytelser != ytelseSet || anketeam != accessRight.anketeam) {
                             ytelser = ytelseSet
+                            anketeam = accessRight.anketeam
                             modifiedBy = innloggetAnsattIdent
                             accessRightsModified = now
                         } else {
@@ -129,6 +133,7 @@ class SaksbehandlerAccessService(
                     saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
                     saksbehandlerName = getSammensattNameForIdent(saksbehandlerAccess.saksbehandlerIdent),
                     ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
+                    anketeam = saksbehandlerAccess.anketeam,
                     created = saksbehandlerAccess.created,
                     accessRightsModified = saksbehandlerAccess.accessRightsModified,
                 )

@@ -35,6 +35,8 @@ class SaksbehandlerAccess(
     @Convert(converter = YtelseConverter::class)
     @Column(name = "ytelse_id")
     var ytelser: Set<Ytelse> = setOf(),
+    @Column(name = "anketeam")
+    var anketeam: Boolean,
     @Column(name = "created")
     val created: LocalDateTime = LocalDateTime.now(),
     @Column(name = "access_rights_modified")
@@ -48,6 +50,7 @@ class SaksbehandlerAccess(
 
         if (saksbehandlerIdent != other.saksbehandlerIdent) return false
         if (ytelser != other.ytelser) return false
+        if (anketeam != other.anketeam) return false
         if (created != other.created) return false
         if (accessRightsModified != other.accessRightsModified) return false
 
@@ -57,11 +60,12 @@ class SaksbehandlerAccess(
     override fun hashCode(): Int {
         var result = saksbehandlerIdent.hashCode()
         result = 31 * result + ytelser.hashCode()
+        result = 31 * result + anketeam.hashCode()
         result = 31 * result + created.hashCode()
         result = 31 * result + accessRightsModified.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerIdent', ytelser=$ytelser, created=$created, accessRightsModified=$accessRightsModified)"
+        "SaksbehandlerAccess(saksbehandlerident='$saksbehandlerIdent', ytelser=$ytelser, anketeam=$anketeam, created=$created, accessRightsModified=$accessRightsModified)"
 }

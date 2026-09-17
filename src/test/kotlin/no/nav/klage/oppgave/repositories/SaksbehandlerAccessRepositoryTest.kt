@@ -33,6 +33,7 @@ class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
                 saksbehandlerIdent = saksbehandlerident,
                 modifiedBy = innloggetIdent,
                 ytelser = ytelser,
+                anketeam = false,
             )
 
         saksbehandlerAccessRepository.save(saksbehandlerAccess)
@@ -40,6 +41,24 @@ class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
         testEntityManager.clear()
 
         assertThat(saksbehandlerAccessRepository.findById(saksbehandlerident).get().ytelser).isEqualTo(ytelser)
+        assertThat(saksbehandlerAccessRepository.findById(saksbehandlerident).get().anketeam).isFalse()
+    }
+
+    @Test
+    fun `persist SaksbehandlerAccess with anketeam works`() {
+        val saksbehandlerAccess =
+            SaksbehandlerAccess(
+                saksbehandlerIdent = saksbehandlerIdent1,
+                modifiedBy = saksbehandlerIdent2,
+                ytelser = setOf(Ytelse.AAP_AAP),
+                anketeam = true,
+            )
+
+        saksbehandlerAccessRepository.save(saksbehandlerAccess)
+        testEntityManager.flush()
+        testEntityManager.clear()
+
+        assertThat(saksbehandlerAccessRepository.findById(saksbehandlerIdent1).get().anketeam).isTrue()
     }
 
     @Test
@@ -50,6 +69,7 @@ class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
                 saksbehandlerIdent = saksbehandlerIdent1,
                 modifiedBy = saksbehandlerIdent3,
                 ytelser = ytelser1,
+                anketeam = false,
             )
 
         val ytelser2 = setOf(Ytelse.SYK_SYK, Ytelse.BAR_BAR)
@@ -58,6 +78,7 @@ class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
                 saksbehandlerIdent = saksbehandlerIdent2,
                 modifiedBy = saksbehandlerIdent3,
                 ytelser = ytelser2,
+                anketeam = false,
             )
 
         val ytelser3 = setOf(Ytelse.OMS_OLP)
@@ -66,6 +87,7 @@ class SaksbehandlerAccessRepositoryTest : PostgresIntegrationTestBase() {
                 saksbehandlerIdent = saksbehandlerIdent3,
                 modifiedBy = saksbehandlerIdent3,
                 ytelser = ytelser3,
+                anketeam = false,
             )
 
         saksbehandlerAccessRepository.save(saksbehandlerAccess1)

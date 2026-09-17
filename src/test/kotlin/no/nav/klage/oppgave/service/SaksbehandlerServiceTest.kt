@@ -162,10 +162,12 @@ class SaksbehandlerServiceTest {
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent1,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent2,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
             ),
         )
@@ -209,10 +211,12 @@ class SaksbehandlerServiceTest {
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent1,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent2,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
             ),
         )
@@ -252,10 +256,12 @@ class SaksbehandlerServiceTest {
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent1,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent2,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
             ),
         )
@@ -290,10 +296,12 @@ class SaksbehandlerServiceTest {
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent1,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
                 SaksbehandlerAccess(
                     saksbehandlerIdent = saksbehandlerIdent2,
                     modifiedBy = "",
+                    anketeam = false,
                 ),
             ),
         )

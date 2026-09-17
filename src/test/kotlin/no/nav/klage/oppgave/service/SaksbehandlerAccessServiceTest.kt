@@ -74,6 +74,7 @@ class SaksbehandlerAccessServiceTest {
                         ytelser = emptySet(),
                         created = LocalDateTime.now(),
                         accessRightsModified = LocalDateTime.now(),
+                        anketeam = false,
                     ),
                 )
             every { klageLookupGateway.getSluttdatoForNavIdentList(listOf(ident)) } returns
@@ -109,6 +110,7 @@ class SaksbehandlerAccessServiceTest {
                         ytelser = emptySet(),
                         created = LocalDateTime.now(),
                         accessRightsModified = LocalDateTime.now(),
+                        anketeam = false,
                     ),
                 )
 

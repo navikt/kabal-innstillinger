@@ -3,10 +3,10 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.AzureGroup
+import no.nav.klage.oppgave.api.view.AccessInput
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
-import no.nav.klage.oppgave.api.view.YtelseInput
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.exceptions.MissingTilgangException
@@ -73,18 +73,20 @@ class SaksbehandlerAccessController(
     }
 
     @Operation(
-        summary = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
-        description = "Setter hvilke ytelser som de ansatte får lov til å jobbe med",
+        summary = "Setter tilganger for de ansatte",
+        description =
+            "Setter hvilke ytelser de ansatte får lov til å jobbe med, og om de er i anketeam. " +
+                "/ansatte/setytelser er beholdt som alias for bakoverkompatibilitet.",
     )
-    @PutMapping("/ansatte/setytelser", produces = ["application/json"])
-    fun setYtelserForSaksbehandlere(
-        @RequestBody input: YtelseInput,
+    @PutMapping(value = ["/ansatte/set-access", "/ansatte/setytelser"], produces = ["application/json"])
+    fun setAccessForSaksbehandlere(
+        @RequestBody input: AccessInput,
     ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setYtelserForSaksbehandlere.name)
-        return saksbehandlerAccessService.setYtelserForAnsatt(
-            ytelseInput = input,
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setAccessForSaksbehandlere.name)
+        return saksbehandlerAccessService.setAccessForAnsatt(
+            accessInput = input,
             innloggetAnsattIdent = innloggetSaksbehandlerNavIdent,
         )
     }

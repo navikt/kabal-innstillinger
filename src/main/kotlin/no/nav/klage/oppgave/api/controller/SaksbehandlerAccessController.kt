@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.oppgave.api.view.AccessInput
+import no.nav.klage.oppgave.api.view.AnketeamInput
+import no.nav.klage.oppgave.api.view.AnketeamResponse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
@@ -73,20 +75,35 @@ class SaksbehandlerAccessController(
     }
 
     @Operation(
-        summary = "Setter tilganger for de ansatte",
-        description =
-            "Setter hvilke ytelser de ansatte får lov til å jobbe med, og om de er i anketeam. " +
-                "/ansatte/setytelser er beholdt som alias for bakoverkompatibilitet.",
+        summary = "Setter hvilke ytelser de ansatte får lov til å jobbe med",
+        description = "Setter hvilke ytelser de ansatte får lov til å jobbe med",
     )
-    @PutMapping(value = ["/ansatte/set-access", "/ansatte/setytelser"], produces = ["application/json"])
-    fun setAccessForSaksbehandlere(
+    @PutMapping("/ansatte/setytelser", produces = ["application/json"])
+    fun setYtelserForSaksbehandlere(
         @RequestBody input: AccessInput,
     ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
-        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setAccessForSaksbehandlere.name)
-        return saksbehandlerAccessService.setAccessForAnsatt(
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setYtelserForSaksbehandlere.name)
+        return saksbehandlerAccessService.setYtelserForAnsatt(
             accessInput = input,
+            innloggetAnsattIdent = innloggetSaksbehandlerNavIdent,
+        )
+    }
+
+    @Operation(
+        summary = "Setter hvilke ansatte som er i anketeam",
+        description = "Setter hvilke ansatte som er i anketeam",
+    )
+    @PutMapping("/ansatte/setanketeam", produces = ["application/json"])
+    fun setAnketeamForSaksbehandlere(
+        @RequestBody input: AnketeamInput,
+    ): AnketeamResponse {
+        verifyIsTilgangsstyringEgenEnhet()
+        val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
+        logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setAnketeamForSaksbehandlere.name)
+        return saksbehandlerAccessService.setAnketeamForAnsatt(
+            anketeamInput = input,
             innloggetAnsattIdent = innloggetSaksbehandlerNavIdent,
         )
     }

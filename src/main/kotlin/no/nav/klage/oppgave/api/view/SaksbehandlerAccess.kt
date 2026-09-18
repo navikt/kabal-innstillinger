@@ -19,12 +19,29 @@ data class SaksbehandlerAccess(
     val accessRightsModified: LocalDateTime?,
 )
 
+data class AnketeamMember(
+    val saksbehandlerIdent: String,
+    val anketeam: Boolean,
+)
+
+data class AnketeamResponse(
+    val anketeam: List<AnketeamMember>,
+)
+
 data class AccessInput(
     val accessRights: List<AccessRightInput>,
 ) {
     data class AccessRightInput(
         val saksbehandlerIdent: String,
         val ytelseIdList: List<String>,
-        val anketeam: Boolean = false,
+    )
+}
+
+data class AnketeamInput(
+    val anketeam: List<AnketeamMemberInput>,
+) {
+    data class AnketeamMemberInput(
+        val saksbehandlerIdent: String,
+        val anketeam: Boolean,
     )
 }

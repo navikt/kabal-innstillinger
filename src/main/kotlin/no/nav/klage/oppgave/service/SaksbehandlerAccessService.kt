@@ -7,6 +7,9 @@ import no.nav.klage.kodeverk.klageenheter
 import no.nav.klage.kodeverk.styringsenheter
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.AccessInput
+import no.nav.klage.oppgave.api.view.AnketeamInput
+import no.nav.klage.oppgave.api.view.AnketeamMember
+import no.nav.klage.oppgave.api.view.AnketeamResponse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
@@ -86,11 +89,11 @@ class SaksbehandlerAccessService(
         return TildelteYtelserResponse(ytelseIdList = ytelseIdUnion.toList())
     }
 
-    fun setAccessForAnsatt(
+    fun setYtelserForAnsatt(
         accessInput: AccessInput,
         innloggetAnsattIdent: String,
     ): SaksbehandlerAccessResponse {
-        logger.debug("{} for saksbehandlere with ytelser {}", ::setAccessForAnsatt, accessInput)
+        logger.debug("{} for saksbehandlere with ytelser {}", ::setYtelserForAnsatt, accessInput)
 
         val now = LocalDateTime.now()
         val saksbehandlerAccessList = mutableListOf<SaksbehandlerAccessView>()
@@ -104,16 +107,15 @@ class SaksbehandlerAccessService(
                             saksbehandlerIdent = accessRight.saksbehandlerIdent,
                             modifiedBy = innloggetAnsattIdent,
                             ytelser = ytelseSet,
-                            anketeam = accessRight.anketeam,
+                            anketeam = false,
                             created = now,
                             accessRightsModified = now,
                         ),
                     )
                 } else {
                     saksbehandlerAccessRepository.getReferenceById(accessRight.saksbehandlerIdent).apply {
-                        if (ytelser != ytelseSet || anketeam != accessRight.anketeam) {
+                        if (ytelser != ytelseSet) {
                             ytelser = ytelseSet
-                            anketeam = accessRight.anketeam
                             modifiedBy = innloggetAnsattIdent
                             accessRightsModified = now
                         } else {
@@ -139,6 +141,49 @@ class SaksbehandlerAccessService(
                 )
         }
         return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
+    }
+
+    fun setAnketeamForAnsatt(
+        anketeamInput: AnketeamInput,
+        innloggetAnsattIdent: String,
+    ): AnketeamResponse {
+        logger.debug("{} for saksbehandlere {}", ::setAnketeamForAnsatt, anketeamInput)
+
+        val now = LocalDateTime.now()
+
+        val anketeamList =
+            anketeamInput.anketeam.map { anketeamMember ->
+                val saksbehandlerAccess =
+                    if (!saksbehandlerAccessRepository.existsById(anketeamMember.saksbehandlerIdent)) {
+                        saksbehandlerAccessRepository.save(
+                            SaksbehandlerAccessEntity(
+                                saksbehandlerIdent = anketeamMember.saksbehandlerIdent,
+                                modifiedBy = innloggetAnsattIdent,
+                                ytelser = emptySet(),
+                                anketeam = anketeamMember.anketeam,
+                                created = now,
+                                accessRightsModified = now,
+                            ),
+                        )
+                    } else {
+                        saksbehandlerAccessRepository.getReferenceById(anketeamMember.saksbehandlerIdent).apply {
+                            if (anketeam != anketeamMember.anketeam) {
+                                anketeam = anketeamMember.anketeam
+                                modifiedBy = innloggetAnsattIdent
+                                accessRightsModified = now
+                            } else {
+                                logger.debug("No anketeam changes for saksbehandler {}", anketeamMember.saksbehandlerIdent)
+                            }
+                        }
+                    }
+
+                AnketeamMember(
+                    saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
+                    anketeam = saksbehandlerAccess.anketeam,
+                )
+            }
+
+        return AnketeamResponse(anketeam = anketeamList)
     }
 
     fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> =

@@ -36,10 +36,10 @@ class SaksbehandlerAccessController(
     }
 
     @Operation(
-        summary = "Henter ytelser som den ansatte har blitt tildelt av leder",
-        description = "Henter ytelser som den ansatte har blitt tildelt av leder",
+        summary = "Henter ytelser og anketeam-tilhørighet som den ansatte har blitt tildelt av leder",
+        description = "Henter ytelser og anketeam-tilhørighet som den ansatte har blitt tildelt av leder",
     )
-    @GetMapping("/ansatte/{navIdent}/tildelteytelser", produces = ["application/json"])
+    @GetMapping(value = ["/ansatte/{navIdent}/tildelteytelser", "/ansatte/{navIdent}/access"], produces = ["application/json"])
     fun getSaksbehandlerAccess(
         @PathVariable navIdent: String,
     ): SaksbehandlerAccess {

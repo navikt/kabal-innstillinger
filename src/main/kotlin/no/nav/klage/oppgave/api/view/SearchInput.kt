@@ -1,11 +1,14 @@
 package no.nav.klage.oppgave.api.view
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
 data class SearchMedunderskrivereInput(
     val enhet: String,
     val navIdent: String,
     val sak: SakInput,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SakInput(
     val fnr: String,
     val sakId: String,

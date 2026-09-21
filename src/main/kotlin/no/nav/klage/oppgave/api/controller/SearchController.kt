@@ -3,6 +3,7 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.Fagsystem
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.SakInput
@@ -50,6 +51,7 @@ class SearchController(
             fnr = input.sak.fnr,
             sakId = input.sak.sakId,
             fagsystem = Fagsystem.of(input.sak.fagsystemId),
+            type = Type.of(input.sak.typeId),
         )
     }
 
@@ -94,6 +96,7 @@ class SearchController(
             fnr = input.fnr,
             sakId = input.sakId,
             fagsystem = Fagsystem.of(input.fagsystemId),
+            type = Type.of(input.typeId),
         )
     }
 
@@ -114,6 +117,7 @@ class SearchController(
         return saksbehandlerService.getSaksbehandlereForBruker(
             ytelse = Ytelse.of(input.ytelseId),
             fnr = input.fnr,
+            type = Type.of(input.typeId),
         )
     }
 

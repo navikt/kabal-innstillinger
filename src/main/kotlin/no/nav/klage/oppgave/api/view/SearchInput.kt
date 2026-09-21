@@ -16,6 +16,7 @@ data class SakInput(
     val fagsystemId: String,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SearchSaksbehandlereForBrukerInput(
     val fnr: String,
     val ytelseId: String,

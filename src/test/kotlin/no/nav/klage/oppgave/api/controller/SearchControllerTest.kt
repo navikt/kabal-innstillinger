@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import no.nav.klage.kodeverk.Fagsystem
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
 import no.nav.klage.oppgave.api.view.SakInput
@@ -59,6 +60,7 @@ class SearchControllerTest {
                     sakId = sakId,
                     ytelseId = ytelseId,
                     fagsystemId = fagsystemId,
+                    typeId = Type.KLAGE.id,
                 ),
         )
 
@@ -68,6 +70,7 @@ class SearchControllerTest {
             sakId = sakId,
             ytelseId = ytelseId,
             fagsystemId = fagsystemId,
+            typeId = Type.KLAGE.id,
         )
 
     private val searchSaksbehandlerInput =
@@ -76,6 +79,7 @@ class SearchControllerTest {
             sakId = sakId,
             ytelseId = ytelseId,
             fagsystemId = fagsystemId,
+            typeId = Type.KLAGE.id,
         )
 
     private val medunderskrivereForYtelse =
@@ -112,6 +116,7 @@ class SearchControllerTest {
                 fnr = any(),
                 sakId = any(),
                 fagsystem = any(),
+                type = any(),
             )
         } returns medunderskrivereForYtelse
 
@@ -148,10 +153,11 @@ class SearchControllerTest {
     fun getSaksbehandlereForSak() {
         every {
             saksbehandlerService.getSaksbehandlere(
-                ytelse = any(),
                 fnr = any(),
+                ytelse = any(),
                 sakId = any(),
                 fagsystem = any(),
+                type = any(),
             )
         } returns saksbehandlere
 

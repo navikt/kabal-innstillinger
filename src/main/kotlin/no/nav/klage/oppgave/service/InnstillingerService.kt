@@ -8,6 +8,7 @@ import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,6 +19,7 @@ import java.time.LocalDateTime
 class InnstillingerService(
     private val innstillingerRepository: InnstillingerRepository,
     private val klageLookupGateway: KlageLookupGateway,
+    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository,
 ) {
     companion object {
         @Suppress("JAVA_CLASS_ON_COMPANION")
@@ -242,16 +244,35 @@ class InnstillingerService(
     fun getAllHjemlerForYtelse(
         ytelse: Ytelse,
         includeStyringsEnhet: Boolean,
+        onlyAnketeam: Boolean,
     ): Set<String> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
         val hjemmelSet =
             if (includeStyringsEnhet) {
-                relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
+                relevantInnstillinger
+                    .filter {
+                        if (onlyAnketeam) {
+                            saksbehandlerAccessRepository.existsById(it.saksbehandlerident) &&
+                                saksbehandlerAccessRepository.getReferenceById(it.saksbehandlerident).anketeam
+                        } else {
+                            true
+                        }
+                    }.flatMap { it.hjemler }
+                    .map { it.id }
+                    .toSet()
             } else {
                 val navIdentsInKAStyringsEnhet = klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }
                 relevantInnstillinger
+                    .asSequence()
                     .filter {
                         it.saksbehandlerident !in navIdentsInKAStyringsEnhet
+                    }.filter {
+                        if (onlyAnketeam) {
+                            saksbehandlerAccessRepository.existsById(it.saksbehandlerident) &&
+                                saksbehandlerAccessRepository.getReferenceById(it.saksbehandlerident).anketeam
+                        } else {
+                            true
+                        }
                     }.flatMap { it.hjemler }
                     .map { it.id }
                     .toSet()

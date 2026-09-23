@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.service
 
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.Fagsystem
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.klageenhetToYtelser
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
@@ -50,10 +51,15 @@ class SaksbehandlerService(
         val azureRoller = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent).groups.map { it.id }
         val roller =
             if (saksbehandlerAccessService.isAnketeam(navIdent)) {
-                azureRoller + ANKETEAM_ROLE
+                (azureRoller + ANKETEAM_ROLE).toMutableList()
             } else {
-                azureRoller
+                azureRoller.toMutableList()
             }
+
+        // Temporary solution, replace when KABAL_OPPGAVESTYRING_ANKETEAM exists.
+        if (roller.contains(AzureGroup.KABAL_INNSYN_EGEN_ENHET.id)) {
+            roller.add("KABAL_OPPGAVESTYRING_ANKETEAM")
+        }
 
         return SaksbehandlerInfo(
             navIdent = navIdent,
@@ -72,13 +78,18 @@ class SaksbehandlerService(
         fnr: String,
         sakId: String,
         fagsystem: Fagsystem,
+        type: Type,
     ): MedunderskrivereForYtelse =
         MedunderskrivereForYtelse(
             ytelse = ytelse.id,
             medunderskrivere =
                 getPossibleSaksbehandlere(
                     fnr = fnr,
-                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    saksbehandlerIdentList =
+                        getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
+                            ytelse = ytelse,
+                            requireAnketeam = anketeamIsRequired(type = type),
+                        ),
                     isSearchingMedunderskriverOrRol = true,
                     sakId = sakId,
                     ytelse = ytelse,
@@ -93,12 +104,17 @@ class SaksbehandlerService(
         ytelse: Ytelse,
         sakId: String,
         fagsystem: Fagsystem,
+        type: Type,
     ): Saksbehandlere =
         Saksbehandlere(
             saksbehandlere =
                 getPossibleSaksbehandlere(
                     fnr = fnr,
-                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    saksbehandlerIdentList =
+                        getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
+                            ytelse = ytelse,
+                            requireAnketeam = anketeamIsRequired(type),
+                        ),
                     sakId = sakId,
                     ytelse = ytelse,
                     fagsystem = fagsystem,
@@ -109,12 +125,17 @@ class SaksbehandlerService(
     fun getSaksbehandlereForBruker(
         fnr: String,
         ytelse: Ytelse,
+        type: Type,
     ): Saksbehandlere =
         Saksbehandlere(
             saksbehandlere =
                 getPossibleSaksbehandlere(
                     fnr = fnr,
-                    saksbehandlerIdentList = getSaksbehandlerIdentsForYtelse(ytelse),
+                    saksbehandlerIdentList =
+                        getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
+                            ytelse = ytelse,
+                            requireAnketeam = anketeamIsRequired(type = type),
+                        ),
                     ytelse = ytelse,
                     sakId = null,
                     fagsystem = null,
@@ -246,12 +267,18 @@ class SaksbehandlerService(
         return roleList.groups.contains(AzureGroup.KABAL_ROL)
     }
 
-    private fun getSaksbehandlerIdentsForYtelse(ytelse: Ytelse): List<String> {
+    private fun getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
+        ytelse: Ytelse,
+        requireAnketeam: Boolean,
+    ): List<String> {
         logger.debug("Getting saksbehandlere for ytelse {}", ytelse)
         val results = saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(ytelse)
-        return results.map {
-            it.saksbehandlerIdent
-        }
+        return results
+            .filter {
+                !requireAnketeam || it.anketeam
+            }.map {
+                it.saksbehandlerIdent
+            }
     }
 
     private fun getROLIdents(): List<String> {
@@ -301,4 +328,6 @@ class SaksbehandlerService(
             newSaksbehandlerInnstillinger = newSaksbehandlerInnstillinger,
             assignedYtelseSet = saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(navIdent),
         )
+
+    private fun anketeamIsRequired(type: Type): Boolean = type in listOf(Type.ANKE_ETTER_2027, Type.ANKE_I_TRYGDERETTEN_ETTER_2027)
 }

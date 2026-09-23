@@ -14,10 +14,12 @@ data class SakInput(
     val sakId: String,
     val ytelseId: String,
     val fagsystemId: String,
+    val typeId: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SearchSaksbehandlereForBrukerInput(
     val fnr: String,
     val ytelseId: String,
+    val typeId: String,
 )

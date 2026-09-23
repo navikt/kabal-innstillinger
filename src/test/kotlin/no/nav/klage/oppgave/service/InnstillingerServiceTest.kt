@@ -27,6 +27,7 @@ class InnstillingerServiceTest {
         InnstillingerService(
             innstillingerRepository = innstillingerRepository,
             klageLookupGateway = klageLookupGateway,
+            saksbehandlerAccessRepository = mockk(),
         )
 
     private val ident1 = "ident1"

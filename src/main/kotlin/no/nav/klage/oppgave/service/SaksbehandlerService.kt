@@ -51,10 +51,15 @@ class SaksbehandlerService(
         val azureRoller = klageLookupGateway.getGroupsForGivenNavIdent(navIdent = navIdent).groups.map { it.id }
         val roller =
             if (saksbehandlerAccessService.isAnketeam(navIdent)) {
-                azureRoller + ANKETEAM_ROLE
+                (azureRoller + ANKETEAM_ROLE).toMutableList()
             } else {
-                azureRoller
+                azureRoller.toMutableList()
             }
+
+        // Temporary solution, replace when KABAL_OPPGAVESTYRING_ANKETEAM exists.
+        if (roller.contains(AzureGroup.KABAL_INNSYN_EGEN_ENHET.id)) {
+            roller.add("KABAL_OPPGAVESTYRING_ANKETEAM")
+        }
 
         return SaksbehandlerInfo(
             navIdent = navIdent,

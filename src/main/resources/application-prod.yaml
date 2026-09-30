@@ -5,6 +5,8 @@ SETTINGS_CLEANUP_CRON: 0 30 14 * * MON
 spring:
   datasource:
     url: ${NAIS_DATABASE_KABAL_INNSTILLINGER_PRIV_KABAL_INNSTILLINGER_JDBC_URL}
+    hikari:
+      maximum-pool-size: 20
 
 springdoc:
   api-docs:

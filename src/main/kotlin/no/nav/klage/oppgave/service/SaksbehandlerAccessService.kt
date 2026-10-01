@@ -8,8 +8,6 @@ import no.nav.klage.kodeverk.styringsenheter
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.AccessInput
 import no.nav.klage.oppgave.api.view.AnketeamInput
-import no.nav.klage.oppgave.api.view.AnketeamMember
-import no.nav.klage.oppgave.api.view.AnketeamResponse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
@@ -146,7 +144,7 @@ class SaksbehandlerAccessService(
     fun setAnketeamForAnsatt(
         anketeamInput: AnketeamInput,
         innloggetAnsattIdent: String,
-    ): AnketeamResponse {
+    ): SaksbehandlerAccessResponse {
         logger.debug("{} for saksbehandlere {}", ::setAnketeamForAnsatt, anketeamInput)
 
         val now = LocalDateTime.now()
@@ -177,13 +175,17 @@ class SaksbehandlerAccessService(
                         }
                     }
 
-                AnketeamMember(
+                SaksbehandlerAccessView(
                     saksbehandlerIdent = saksbehandlerAccess.saksbehandlerIdent,
+                    saksbehandlerName = getSammensattNameForIdent(saksbehandlerAccess.saksbehandlerIdent),
+                    ytelseIdList = saksbehandlerAccess.ytelser.map { it.id },
                     anketeam = saksbehandlerAccess.anketeam,
+                    created = saksbehandlerAccess.created,
+                    accessRightsModified = saksbehandlerAccess.accessRightsModified,
                 )
             }
 
-        return AnketeamResponse(anketeam = anketeamList)
+        return SaksbehandlerAccessResponse(accessRights = anketeamList)
     }
 
     fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> =

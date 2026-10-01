@@ -10,7 +10,6 @@ import no.nav.klage.kodeverk.styringsenheter
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.AccessInput
 import no.nav.klage.oppgave.api.view.AnketeamInput
-import no.nav.klage.oppgave.api.view.AnketeamMember
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
@@ -162,6 +161,14 @@ class SaksbehandlerAccessServiceTest {
             val savedAccess = slot<SaksbehandlerAccess>()
             every { saksbehandlerAccessRepository.existsById(ident) } returns false
             every { saksbehandlerAccessRepository.save(capture(savedAccess)) } answers { savedAccess.captured }
+            every { klageLookupGateway.getUserInfoForGivenNavIdent(ident) } returns
+                SaksbehandlerPersonligInfo(
+                    navIdent = ident,
+                    fornavn = "",
+                    etternavn = "",
+                    sammensattNavn = sammensattNavn,
+                    enhet = SaksbehandlerEnhet(enhetId = "", navn = ""),
+                )
 
             val result =
                 saksbehandlerAccessService.setAnketeamForAnsatt(
@@ -172,7 +179,7 @@ class SaksbehandlerAccessServiceTest {
                     innloggetAnsattIdent = "leder",
                 )
 
-            assertEquals(listOf(AnketeamMember(saksbehandlerIdent = ident, anketeam = true)), result.anketeam)
+            assertEquals(true, result.accessRights.first().anketeam)
             assertEquals(emptySet<Ytelse>(), savedAccess.captured.ytelser)
             assertEquals("leder", savedAccess.captured.modifiedBy)
         }
@@ -191,6 +198,14 @@ class SaksbehandlerAccessServiceTest {
                 )
             every { saksbehandlerAccessRepository.existsById(ident) } returns true
             every { saksbehandlerAccessRepository.getReferenceById(ident) } returns existingAccess
+            every { klageLookupGateway.getUserInfoForGivenNavIdent(ident) } returns
+                SaksbehandlerPersonligInfo(
+                    navIdent = ident,
+                    fornavn = "",
+                    etternavn = "",
+                    sammensattNavn = sammensattNavn,
+                    enhet = SaksbehandlerEnhet(enhetId = "", navn = ""),
+                )
 
             val result =
                 saksbehandlerAccessService.setAnketeamForAnsatt(
@@ -201,7 +216,7 @@ class SaksbehandlerAccessServiceTest {
                     innloggetAnsattIdent = "leder",
                 )
 
-            assertEquals(listOf(AnketeamMember(saksbehandlerIdent = ident, anketeam = true)), result.anketeam)
+            assertEquals(true, result.accessRights.first().anketeam)
             assertTrue(existingAccess.anketeam)
             assertEquals("leder", existingAccess.modifiedBy)
             assertTrue(existingAccess.accessRightsModified.isAfter(existingModified))
@@ -223,6 +238,14 @@ class SaksbehandlerAccessServiceTest {
                 )
             every { saksbehandlerAccessRepository.existsById(ident) } returns true
             every { saksbehandlerAccessRepository.getReferenceById(ident) } returns existingAccess
+            every { klageLookupGateway.getUserInfoForGivenNavIdent(ident) } returns
+                SaksbehandlerPersonligInfo(
+                    navIdent = ident,
+                    fornavn = "",
+                    etternavn = "",
+                    sammensattNavn = sammensattNavn,
+                    enhet = SaksbehandlerEnhet(enhetId = "", navn = ""),
+                )
 
             saksbehandlerAccessService.setAnketeamForAnsatt(
                 anketeamInput =

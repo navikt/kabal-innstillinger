@@ -66,7 +66,7 @@ class SaksbehandlerAccessService(
                         } else {
                             getEmptySaksbehandlerAccess(ident)
                         }
-                    },
+                    }.sortedBy { it.saksbehandlerName },
         )
     }
 
@@ -138,7 +138,7 @@ class SaksbehandlerAccessService(
                     accessRightsModified = saksbehandlerAccess.accessRightsModified,
                 )
         }
-        return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList)
+        return SaksbehandlerAccessResponse(accessRights = saksbehandlerAccessList.sortedBy { it.saksbehandlerName })
     }
 
     fun setAnketeamForAnsatt(
@@ -185,7 +185,7 @@ class SaksbehandlerAccessService(
                 )
             }
 
-        return SaksbehandlerAccessResponse(accessRights = anketeamList)
+        return SaksbehandlerAccessResponse(accessRights = anketeamList.sortedBy { it.saksbehandlerName })
     }
 
     fun getSaksbehandlerAssignedYtelseSet(saksbehandlerIdent: String): Set<Ytelse> =

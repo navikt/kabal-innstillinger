@@ -24,10 +24,6 @@ data class AnketeamMember(
     val anketeam: Boolean,
 )
 
-data class AnketeamResponse(
-    val anketeam: List<AnketeamMember>,
-)
-
 data class AccessInput(
     val accessRights: List<AccessRightInput>,
 ) {

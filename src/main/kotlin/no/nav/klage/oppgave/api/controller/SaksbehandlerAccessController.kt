@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.oppgave.api.view.AccessInput
 import no.nav.klage.oppgave.api.view.AnketeamInput
-import no.nav.klage.oppgave.api.view.AnketeamResponse
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccess
 import no.nav.klage.oppgave.api.view.SaksbehandlerAccessResponse
 import no.nav.klage.oppgave.api.view.TildelteYtelserResponse
@@ -98,7 +97,7 @@ class SaksbehandlerAccessController(
     @PutMapping("/ansatte/setanketeam", produces = ["application/json"])
     fun setAnketeamForSaksbehandlere(
         @RequestBody input: AnketeamInput,
-    ): AnketeamResponse {
+    ): SaksbehandlerAccessResponse {
         verifyIsTilgangsstyringEgenEnhet()
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::setAnketeamForSaksbehandlere.name)

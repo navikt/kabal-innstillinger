@@ -78,7 +78,7 @@ class SaksbehandlerService(
         fnr: String,
         sakId: String,
         fagsystem: Fagsystem,
-        type: Type,
+        type: Type?,
     ): MedunderskrivereForYtelse =
         MedunderskrivereForYtelse(
             ytelse = ytelse.id,
@@ -88,7 +88,7 @@ class SaksbehandlerService(
                     saksbehandlerIdentList =
                         getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
                             ytelse = ytelse,
-                            requireAnketeam = anketeamIsRequired(type = type),
+                            requireAnketeam = type != null && anketeamIsRequired(type),
                         ),
                     isSearchingMedunderskriverOrRol = true,
                     sakId = sakId,
@@ -104,7 +104,7 @@ class SaksbehandlerService(
         ytelse: Ytelse,
         sakId: String,
         fagsystem: Fagsystem,
-        type: Type,
+        type: Type?,
     ): Saksbehandlere =
         Saksbehandlere(
             saksbehandlere =
@@ -113,7 +113,7 @@ class SaksbehandlerService(
                     saksbehandlerIdentList =
                         getSaksbehandlerIdentsForYtelseAndAnketeamSpecification(
                             ytelse = ytelse,
-                            requireAnketeam = anketeamIsRequired(type),
+                            requireAnketeam = type != null && anketeamIsRequired(type),
                         ),
                     sakId = sakId,
                     ytelse = ytelse,

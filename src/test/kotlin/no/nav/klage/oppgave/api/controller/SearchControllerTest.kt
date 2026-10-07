@@ -7,6 +7,7 @@ import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
+import no.nav.klage.oppgave.api.view.RolSakInput
 import no.nav.klage.oppgave.api.view.SakInput
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.api.view.Saksbehandlere
@@ -65,12 +66,11 @@ class SearchControllerTest {
         )
 
     private val searchROLInput =
-        SakInput(
+        RolSakInput(
             fnr = fnr,
             sakId = sakId,
             ytelseId = ytelseId,
             fagsystemId = fagsystemId,
-            typeId = Type.KLAGE.id,
         )
 
     private val searchSaksbehandlerInput =

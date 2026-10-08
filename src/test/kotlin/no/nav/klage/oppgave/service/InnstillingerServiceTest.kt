@@ -5,13 +5,17 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
+import no.nav.klage.kodeverk.Enhet
 import no.nav.klage.kodeverk.hjemmel.Hjemmel
 import no.nav.klage.kodeverk.hjemmel.ytelseToHjemler
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.clients.klagelookup.KlageLookupGateway
+import no.nav.klage.oppgave.clients.klagelookup.UserResponse
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerInnstillinger
 import no.nav.klage.oppgave.domain.saksbehandler.entities.Innstillinger
+import no.nav.klage.oppgave.domain.saksbehandler.entities.SaksbehandlerAccess
 import no.nav.klage.oppgave.repositories.InnstillingerRepository
+import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeEach
@@ -23,11 +27,12 @@ class InnstillingerServiceTest {
     private val innstillingerRepository: InnstillingerRepository = spyk()
     private val saksbehandlerAccessService: SaksbehandlerAccessService = mockk()
     private val klageLookupGateway: KlageLookupGateway = mockk()
+    private val saksbehandlerAccessRepository: SaksbehandlerAccessRepository = mockk()
     private val innstillingerService =
         InnstillingerService(
             innstillingerRepository = innstillingerRepository,
             klageLookupGateway = klageLookupGateway,
-            saksbehandlerAccessRepository = mockk(),
+            saksbehandlerAccessRepository = saksbehandlerAccessRepository,
         )
 
     private val ident1 = "ident1"
@@ -353,6 +358,171 @@ class InnstillingerServiceTest {
 
         verify(exactly = 0) {
             mockInnstillinger setProperty "hjemler" value setOf(hjemmel1, hjemmel3)
+        }
+    }
+
+    @Nested
+    inner class GetAllHjemlerForYtelse {
+        private val ident3 = "ident3"
+        private val identStyringsEnhet = "identStyringsEnhet"
+
+        // has saksbehandler_access record with anketeam = true
+        private val innstillingerIdent1 =
+            Innstillinger(
+                saksbehandlerident = ident1,
+                hjemler = setOf(hjemmel1),
+                ytelser = setOf(ytelse1),
+                anonymous = false,
+            )
+
+        // has saksbehandler_access record with anketeam = false
+        private val innstillingerIdent2 =
+            Innstillinger(
+                saksbehandlerident = ident2,
+                hjemler = setOf(hjemmel2),
+                ytelser = setOf(ytelse1),
+                anonymous = false,
+            )
+
+        // no saksbehandler_access record at all
+        private val innstillingerIdent3 =
+            Innstillinger(
+                saksbehandlerident = ident3,
+                hjemler = setOf(hjemmel3),
+                ytelser = setOf(ytelse1),
+                anonymous = false,
+            )
+
+        // member of styringsenhet, has saksbehandler_access record with anketeam = true
+        private val innstillingerIdentStyringsEnhet =
+            Innstillinger(
+                saksbehandlerident = identStyringsEnhet,
+                hjemler = setOf(hjemmel4),
+                ytelser = setOf(ytelse1),
+                anonymous = false,
+            )
+
+        @BeforeEach
+        fun before() {
+            every { innstillingerRepository.findByYtelserContaining(ytelse = ytelse1) }.returns(
+                listOf(
+                    innstillingerIdent1,
+                    innstillingerIdent2,
+                    innstillingerIdent3,
+                    innstillingerIdentStyringsEnhet,
+                ),
+            )
+
+            // ident3 has no saksbehandler_access record at all, so it's absent from the bulk result.
+            every { saksbehandlerAccessRepository.findAllById(any<List<String>>()) }.returns(
+                listOf(
+                    SaksbehandlerAccess(
+                        saksbehandlerIdent = ident1,
+                        modifiedBy = "modifiedBy",
+                        anketeam = true,
+                    ),
+                    SaksbehandlerAccess(
+                        saksbehandlerIdent = ident2,
+                        modifiedBy = "modifiedBy",
+                        anketeam = false,
+                    ),
+                    SaksbehandlerAccess(
+                        saksbehandlerIdent = identStyringsEnhet,
+                        modifiedBy = "modifiedBy",
+                        anketeam = true,
+                    ),
+                ),
+            )
+
+            every { klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn) }.returns(
+                listOf(
+                    UserResponse(
+                        navIdent = identStyringsEnhet,
+                        sammensattNavn = "Styrings Enhet",
+                        fornavn = "Styrings",
+                        etternavn = "Enhet",
+                    ),
+                ),
+            )
+        }
+
+        @Test
+        fun `access records are bulk-loaded once instead of queried per saksbehandler`() {
+            innstillingerService.getAllHjemlerForYtelse(
+                ytelse = ytelse1,
+                includeStyringsEnhet = true,
+                onlyAnketeam = true,
+            )
+
+            verify(exactly = 1) {
+                saksbehandlerAccessRepository.findAllById(any<List<String>>())
+            }
+            verify(exactly = 0) {
+                saksbehandlerAccessRepository.existsById(any())
+                saksbehandlerAccessRepository.getReferenceById(any())
+            }
+        }
+
+        @Test
+        fun `includeStyringsEnhet true, onlyAnketeam false, returns hjemler from all saksbehandlere`() {
+            val result =
+                innstillingerService.getAllHjemlerForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = true,
+                    onlyAnketeam = false,
+                )
+
+            assertEquals(
+                setOf(hjemmel1.id, hjemmel2.id, hjemmel3.id, hjemmel4.id),
+                result,
+            )
+        }
+
+        @Test
+        fun `includeStyringsEnhet true, onlyAnketeam true, returns hjemler only from saksbehandlere on anketeam`() {
+            val result =
+                innstillingerService.getAllHjemlerForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = true,
+                    onlyAnketeam = true,
+                )
+
+            // ident1 and identStyringsEnhet are on anketeam, ident2 is not, ident3 has no access record.
+            assertEquals(
+                setOf(hjemmel1.id, hjemmel4.id),
+                result,
+            )
+        }
+
+        @Test
+        fun `includeStyringsEnhet false, onlyAnketeam false, excludes styringsenhet members`() {
+            val result =
+                innstillingerService.getAllHjemlerForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = false,
+                    onlyAnketeam = false,
+                )
+
+            assertEquals(
+                setOf(hjemmel1.id, hjemmel2.id, hjemmel3.id),
+                result,
+            )
+        }
+
+        @Test
+        fun `includeStyringsEnhet false, onlyAnketeam true, excludes styringsenhet members and non-anketeam`() {
+            val result =
+                innstillingerService.getAllHjemlerForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = false,
+                    onlyAnketeam = true,
+                )
+
+            // identStyringsEnhet is excluded despite being on anketeam, since it's filtered out by styringsenhet check first.
+            assertEquals(
+                setOf(hjemmel1.id),
+                result,
+            )
         }
     }
 }

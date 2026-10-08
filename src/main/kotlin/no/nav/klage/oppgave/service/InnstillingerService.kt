@@ -247,16 +247,23 @@ class InnstillingerService(
         onlyAnketeam: Boolean,
     ): Set<String> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
+
+        val anketeamIdentSet: Set<String> =
+            if (onlyAnketeam) {
+                saksbehandlerAccessRepository
+                    .findAllById(relevantInnstillinger.map { it.saksbehandlerident })
+                    .filter { it.anketeam }
+                    .map { it.saksbehandlerIdent }
+                    .toSet()
+            } else {
+                emptySet()
+            }
+
         val hjemmelSet =
             if (includeStyringsEnhet) {
                 relevantInnstillinger
                     .filter {
-                        if (onlyAnketeam) {
-                            saksbehandlerAccessRepository.existsById(it.saksbehandlerident) &&
-                                saksbehandlerAccessRepository.getReferenceById(it.saksbehandlerident).anketeam
-                        } else {
-                            true
-                        }
+                        !onlyAnketeam || it.saksbehandlerident in anketeamIdentSet
                     }.flatMap { it.hjemler }
                     .map { it.id }
                     .toSet()
@@ -267,12 +274,7 @@ class InnstillingerService(
                     .filter {
                         it.saksbehandlerident !in navIdentsInKAStyringsEnhet
                     }.filter {
-                        if (onlyAnketeam) {
-                            saksbehandlerAccessRepository.existsById(it.saksbehandlerident) &&
-                                saksbehandlerAccessRepository.getReferenceById(it.saksbehandlerident).anketeam
-                        } else {
-                            true
-                        }
+                        !onlyAnketeam || it.saksbehandlerident in anketeamIdentSet
                     }.flatMap { it.hjemler }
                     .map { it.id }
                     .toSet()

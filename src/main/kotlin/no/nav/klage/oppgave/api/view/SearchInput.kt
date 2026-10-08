@@ -9,7 +9,7 @@ data class SearchMedunderskrivereInput(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SakInput(
+data class RolSakInput(
     val fnr: String,
     val sakId: String,
     val ytelseId: String,
@@ -17,7 +17,17 @@ data class SakInput(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class SakInput(
+    val fnr: String,
+    val sakId: String,
+    val ytelseId: String,
+    val fagsystemId: String,
+    val typeId: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SearchSaksbehandlereForBrukerInput(
     val fnr: String,
     val ytelseId: String,
+    val typeId: String,
 )

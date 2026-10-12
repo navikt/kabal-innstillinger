@@ -11,7 +11,7 @@ data class SearchMedunderskrivereInput(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SakInput(
     val fnr: String,
-    val sakId: String,
+    val sakId: String?,
     val ytelseId: String,
     val fagsystemId: String,
 )

@@ -70,7 +70,7 @@ class SaksbehandlerService(
         ident: String,
         ytelse: Ytelse,
         fnr: String,
-        sakId: String,
+        sakId: String?,
         fagsystem: Fagsystem,
     ): MedunderskrivereForYtelse =
         MedunderskrivereForYtelse(
@@ -91,7 +91,7 @@ class SaksbehandlerService(
     fun getSaksbehandlere(
         fnr: String,
         ytelse: Ytelse,
-        sakId: String,
+        sakId: String?,
         fagsystem: Fagsystem,
     ): Saksbehandlere =
         Saksbehandlere(
@@ -125,7 +125,7 @@ class SaksbehandlerService(
     fun getROLList(
         fnr: String,
         ytelse: Ytelse,
-        sakId: String,
+        sakId: String?,
         fagsystem: Fagsystem,
     ): Saksbehandlere =
         Saksbehandlere(

@@ -30,9 +30,11 @@ class HjemmelController(
     fun getHjemlerForYtelse(
         @RequestParam(required = true, name = "ytelseId") ytelseId: String,
         @RequestParam(required = false, name = "includeSE") includeStyringsEnhet: Boolean = true,
+        @RequestParam(required = false, name = "onlyAnketeam") onlyAnketeam: Boolean = false,
     ): Set<String> =
         innstillingerService.getAllHjemlerForYtelse(
             ytelse = Ytelse.of(ytelseId),
             includeStyringsEnhet = includeStyringsEnhet,
+            onlyAnketeam = onlyAnketeam,
         )
 }

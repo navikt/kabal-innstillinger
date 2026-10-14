@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.Fagsystem
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.Saksbehandler
 import no.nav.klage.oppgave.clients.klagelookup.BatchedGroupsHitResponse
@@ -187,6 +188,7 @@ class SaksbehandlerServiceTest {
                 ytelse = Ytelse.AAP_AAP,
                 sakId = "abc",
                 fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
             )
         assertThat(result.saksbehandlere).contains(saksbehandler1)
         assertThat(result.saksbehandlere).contains(saksbehandler2)
@@ -236,6 +238,7 @@ class SaksbehandlerServiceTest {
                 ytelse = Ytelse.AAP_AAP,
                 sakId = "abc",
                 fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
             )
 
         assertThat(result.saksbehandlere).containsExactly(saksbehandler1)
@@ -283,6 +286,7 @@ class SaksbehandlerServiceTest {
                 ytelse = Ytelse.FOR_FOR,
                 sakId = "abc",
                 fagsystem = Fagsystem.FS36,
+                type = Type.KLAGE,
             )
 
         assertThat(result.saksbehandlere).containsExactly(saksbehandler2)
@@ -325,6 +329,7 @@ class SaksbehandlerServiceTest {
                 fnr = fnr,
                 sakId = "abc",
                 fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
             )
         assertThat(result.medunderskrivere).doesNotContain(saksbehandler1)
         assertThat(result.medunderskrivere).contains(saksbehandler2)
@@ -345,6 +350,7 @@ class SaksbehandlerServiceTest {
                 fnr = fnr,
                 sakId = "abc",
                 fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
             )
         assertThat(result.medunderskrivere).isEmpty()
     }
@@ -364,6 +370,7 @@ class SaksbehandlerServiceTest {
                 fnr = fnr,
                 sakId = "abc",
                 fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
             )
         assertThat(result.medunderskrivere).isEmpty()
     }

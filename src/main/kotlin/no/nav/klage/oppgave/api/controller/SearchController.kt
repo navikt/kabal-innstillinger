@@ -3,8 +3,10 @@ package no.nav.klage.oppgave.api.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.klage.kodeverk.Fagsystem
+import no.nav.klage.kodeverk.Type
 import no.nav.klage.kodeverk.ytelse.Ytelse
 import no.nav.klage.oppgave.api.view.MedunderskrivereForYtelse
+import no.nav.klage.oppgave.api.view.RolSakInput
 import no.nav.klage.oppgave.api.view.SakInput
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.SearchMedunderskrivereInput
@@ -50,6 +52,7 @@ class SearchController(
             fnr = input.sak.fnr,
             sakId = input.sak.sakId,
             fagsystem = Fagsystem.of(input.sak.fagsystemId),
+            type = input.sak.typeId?.let { Type.of(it) },
         )
     }
 
@@ -62,7 +65,7 @@ class SearchController(
         produces = ["application/json"],
     )
     fun getROLsForSak(
-        @RequestBody input: SakInput,
+        @RequestBody input: RolSakInput,
     ): Saksbehandlere {
         val innloggetSaksbehandlerNavIdent = tokenUtil.getCurrentIdent()
         logMethodCall(navIdent = innloggetSaksbehandlerNavIdent, methodName = ::getROLsForSak.name)
@@ -94,6 +97,7 @@ class SearchController(
             fnr = input.fnr,
             sakId = input.sakId,
             fagsystem = Fagsystem.of(input.fagsystemId),
+            type = input.typeId?.let { Type.of(it) },
         )
     }
 
@@ -114,6 +118,7 @@ class SearchController(
         return saksbehandlerService.getSaksbehandlereForBruker(
             ytelse = Ytelse.of(input.ytelseId),
             fnr = input.fnr,
+            type = Type.of(input.typeId),
         )
     }
 

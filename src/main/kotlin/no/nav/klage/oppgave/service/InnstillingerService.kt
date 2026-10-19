@@ -246,6 +246,39 @@ class InnstillingerService(
         includeStyringsEnhet: Boolean,
         onlyAnketeam: Boolean,
     ): Set<String> {
+        val relevantInnstillinger =
+            getRelevantInnstillingerForYtelse(
+                ytelse = ytelse,
+                includeStyringsEnhet = includeStyringsEnhet,
+                onlyAnketeam = onlyAnketeam,
+            )
+
+        return relevantInnstillinger.flatMap { it.hjemler }.map { it.id }.toSet()
+    }
+
+    fun getDistinctHjemmelSetsForYtelse(
+        ytelse: Ytelse,
+        includeStyringsEnhet: Boolean,
+        onlyAnketeam: Boolean,
+    ): List<List<String>> =
+        getRelevantInnstillingerForYtelse(
+            ytelse = ytelse,
+            includeStyringsEnhet = includeStyringsEnhet,
+            onlyAnketeam = onlyAnketeam,
+        ).map { innstilling ->
+            innstilling.hjemler
+                .map { it.id }
+                .distinct()
+                .sorted()
+        }.filter { it.isNotEmpty() }
+            .distinct()
+            .sortedBy { it.joinToString(separator = "\u0000") }
+
+    private fun getRelevantInnstillingerForYtelse(
+        ytelse: Ytelse,
+        includeStyringsEnhet: Boolean,
+        onlyAnketeam: Boolean,
+    ): List<Innstillinger> {
         val relevantInnstillinger = innstillingerRepository.findByYtelserContaining(ytelse = ytelse)
 
         val anketeamIdentSet: Set<String> =
@@ -259,27 +292,18 @@ class InnstillingerService(
                 emptySet()
             }
 
-        val hjemmelSet =
+        val styringsEnhetIdentSet: Set<String> =
             if (includeStyringsEnhet) {
-                relevantInnstillinger
-                    .filter {
-                        !onlyAnketeam || it.saksbehandlerident in anketeamIdentSet
-                    }.flatMap { it.hjemler }
-                    .map { it.id }
-                    .toSet()
+                // If we include StyringsEnhet, then we don't need to check against that group.
+                // So there's no need to make the external call.
+                emptySet()
             } else {
-                val navIdentsInKAStyringsEnhet = klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }
-                relevantInnstillinger
-                    .asSequence()
-                    .filter {
-                        it.saksbehandlerident !in navIdentsInKAStyringsEnhet
-                    }.filter {
-                        !onlyAnketeam || it.saksbehandlerident in anketeamIdentSet
-                    }.flatMap { it.hjemler }
-                    .map { it.id }
-                    .toSet()
+                klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn).map { it.navIdent }.toSet()
             }
 
-        return hjemmelSet
+        return relevantInnstillinger.filter { innstilling ->
+            (includeStyringsEnhet || innstilling.saksbehandlerident !in styringsEnhetIdentSet) &&
+                (!onlyAnketeam || innstilling.saksbehandlerident in anketeamIdentSet)
+        }
     }
 }

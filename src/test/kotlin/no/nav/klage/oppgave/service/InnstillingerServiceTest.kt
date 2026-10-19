@@ -18,6 +18,7 @@ import no.nav.klage.oppgave.repositories.InnstillingerRepository
 import no.nav.klage.oppgave.repositories.SaksbehandlerAccessRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -524,5 +525,87 @@ class InnstillingerServiceTest {
                 result,
             )
         }
+
+        @Test
+        fun `returns distinct non-empty hjemmel sets in stable sorted order`() {
+            every { innstillingerRepository.findByYtelserContaining(ytelse = ytelse1) }.returns(
+                listOf(
+                    innstillingerWithHjemler(ident = "ident-a", hjemler = setOf(hjemmel2, hjemmel1)),
+                    innstillingerWithHjemler(ident = "ident-b", hjemler = setOf(hjemmel1, hjemmel2)),
+                    innstillingerWithHjemler(ident = "ident-c", hjemler = setOf(hjemmel3, hjemmel2)),
+                    innstillingerWithHjemler(ident = "ident-d", hjemler = emptySet()),
+                ),
+            )
+
+            val result =
+                innstillingerService.getDistinctHjemmelSetsForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = true,
+                    onlyAnketeam = false,
+                )
+
+            val firstSet = listOf(hjemmel1.id, hjemmel2.id).sorted()
+            val secondSet = listOf(hjemmel2.id, hjemmel3.id).sorted()
+            assertEquals(
+                listOf(firstSet, secondSet).sortedBy { it.joinToString(separator = "\u0000") },
+                result,
+            )
+        }
+
+        @Test
+        fun `uses same SE and anketeam filters as aggregate hjemler endpoint`() {
+            val excludingStyringsEnhet =
+                innstillingerService.getDistinctHjemmelSetsForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = false,
+                    onlyAnketeam = false,
+                )
+            val onlyAnketeamAndStyringsenhet =
+                innstillingerService.getDistinctHjemmelSetsForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = true,
+                    onlyAnketeam = true,
+                )
+            val onlyAnketeamExcludingStyringsEnhet =
+                innstillingerService.getDistinctHjemmelSetsForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = false,
+                    onlyAnketeam = true,
+                )
+
+            assertEquals(
+                listOf(hjemmel1.id, hjemmel2.id, hjemmel3.id).map { listOf(it) }.sortedBy { it.single() },
+                excludingStyringsEnhet,
+            )
+            assertEquals(
+                listOf(hjemmel1.id, hjemmel4.id).map { listOf(it) }.sortedBy { it.single() },
+                onlyAnketeamAndStyringsenhet,
+            )
+            assertEquals(listOf(listOf(hjemmel1.id)), onlyAnketeamExcludingStyringsEnhet)
+        }
+
+        @Test
+        fun `lookup failure propagates when excluding styringsenhet`() {
+            every { klageLookupGateway.getUsersInEnhet(Enhet.E4200.navn) } throws
+                IllegalStateException("lookup failed")
+
+            assertThrows(IllegalStateException::class.java) {
+                innstillingerService.getDistinctHjemmelSetsForYtelse(
+                    ytelse = ytelse1,
+                    includeStyringsEnhet = false,
+                    onlyAnketeam = false,
+                )
+            }
+        }
+
+        private fun innstillingerWithHjemler(
+            ident: String,
+            hjemler: Set<Hjemmel>,
+        ) = Innstillinger(
+            saksbehandlerident = ident,
+            hjemler = hjemler,
+            ytelser = setOf(ytelse1),
+            anonymous = false,
+        )
     }
 }

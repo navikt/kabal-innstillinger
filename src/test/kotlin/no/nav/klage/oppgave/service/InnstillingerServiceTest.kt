@@ -530,10 +530,11 @@ class InnstillingerServiceTest {
         fun `returns distinct non-empty hjemmel sets in stable sorted order`() {
             every { innstillingerRepository.findByYtelserContaining(ytelse = ytelse1) }.returns(
                 listOf(
-                    innstillingerWithHjemler(ident = "ident-a", hjemler = setOf(hjemmel2, hjemmel1)),
-                    innstillingerWithHjemler(ident = "ident-b", hjemler = setOf(hjemmel1, hjemmel2)),
-                    innstillingerWithHjemler(ident = "ident-c", hjemler = setOf(hjemmel3, hjemmel2)),
+                    innstillingerWithHjemler(ident = "ident-a", hjemler = setOf(hjemmel1, hjemmel3)),
+                    innstillingerWithHjemler(ident = "ident-b", hjemler = setOf(hjemmel3, hjemmel2)),
+                    innstillingerWithHjemler(ident = "ident-c", hjemler = setOf(hjemmel4, hjemmel3)),
                     innstillingerWithHjemler(ident = "ident-d", hjemler = emptySet()),
+                    innstillingerWithHjemler(ident = "ident-e", hjemler = setOf(hjemmel1, hjemmel2)),
                 ),
             )
 
@@ -544,8 +545,8 @@ class InnstillingerServiceTest {
                     onlyAnketeam = false,
                 )
 
-            val firstSet = listOf(hjemmel1.id, hjemmel2.id).sorted()
-            val secondSet = listOf(hjemmel2.id, hjemmel3.id).sorted()
+            val firstSet = listOf(hjemmel3.id)
+            val secondSet = listOf(hjemmel3.id, hjemmel4.id).sorted()
             assertEquals(
                 listOf(firstSet, secondSet).sortedBy { it.joinToString(separator = "\u0000") },
                 result,
@@ -574,14 +575,14 @@ class InnstillingerServiceTest {
                 )
 
             assertEquals(
-                listOf(hjemmel1.id, hjemmel2.id, hjemmel3.id).map { listOf(it) }.sortedBy { it.single() },
+                listOf(listOf(hjemmel3.id)),
                 excludingStyringsEnhet,
             )
             assertEquals(
-                listOf(hjemmel1.id, hjemmel4.id).map { listOf(it) }.sortedBy { it.single() },
+                listOf(listOf(hjemmel4.id)),
                 onlyAnketeamAndStyringsenhet,
             )
-            assertEquals(listOf(listOf(hjemmel1.id)), onlyAnketeamExcludingStyringsEnhet)
+            assertEquals(emptyList<List<String>>(), onlyAnketeamExcludingStyringsEnhet)
         }
 
         @Test

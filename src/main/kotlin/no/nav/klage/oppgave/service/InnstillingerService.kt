@@ -260,19 +260,25 @@ class InnstillingerService(
         ytelse: Ytelse,
         includeStyringsEnhet: Boolean,
         onlyAnketeam: Boolean,
-    ): List<List<String>> =
-        getRelevantInnstillingerForYtelse(
+    ): List<List<String>> {
+        val hjemlerForYtelse =
+            requireNotNull(ytelseToHjemler[ytelse]) { "Mangler hjemler i kodeverk for ytelse ${ytelse.id}" }
+                .map { it.hjemmel }
+                .toSet()
+
+        return getRelevantInnstillingerForYtelse(
             ytelse = ytelse,
             includeStyringsEnhet = includeStyringsEnhet,
             onlyAnketeam = onlyAnketeam,
         ).map { innstilling ->
             innstilling.hjemler
+                .filter { it in hjemlerForYtelse }
                 .map { it.id }
-                .distinct()
                 .sorted()
         }.filter { it.isNotEmpty() }
             .distinct()
             .sortedBy { it.joinToString(separator = "\u0000") }
+    }
 
     private fun getRelevantInnstillingerForYtelse(
         ytelse: Ytelse,

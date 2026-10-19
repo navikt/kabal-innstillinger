@@ -37,4 +37,25 @@ class HjemmelController(
             includeStyringsEnhet = includeStyringsEnhet,
             onlyAnketeam = onlyAnketeam,
         )
+
+    @Operation(
+        summary = "Hent distinkte hjemmelsett lagret i innstillinger for en gitt ytelse",
+        description = "Hent distinkte hjemmelsett lagret i innstillinger for en gitt ytelse",
+    )
+    @GetMapping("/hjemler/konfigurasjoner")
+    fun getHjemmelkonfigurasjonerForYtelse(
+        @RequestParam(required = true, name = "ytelseId") ytelseId: String,
+        @RequestParam(required = false, name = "includeSE") includeStyringsEnhet: Boolean = true,
+        @RequestParam(required = false, name = "onlyAnketeam") onlyAnketeam: Boolean = false,
+    ): List<Hjemmelkonfigurasjon> =
+        innstillingerService
+            .getDistinctHjemmelSetsForYtelse(
+                ytelse = Ytelse.of(ytelseId),
+                includeStyringsEnhet = includeStyringsEnhet,
+                onlyAnketeam = onlyAnketeam,
+            ).map { Hjemmelkonfigurasjon(hjemmelIds = it) }
 }
+
+data class Hjemmelkonfigurasjon(
+    val hjemmelIds: List<String>,
+)

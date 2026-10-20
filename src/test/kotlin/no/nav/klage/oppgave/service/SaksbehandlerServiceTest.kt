@@ -2,6 +2,7 @@ package no.nav.klage.oppgave.service
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.Type
@@ -37,7 +38,7 @@ class SaksbehandlerServiceTest {
 
     private val saksbehandler1PersonligInfo =
         SaksbehandlerPersonligInfo(
-            navIdent = "abc1231",
+            navIdent = saksbehandlerIdent1,
             fornavn = "fornavn1",
             etternavn = "etternavn1",
             sammensattNavn = "sammensattNavn1",
@@ -61,7 +62,7 @@ class SaksbehandlerServiceTest {
 
     private val saksbehandler2PersonligInfo =
         SaksbehandlerPersonligInfo(
-            navIdent = "abc1232",
+            navIdent = saksbehandlerIdent2,
             fornavn = "fornavn2",
             etternavn = "etternavn2",
             sammensattNavn = "sammensattNavn2",
@@ -172,15 +173,8 @@ class SaksbehandlerServiceTest {
                 ),
             ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
-        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
-        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
-            SaksbehandlerInnstillinger(
-                anonymous = false,
-            )
+        every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+            listOf(saksbehandler1PersonligInfo, saksbehandler2PersonligInfo)
 
         val result =
             saksbehandlerService.getSaksbehandlere(
@@ -223,14 +217,8 @@ class SaksbehandlerServiceTest {
                 ),
             ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
-        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
-        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
-            SaksbehandlerInnstillinger(
-                anonymous = false,
-            )
+        every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent1)) } returns
+            listOf(saksbehandler1PersonligInfo)
 
         val result =
             saksbehandlerService.getSaksbehandlere(
@@ -270,15 +258,8 @@ class SaksbehandlerServiceTest {
                 ),
             ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
-        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
-        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
-            SaksbehandlerInnstillinger(
-                anonymous = false,
-            )
+        every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent2)) } returns
+            listOf(saksbehandler2PersonligInfo)
 
         val result =
             saksbehandlerService.getSaksbehandlere(
@@ -312,15 +293,8 @@ class SaksbehandlerServiceTest {
                 ),
             ),
         )
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent1) }.returns(saksbehandler1PersonligInfo)
-        every { klageLookupGateway.getUserInfoForGivenNavIdent(saksbehandlerIdent2) }.returns(saksbehandler2PersonligInfo)
-        every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
-        every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-        every { saksbehandlerAccessService.isAnketeam(any()) } returns false
-        every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
-            SaksbehandlerInnstillinger(
-                anonymous = false,
-            )
+        every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+            listOf(saksbehandler1PersonligInfo, saksbehandler2PersonligInfo)
 
         val result =
             saksbehandlerService.getMedunderskrivere(
@@ -333,6 +307,67 @@ class SaksbehandlerServiceTest {
             )
         assertThat(result.medunderskrivere).doesNotContain(saksbehandler1)
         assertThat(result.medunderskrivere).contains(saksbehandler2)
+    }
+
+    @Nested
+    inner class BatchedUserInfo {
+        private fun mockTwoSaksbehandlereWithAccess(hasAccess: Boolean = true) {
+            every { klageLookupGateway.getPerson(any()) }.returns(person)
+            every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+                batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
+            every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(hasAccess)
+            every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
+                listOf(
+                    SaksbehandlerAccess(saksbehandlerIdent = saksbehandlerIdent1, modifiedBy = "", anketeam = false),
+                    SaksbehandlerAccess(saksbehandlerIdent = saksbehandlerIdent2, modifiedBy = "", anketeam = false),
+                ),
+            )
+        }
+
+        private fun getSaksbehandlere() =
+            saksbehandlerService.getSaksbehandlere(
+                fnr = fnr,
+                ytelse = Ytelse.AAP_AAP,
+                sakId = "abc",
+                fagsystem = Fagsystem.AO01,
+                type = Type.KLAGE,
+            )
+
+        @Test
+        fun `henter brukerinfo i ett batch-kall og ikke per saksbehandler`() {
+            mockTwoSaksbehandlereWithAccess()
+            every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+                listOf(saksbehandler1PersonligInfo, saksbehandler2PersonligInfo)
+
+            val result = getSaksbehandlere()
+
+            assertThat(result.saksbehandlere).containsExactly(saksbehandler1, saksbehandler2)
+            verify(exactly = 1) { klageLookupGateway.getUserInfoForNavIdentList(any()) }
+            verify(exactly = 0) { klageLookupGateway.getUserInfoForGivenNavIdent(any()) }
+            verify(exactly = 0) { klageLookupGateway.getGroupsForGivenNavIdent(any()) }
+            verify(exactly = 0) { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) }
+        }
+
+        @Test
+        fun `saksbehandler som ikke finnes i klage-lookup utelates`() {
+            mockTwoSaksbehandlereWithAccess()
+            every { klageLookupGateway.getUserInfoForNavIdentList(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
+                listOf(saksbehandler2PersonligInfo)
+
+            val result = getSaksbehandlere()
+
+            assertThat(result.saksbehandlere).containsExactly(saksbehandler2)
+        }
+
+        @Test
+        fun `ingen kall for brukerinfo naar ingen har tilgang`() {
+            mockTwoSaksbehandlereWithAccess(hasAccess = false)
+
+            val result = getSaksbehandlere()
+
+            assertThat(result.saksbehandlere).isEmpty()
+            verify(exactly = 0) { klageLookupGateway.getUserInfoForNavIdentList(any()) }
+        }
     }
 
     @Test
@@ -402,14 +437,7 @@ class SaksbehandlerServiceTest {
             )
             every { klageLookupGateway.getUserGroupsBatched(listOf(rolIdent)) } returns batchedGroupsForROLs(rolIdent)
             every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
-            every { klageLookupGateway.getUserInfoForGivenNavIdent(rolIdent) }.returns(rolName)
-            every { klageLookupGateway.getGroupsForGivenNavIdent(any()) } returns SaksbehandlerGroups(emptyList())
-            every { saksbehandlerAccessService.getSaksbehandlerAssignedYtelseSet(any()) } returns emptySet()
-            every { saksbehandlerAccessService.isAnketeam(any()) } returns false
-            every { innstillingerService.findSaksbehandlerInnstillinger(ident = any()) } returns
-                SaksbehandlerInnstillinger(
-                    anonymous = false,
-                )
+            every { klageLookupGateway.getUserInfoForNavIdentList(listOf(rolIdent)) } returns listOf(rolName)
 
             val result =
                 saksbehandlerService.getROLList(

@@ -204,33 +204,42 @@ class SaksbehandlerService(
 
         val saksbehandlerGroups = klageLookupGateway.getUserGroupsBatched(navIdentList = saksbehandlerIdentList)
 
-        return saksbehandlerIdentList
-            .filter { currentNavIdent ->
-                saksbehandlerGroups
-                    .find {
-                        it.navIdent == currentNavIdent
-                    }?.groupIds
-                    ?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
-                    ?: false
-            }.filter { currentNavIdent ->
-                persongalleri.all { currentFnr ->
-                    tilgangService.hasSaksbehandlerAccessToPerson(
-                        fnr = currentFnr,
-                        navIdent = currentNavIdent,
-                    )
+        val identsWithAccess =
+            saksbehandlerIdentList
+                .filter { currentNavIdent ->
+                    saksbehandlerGroups
+                        .find {
+                            it.navIdent == currentNavIdent
+                        }?.groupIds
+                        ?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
+                        ?: false
+                }.filter { currentNavIdent ->
+                    persongalleri.all { currentFnr ->
+                        tilgangService.hasSaksbehandlerAccessToPerson(
+                            fnr = currentFnr,
+                            navIdent = currentNavIdent,
+                        )
+                    }
                 }
-            }.mapNotNull {
-                val saksbehandlerInfo = getDataOmSaksbehandler(navIdent = it)
 
-                try {
+        if (identsWithAccess.isEmpty()) {
+            return emptySet()
+        }
+
+        // Idents not found by klage-lookup are returned as misses and left out of the result.
+        val userInfoByIdent =
+            klageLookupGateway
+                .getUserInfoForNavIdentList(navIdentList = identsWithAccess)
+                .associateBy { it.navIdent }
+
+        return identsWithAccess
+            .mapNotNull { navIdent ->
+                userInfoByIdent[navIdent]?.let { userInfo ->
                     Saksbehandler(
-                        navIdent = it,
-                        navn = saksbehandlerInfo.navn,
-                        ansattEnhetId = saksbehandlerInfo.ansattEnhet.enhet.enhetId,
+                        navIdent = navIdent,
+                        navn = userInfo.sammensattNavn,
+                        ansattEnhetId = userInfo.enhet.enhetId,
                     )
-                } catch (e: Exception) {
-                    logger.warn("Error when getting name for ident $it", e)
-                    null
                 }
             }.toSet()
     }

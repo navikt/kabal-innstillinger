@@ -56,11 +56,6 @@ class SaksbehandlerService(
                 azureRoller.toMutableList()
             }
 
-        // Temporary solution, replace when KABAL_OPPGAVESTYRING_ANKETEAM exists.
-        if (roller.contains(AzureGroup.KABAL_INNSYN_EGEN_ENHET.id)) {
-            roller.add("KABAL_OPPGAVESTYRING_ANKETEAM")
-        }
-
         return SaksbehandlerInfo(
             navIdent = navIdent,
             navn = klageLookupGateway.getUserInfoForGivenNavIdent(navIdent = navIdent).sammensattNavn,

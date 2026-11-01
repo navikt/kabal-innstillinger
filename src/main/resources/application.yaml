@@ -6,6 +6,9 @@ spring:
   web:
     resources:
       add-mappings: false
+    error:
+      include-message: never
+      include-stacktrace: never
   datasource:
     driver-class-name: org.postgresql.Driver
   flyway:
@@ -46,7 +49,7 @@ management:
       enabled: false
   endpoint:
     health:
-      show-details: always
+      show-details: never
       probes:
         enabled: true
       group:
@@ -69,30 +72,6 @@ management:
     enabled: false
 
 SERVICE_USER_USERNAME: srvklage-saksbeh
-
-no.nav.security.jwt:
-  issuer:
-    aad:
-      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
-      accepted_audience: ${AZURE_APP_CLIENT_ID}
-  client:
-    registration:
-      klage-lookup-onbehalfof:
-        token-endpoint-url: https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: api://${NAIS_CLUSTER_NAME}.${NAIS_NAMESPACE}.${KLAGE_LOOKUP_APP_NAME}/.default
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-jwk: ${AZURE_APP_JWK}
-          client-auth-method: private_key_jwt
-      klage-lookup-maskintilmaskin:
-        token-endpoint-url: https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token
-        grant-type: client_credentials
-        scope: api://${NAIS_CLUSTER_NAME}.${NAIS_NAMESPACE}.${KLAGE_LOOKUP_APP_NAME}/.default
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-jwk: ${AZURE_APP_JWK}
-          client-auth-method: private_key_jwt
 
 EGENANSATT_KAFKA_TOPIC: nom.skjermede-personer-v1
 

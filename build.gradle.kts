@@ -5,7 +5,7 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 val ktlintVersion = "1.8.0"
 val mockkVersion = "1.14.11"
-val tokenValidationVersion = "6.0.12"
+val klageAuthVersion = "0.3.0"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
 val springMockkVersion = "5.0.1"
@@ -54,6 +54,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP")
     implementation("org.postgresql:postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("ch.qos.logback:logback-classic")
 
@@ -63,8 +64,8 @@ dependencies {
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
 
-    implementation("no.nav.security:token-validation-spring:$tokenValidationVersion")
-    implementation("no.nav.security:token-client-spring:$tokenValidationVersion")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
+    implementation("no.nav.klage:klage-auth:$klageAuthVersion")
 
     implementation("no.finn.unleash:unleash-client-java:$unleashVersion")
 
@@ -76,6 +77,7 @@ dependencies {
         exclude(group = "org.mockito")
     }
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("no.nav.klage:klage-auth-test:$klageAuthVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test") {
         exclude(group = "org.junit.vintage")
         exclude(group = "org.mockito")

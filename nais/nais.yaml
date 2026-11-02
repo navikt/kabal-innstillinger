@@ -86,6 +86,7 @@ spec:
         - application: kabin
         - application: kabin-api
         - application: kaptein
+        - application: kant-frontend
     outbound:
       rules:
         - application: klage-lookup

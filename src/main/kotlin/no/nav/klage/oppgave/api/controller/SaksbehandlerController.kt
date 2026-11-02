@@ -9,20 +9,17 @@ import no.nav.klage.oppgave.api.view.InnstillingerView
 import no.nav.klage.oppgave.api.view.SaksbehandlerView
 import no.nav.klage.oppgave.api.view.Signature
 import no.nav.klage.oppgave.api.view.StringInputView
-import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.service.InnstillingerService
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.trimToNull
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
-@ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
 @Tag(name = "Saksbehandler")
 class SaksbehandlerController(

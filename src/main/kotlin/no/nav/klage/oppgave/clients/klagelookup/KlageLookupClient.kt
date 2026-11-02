@@ -1,5 +1,7 @@
 package no.nav.klage.oppgave.clients.klagelookup
 
+import no.nav.klage.auth.AzureTokenType
+import no.nav.klage.auth.currentAzureTokenType
 import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.oppgave.exceptions.EnhetNotFoundException
 import no.nav.klage.oppgave.exceptions.GroupNotFoundException
@@ -347,8 +349,8 @@ class KlageLookupClient(
     }
 
     private fun getCorrectBearerToken(): String =
-        when (tokenUtil.getCurrentTokenType()) {
-            TokenUtil.TokenType.OBO -> "Bearer ${tokenUtil.getOnBehalfOfTokenWithKlageLookupScope()}"
-            TokenUtil.TokenType.CC, TokenUtil.TokenType.UNAUTHENTICATED -> "Bearer ${tokenUtil.getAppAccessTokenWithKlageLookupScope()}"
+        when (currentAzureTokenType()) {
+            AzureTokenType.OBO -> "Bearer ${tokenUtil.getOnBehalfOfTokenWithKlageLookupScope()}"
+            AzureTokenType.CC, AzureTokenType.UNAUTHENTICATED -> "Bearer ${tokenUtil.getAppAccessTokenWithKlageLookupScope()}"
         }
 }

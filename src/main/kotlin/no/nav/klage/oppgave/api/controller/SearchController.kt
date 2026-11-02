@@ -11,16 +11,13 @@ import no.nav.klage.oppgave.api.view.SakInput
 import no.nav.klage.oppgave.api.view.Saksbehandlere
 import no.nav.klage.oppgave.api.view.SearchMedunderskrivereInput
 import no.nav.klage.oppgave.api.view.SearchSaksbehandlereForBrukerInput
-import no.nav.klage.oppgave.config.SecurityConfiguration
 import no.nav.klage.oppgave.service.SaksbehandlerService
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
-import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
-@ProtectedWithClaims(issuer = SecurityConfiguration.ISSUER_AAD)
 @RestController
 @Tag(name = "Search")
 class SearchController(

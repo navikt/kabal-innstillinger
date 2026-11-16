@@ -6,7 +6,6 @@ import no.nav.klage.kodeverk.AzureGroup
 import no.nav.klage.oppgave.exceptions.EnhetNotFoundException
 import no.nav.klage.oppgave.exceptions.GroupNotFoundException
 import no.nav.klage.oppgave.exceptions.UserNotFoundException
-import no.nav.klage.oppgave.service.TilgangService
 import no.nav.klage.oppgave.util.TokenUtil
 import no.nav.klage.oppgave.util.getLogger
 import no.nav.klage.oppgave.util.logErrorResponse
@@ -30,34 +29,33 @@ class KlageLookupClient(
     }
 
     @Retryable
-    fun getAccess(
+    fun getAccessBatched(
         /** fnr, dnr or aktorId */
         brukerId: String,
-        navIdent: String,
-    ): TilgangService.Access =
+        navIdentList: List<String>,
+    ): BatchedAccessResponse =
         runWithTimingAndLogging {
-            val accessRequest =
-                AccessRequest(
-                    brukerId = brukerId,
-                    navIdent = navIdent,
-                )
-
             klageLookupWebClient
                 .post()
-                .uri("/access-to-person")
-                .bodyValue(accessRequest)
-                .header(
+                .uri("/access-to-person/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(
+                    BatchedAccessRequest(
+                        brukerId = brukerId,
+                        navIdentList = navIdentList,
+                    ),
+                ).header(
                     HttpHeaders.AUTHORIZATION,
                     "Bearer ${tokenUtil.getAppAccessTokenWithKlageLookupScope()}",
                 ).retrieve()
                 .onStatus(HttpStatusCode::isError) { response ->
                     logErrorResponse(
                         response = response,
-                        functionName = ::getAccess.name,
+                        functionName = ::getAccessBatched.name,
                         classLogger = logger,
                     )
-                }.bodyToMono<TilgangService.Access>()
-                .block() ?: throw RuntimeException("Could not get access")
+                }.bodyToMono<BatchedAccessResponse>()
+                .block() ?: throw RuntimeException("Could not get batched access")
         }
 
     @Retryable(

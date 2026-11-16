@@ -5,7 +5,6 @@ import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerEnhet
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerGroups
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerPersonligInfo
 import no.nav.klage.oppgave.domain.saksbehandler.SaksbehandlerSluttdato
-import no.nav.klage.oppgave.service.TilgangService
 import no.nav.klage.oppgave.util.getLogger
 import org.springframework.stereotype.Service
 
@@ -71,15 +70,16 @@ class KlageLookupGateway(
         return data.toSaksbehandlerSluttdatoList()
     }
 
-    fun getAccess(
+    fun getAccessBatched(
         /** fnr, dnr or aktorId */
         brukerId: String,
-        navIdent: String,
-    ): TilgangService.Access =
-        klageLookupClient.getAccess(
-            brukerId = brukerId,
-            navIdent = navIdent,
-        )
+        navIdentList: List<String>,
+    ): List<NavIdentAccessResponse> =
+        klageLookupClient
+            .getAccessBatched(
+                brukerId = brukerId,
+                navIdentList = navIdentList,
+            ).results
 
     fun getPersongalleri(sak: Sak): List<String> = klageLookupClient.getPersongalleri(sak = sak).foedselsnummerList
 

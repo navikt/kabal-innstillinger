@@ -90,3 +90,13 @@ data class SluttdatoResponse(
 data class PersongalleriResponse(
     val foedselsnummerList: List<String>,
 )
+
+data class BatchedAccessResponse(
+    val results: List<NavIdentAccessResponse>,
+)
+
+data class NavIdentAccessResponse(
+    val navIdent: String,
+    val access: Boolean,
+    val reason: String,
+)

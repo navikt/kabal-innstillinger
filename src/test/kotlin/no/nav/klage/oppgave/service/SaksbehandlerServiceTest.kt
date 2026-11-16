@@ -137,6 +137,12 @@ class SaksbehandlerServiceTest {
             sikkerhetstiltak = null,
         )
 
+    private fun grantAccessToAll() {
+        every { tilgangService.getNavIdentsWithAccessToPerson(fnr = any(), navIdentList = any()) } answers {
+            secondArg<List<String>>().toSet()
+        }
+    }
+
     private fun batchedGroupsForSaksbehandlere(vararg navIdents: String): List<BatchedGroupsHitResponse> =
         navIdents.map {
             BatchedGroupsHitResponse(
@@ -158,7 +164,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getPerson(any()) }.returns(person)
         every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
             batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
+        grantAccessToAll()
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -202,7 +208,7 @@ class SaksbehandlerServiceTest {
                     groupIds = emptyList(),
                 ),
             )
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
+        grantAccessToAll()
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -241,9 +247,11 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getPerson(fortroligFnr) }.returns(personFortrolig)
         every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
             batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = fnr) }.returns(true)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = saksbehandlerIdent1, fnr = fortroligFnr) }.returns(false)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = saksbehandlerIdent2, fnr = fortroligFnr) }.returns(true)
+        every { tilgangService.getNavIdentsWithAccessToPerson(fnr = fnr, navIdentList = any()) } answers {
+            secondArg<List<String>>().toSet()
+        }
+        every { tilgangService.getNavIdentsWithAccessToPerson(fnr = fortroligFnr, navIdentList = any()) } returns
+            setOf(saksbehandlerIdent2)
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.FOR_FOR) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -271,6 +279,15 @@ class SaksbehandlerServiceTest {
             )
 
         assertThat(result.saksbehandlere).containsExactly(saksbehandler2)
+        verify(exactly = 1) {
+            tilgangService.getNavIdentsWithAccessToPerson(
+                fnr = fortroligFnr,
+                navIdentList = listOf(saksbehandlerIdent1, saksbehandlerIdent2),
+            )
+        }
+        verify(exactly = 1) {
+            tilgangService.getNavIdentsWithAccessToPerson(fnr = fnr, navIdentList = listOf(saksbehandlerIdent2))
+        }
     }
 
     @Test
@@ -278,7 +295,7 @@ class SaksbehandlerServiceTest {
         every { klageLookupGateway.getPerson(any()) }.returns(person)
         every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
             batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
-        every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
+        grantAccessToAll()
         every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
             listOf(
                 SaksbehandlerAccess(
@@ -315,7 +332,9 @@ class SaksbehandlerServiceTest {
             every { klageLookupGateway.getPerson(any()) }.returns(person)
             every { klageLookupGateway.getUserGroupsBatched(listOf(saksbehandlerIdent1, saksbehandlerIdent2)) } returns
                 batchedGroupsForSaksbehandlere(saksbehandlerIdent1, saksbehandlerIdent2)
-            every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(hasAccess)
+            every { tilgangService.getNavIdentsWithAccessToPerson(fnr = any(), navIdentList = any()) } answers {
+                if (hasAccess) secondArg<List<String>>().toSet() else emptySet()
+            }
             every { saksbehandlerAccessService.getAllSaksbehandlerAccessesForYtelse(Ytelse.AAP_AAP) }.returns(
                 listOf(
                     SaksbehandlerAccess(saksbehandlerIdent = saksbehandlerIdent1, modifiedBy = "", anketeam = false),
@@ -436,7 +455,7 @@ class SaksbehandlerServiceTest {
                 ),
             )
             every { klageLookupGateway.getUserGroupsBatched(listOf(rolIdent)) } returns batchedGroupsForROLs(rolIdent)
-            every { tilgangService.hasSaksbehandlerAccessToPerson(navIdent = any(), fnr = any()) }.returns(true)
+            grantAccessToAll()
             every { klageLookupGateway.getUserInfoForNavIdentList(listOf(rolIdent)) } returns listOf(rolName)
 
             val result =

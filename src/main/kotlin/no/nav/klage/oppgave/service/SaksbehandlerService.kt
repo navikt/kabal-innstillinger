@@ -199,7 +199,7 @@ class SaksbehandlerService(
 
         val saksbehandlerGroups = klageLookupGateway.getUserGroupsBatched(navIdentList = saksbehandlerIdentList)
 
-        val identsWithAccess =
+        val identsInGroup =
             saksbehandlerIdentList
                 .filter { currentNavIdent ->
                     saksbehandlerGroups
@@ -208,14 +208,22 @@ class SaksbehandlerService(
                         }?.groupIds
                         ?.contains(if (requestsROLs) AzureGroup.KABAL_ROL.id else AzureGroup.KABAL_SAKSBEHANDLING.id)
                         ?: false
-                }.filter { currentNavIdent ->
-                    persongalleri.all { currentFnr ->
-                        tilgangService.hasSaksbehandlerAccessToPerson(
-                            fnr = currentFnr,
-                            navIdent = currentNavIdent,
-                        )
-                    }
                 }
+
+        // Must have access to every person in persongalleri. One batched call per person.
+        val identsWithAccess =
+            persongalleri.fold(identsInGroup) { remainingIdents, currentFnr ->
+                if (remainingIdents.isEmpty()) {
+                    remainingIdents
+                } else {
+                    val withAccess =
+                        tilgangService.getNavIdentsWithAccessToPerson(
+                            fnr = currentFnr,
+                            navIdentList = remainingIdents,
+                        )
+                    remainingIdents.filter { it in withAccess }
+                }
+            }
 
         if (identsWithAccess.isEmpty()) {
             return emptySet()

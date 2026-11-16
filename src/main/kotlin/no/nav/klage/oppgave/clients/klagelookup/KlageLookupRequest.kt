@@ -3,9 +3,9 @@ package no.nav.klage.oppgave.clients.klagelookup
 import no.nav.klage.kodeverk.Fagsystem
 import no.nav.klage.kodeverk.ytelse.Ytelse
 
-data class AccessRequest(
+data class BatchedAccessRequest(
     val brukerId: String,
-    val navIdent: String,
+    val navIdentList: List<String>,
 )
 
 data class GetPersonRequest(

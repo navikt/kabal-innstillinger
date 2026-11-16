@@ -64,8 +64,8 @@ spec:
     limits:
       memory: 2048Mi
     requests:
-      cpu: 30m
-      memory: 1024Mi
+      cpu: 200m
+      memory: 1568Mi
   ingresses:
   {{#each ingresses as |ingress|}}
     - {{ingress}}

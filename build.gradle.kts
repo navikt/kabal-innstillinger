@@ -4,20 +4,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 val ktlintVersion = "1.8.0"
-val mockkVersion = "1.14.11"
+val mockkVersion = "1.14.12"
 val klageAuthVersion = "0.4.0"
 val logstashVersion = "9.0"
 val unleashVersion = "4.4.1"
 val springMockkVersion = "5.0.1"
-val springDocVersion = "3.1.1"
+val springDocVersion = "3.2.0"
 val testContainersVersion = "2.0.5"
 val ehcacheVersion = "3.12.0"
 val kodeverkVersion = "3.4.7"
-val shedlockVersion = "7.10.1"
+val shedlockVersion = "7.11.0"
 
 plugins {
-    val kotlinVersion = "2.4.20"
-    id("org.springframework.boot") version "4.1.2"
+    val kotlinVersion = "2.4.21"
+    id("org.springframework.boot") version "4.2.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
